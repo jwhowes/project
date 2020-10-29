@@ -50,14 +50,16 @@ parasitism_comparison = True
 
 nests = np.random.randint(0, k, (num_nests, n))
 
-for t in range(num_iterations):  # This is pretty trash, I feel like it's not aggressive enough
+for t in range(num_iterations):
 	for i in range(num_nests):
+		# Generate first candidate replacement and replace if better
 		u_1 = levy_flight(nests[i])
 		if f(u_1) <= f(nests[i]):
 			nests[i] = u_1
+		# With random chance pa produce a second candidate replacement and replace if better
 		if np.random.uniform(0, 1) <= pa:
 			u_2 = levy_flight(nests[i])
-			if not parasitism_comparison or f(u_2) <= f(nests[i]):
+			if not parasitism_comparison or f(u_2) <= f(nests[i]):  # parasitism_comparison toggles the parasitism comparison
 				nests[i] = u_2
 
 best = nests[np.array([f(n) for n in nests]).argmin()]
