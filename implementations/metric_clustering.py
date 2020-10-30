@@ -29,7 +29,6 @@ def tri_dist(x, i):
 
 # Assign each cuckoo to a random cluster
 S = np.random.randint(0, k, (n_pop))
-tri_dist(cuckoos[0], 0)
 
 print(S)
 

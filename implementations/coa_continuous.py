@@ -1,7 +1,7 @@
 # TODO:
 #	- Add clipping
 import numpy as np
-from math import sin, pi, sqrt
+from math import sin, pi
 
 dimension = 2
 v_lo = 0
