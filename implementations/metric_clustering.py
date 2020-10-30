@@ -1,6 +1,6 @@
 import numpy as np
 
-k = 10
+k = 3
 n_pop = 30
 n = 7
 
@@ -31,15 +31,21 @@ def tri_dist(x, i):
 S = np.random.randint(0, k, (n_pop))
 tri_dist(cuckoos[0], 0)
 
+print(S)
+
 converged = False
-while not converged:  # This isn't doing anything
+while not converged:
 	converged = True
 	for i in range(n_pop):
-		cluster = 0  # Need to rethink search (starting at 0 doesn't really work if 0s empty (don't be too smart about it))
-		for j in range(1, k):
+		cluster = -1
+		tdc = -1
+		for j in range(k):
 			td = tri_dist(cuckoos[i], j)
-			if td < tri_dist(cuckoos[i], cluster) and td != -1:
+			if (cluster == -1 or td < tdc) and td != -1:
 				cluster = j
-		if cluster != S[i]:  # This never returns yes
+				tdc = td
+		if cluster != S[i]:
 			converged = False
 			S[i] = cluster
+
+print(S)
