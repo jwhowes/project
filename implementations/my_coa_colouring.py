@@ -3,10 +3,12 @@
 
 import numpy as np
 
-adj_matrix = [  [0, 1, 1, 1],
-				[1, 0, 1, 1],
-				[1, 1, 0, 1],
-				[1, 1, 1, 0]]
+adj_matrix = [  [0, 1, 1, 1, 1, 1],
+				[1, 0, 1, 1, 1, 1],
+				[1, 1, 0, 1, 1, 1],
+				[1, 1, 1, 0, 1, 1],
+				[1, 1, 1, 1, 0, 1],
+				[1, 1, 1, 1, 1, 0]]
 n = len(adj_matrix)
 
 def f(x):
@@ -14,6 +16,7 @@ def f(x):
 	return x.max() + 1
 
 def d(x, y):
+	"""Returns the distance between x and cuckoo y"""
 	ret = 0
 	for i in range(n):
 		if x[i] != y[i]:
@@ -24,18 +27,19 @@ def d_bar(S1, S2):
 	num = 0
 	for i in S1:
 		for j in S2:
-			num += d(i, j)
+			num += dist_matrix[i][j]
 	return num/(len(S1)*len(S2))
 
-def tri_dist(x, i, S):
-	"""Finds the triangular distance between x and cluster i"""
-	Si = cuckoos[np.where(S == i)]
+def tri_dist(i, j, S):
+	"""Finds the triangular distance between cuckoo i and cluster j"""
+	Si = np.where(S == i)[0]
 	if len(Si) == 0:
 		return -1
-	return 2*d_bar([x], Si) - d_bar(Si, Si)
+	return 2*d_bar([i], Si) - d_bar(Si, Si)
 
 k = 3
 def goal_point():
+	populate_dist_matrix()
 	S = np.random.randint(0, k, (n_pop))
 	converged = False
 	while not converged:
@@ -44,7 +48,7 @@ def goal_point():
 			cluster = -1
 			tdc = -1
 			for j in range(k):
-				td = tri_dist(cuckoos[i], j, S)
+				td = tri_dist(i, j, S)
 				if (cluster == -1 or td < tdc) and td != -1:
 					cluster = j
 					tdc = td
@@ -63,12 +67,6 @@ def goal_point():
 		if S[i] == best_cluster and (gp == -1 or f(cuckoos[i]) < f(cuckoos[gp])):
 			gp = i
 	return 0
-
-alpha = 10
-n_pop = 30
-n_max = 30
-num_iterations = 100
-p = 0.1
 
 def valid(v, c, col):
 	"""Returns whether or not vertex v can be coloured c in col"""
@@ -131,7 +129,22 @@ def migrate(x, y):
 					c += 1
 	#minimise(x)  # Not sure if necessary
 
+def populate_dist_matrix():
+	for i in range(n_pop):
+		for j in range(i):
+			dist_matrix[i][j] = d(cuckoos[i], cuckoos[j])
+			dist_matrix[j][i] = dist_matrix[i][j]
+
+alpha = 10
+n_pop = 30
+n_max = 30
+num_iterations = 100
+p = 0.1
+
 cuckoos = np.array([generate_cuckoo() for i in range(n_pop)])
+
+dist_matrix = np.zeros((n_pop, n_pop), dtype=int)
+populate_dist_matrix()
 
 for t in range(num_iterations):
 	num_eggs = np.random.randint(5, 21, (n_pop))
