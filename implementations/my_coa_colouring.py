@@ -136,14 +136,14 @@ def populate_dist_matrix():
 			dist_matrix[j][i] = dist_matrix[i][j]
 
 alpha = 10
-n_pop = 30
-n_max = 30
-num_iterations = 100
+n_pop = 5
+n_max = 50
+num_iterations = 3000
 p = 0.1
 
 cuckoos = np.array([generate_cuckoo() for i in range(n_pop)])
 
-dist_matrix = np.zeros((n_pop, n_pop), dtype=int)
+dist_matrix = np.zeros((n_max, n_max), dtype=int)
 populate_dist_matrix()
 
 for t in range(num_iterations):
