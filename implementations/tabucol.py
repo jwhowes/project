@@ -45,10 +45,10 @@ def get_neighbour():
 			neighbour = s.copy()
 			neighbour[v] = c
 			if f(neighbour) <= A(f(s)):
+				A_dict[f(s)] = f(neighbour) - 1
 				if f(neighbour) < f(s):
 					T.add((v, c))
 					return neighbour
-				A[f(s)] = f(neighbour) - 1
 				best = neighbour
 				best_v = v
 				best_c = c
@@ -63,8 +63,8 @@ def get_neighbour():
 	T.add((best_v, best_c))
 	return best
 
-# Generate initial random tabu list (|T| = 7)
-T = TabuList(7)
+# Generate initial random tabu list (they recommnend |T| = 7 but this graph is really small so I've gone for |T| = 3)
+T = TabuList(3)
 
 # Generate a random solution
 s = np.random.randint(0, k, (n))
@@ -72,7 +72,7 @@ s = np.random.randint(0, k, (n))
 A_dict = {}
 
 t = 0
-num_iterations = 1000
+num_iterations = 100
 
 while f(s) > 0 and t < num_iterations:
 	s = get_neighbour()  # Could probably do this inline (I thought there would be more after this)
