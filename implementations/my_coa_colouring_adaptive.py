@@ -1,3 +1,6 @@
+# Time with clustering: > 5 minutes
+# Time without: 40 secs
+
 import numpy as np
 
 adj_matrix = [  [0, 1, 1, 1, 1, 1],
@@ -11,6 +14,15 @@ n = len(adj_matrix)
 def f(x):
 	"""Returns the number of colours used by a colouring"""
 	return x.max() + 1
+
+#def f(x):  # The fitness function proposed by local search colouring survey
+#	classes = np.zeros(x.max() + 1, dtype=int)
+#	ret = 0
+#	for i in range(n):
+#		classes[x[i]] += 1
+#	for c in classes:
+#		ret -= c*c
+#	return ret
 
 def d(x, y):
 	"""Returns the distance between x and cuckoo y"""
@@ -29,19 +41,23 @@ def d_bar(S1, S2):
 
 def tri_dist(i, j, S):
 	"""Finds the triangular distance between cuckoo i and cluster j"""
-	Sj = np.where(S == i)[0]
+	Sj = np.where(S == j)[0]
 	if len(Sj) == 0:
 		return -1
 	return 2*d_bar([i], Sj) - d_bar(Sj, Sj)
 
+def populate_dist_matrix():
+	for i in range(n_pop):
+		for j in range(i):
+			dist_matrix[i][j] = d(cuckoos[i], cuckoos[j])
+			dist_matrix[j][i] = dist_matrix[i][j]
+
 k = 3
-def goal_point():
+def goal_point():  # Could try precomputing d_bar to self for each cluster? (at each iteration)
 	populate_dist_matrix()
 	S = np.random.randint(0, k, (n_pop))
 	converged = False
-	t = 0
 	while not converged:
-		t += 1
 		converged = True
 		for i in range(n_pop):
 			cluster = -1
@@ -108,11 +124,16 @@ def minimise(col):
 
 def migrate(x, y):
 	"""Migrates x towards y (in place)"""
+	# Generate adaptive migration coefficient
+	if f_max == f_min:
+		F = F_max
+	else:
+		F = F_min + ((f(x) - f_min)/(f_max - f_min))*(F_max - F_min)
 	# Generate random proportion of distance to travel
 	r = np.random.uniform(0, 1)
 	# Let I be the vertices on which x and y disagree
 	I = np.array([i for i in range(n) if x[i] != y[i]])
-	for i in range(int(r * len(I))):
+	for i in range(int(F * r * len(I))):
 		v = I[i]
 		# Replace i with y's colouring for i
 		x[v] = y[v]
@@ -128,13 +149,12 @@ def migrate(x, y):
 					c += 1
 	#minimise(x)  # Not sure if necessary
 
-def populate_dist_matrix():
-	for i in range(n_pop):
-		for j in range(i):
-			dist_matrix[i][j] = d(cuckoos[i], cuckoos[j])
-			dist_matrix[j][i] = dist_matrix[i][j]
+alpha_max = 20
+alpha_min = 0
 
-alpha = 10
+F_max = 1  # In the continuous domain F_max and F_min can take any value (F_max > F_min)
+F_min = 0  # In this domain it only makes sense that F_max, F_min come from (0, 1)
+
 n_pop = 5
 n_max = 50
 num_iterations = 3000
@@ -143,13 +163,13 @@ p = 0.1
 cuckoos = np.array([generate_cuckoo() for i in range(n_pop)])
 
 dist_matrix = np.zeros((n_max, n_max), dtype=int)
-populate_dist_matrix()
 
 for t in range(num_iterations):
 	num_eggs = np.random.randint(5, 21, (n_pop))
 	tot_eggs = num_eggs.sum()
 	eggs = np.zeros((tot_eggs, n), dtype=int)
 	egg = 0
+	alpha = alpha_max - ((alpha_max - alpha_min)/(num_iterations - t))  # I don't think I need the +1 in the denominator as t < num_iterations always
 	for i in range(n_pop):
 		elr = alpha * num_eggs[i]/tot_eggs * n  # I've just put n instead of (v_hi - v_lo)
 		for j in range(num_eggs[i]):
@@ -161,7 +181,10 @@ for t in range(num_iterations):
 		cuckoos = cuckoos[np.array([f(c) for c in cuckoos]).argsort()]
 		cuckoos.resize((n_max, n))
 	n_pop = len(cuckoos)
-	gp = goal_point()
+	#gp = goal_point()
+	gp = 0
+	f_max = f(cuckoos[gp])
+	f_min = f(cuckoos[n_pop - 1])
 	for i in range(n_pop):
 		migrate(cuckoos[i], cuckoos[gp])
 
