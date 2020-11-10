@@ -39,9 +39,7 @@ def goal_point():
 	populate_dist_matrix()
 	S = np.random.randint(0, k, (n_pop))
 	converged = False
-	t = 0
 	while not converged:
-		t += 1
 		converged = True
 		for i in range(n_pop):
 			cluster = -1

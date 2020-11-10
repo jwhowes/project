@@ -1,4 +1,4 @@
-# Time with clustering: > 5 minutes
+# Time with clustering: 57.84
 # Time without: 40 secs
 
 import numpy as np
@@ -32,19 +32,18 @@ def d(x, y):
 			ret += 1
 	return ret
 
-def d_bar(S1, S2):
+def d_bar_sum(S1, S2):
 	num = 0
 	for i in S1:
 		for j in S2:
 			num += dist_matrix[i][j]
-	return num/(len(S1)*len(S2))
+	return num
 
-def tri_dist(i, j, S):
+def tri_dist(i, j, S, dbss, clusters):
 	"""Finds the triangular distance between cuckoo i and cluster j"""
-	Sj = np.where(S == j)[0]
-	if len(Sj) == 0:
+	if len(clusters[j]) == 0:
 		return -1
-	return 2*d_bar([i], Sj) - d_bar(Sj, Sj)
+	return 2*d_bar_sum([i], clusters[j])/len(clusters[j]) - dbss[j]/(len(clusters[j]) * len(clusters[j]))
 
 def populate_dist_matrix():
 	for i in range(n_pop):
@@ -56,6 +55,14 @@ k = 3
 def goal_point():  # Could try precomputing d_bar to self for each cluster? (at each iteration)
 	populate_dist_matrix()
 	S = np.random.randint(0, k, (n_pop))
+	clusters = [[] for i in range(k)]
+	for i in range(n_pop):
+		clusters[S[i]].append(i)
+	db_sum_self = np.zeros((k), dtype=int)  # Stores the sum of distance from every member to every other member (for calculation of d_bar(i, i))
+	for i in range(k):
+		for j in range(len(clusters[i])):
+			for l in range(j):
+				db_sum_self[i] += 2*dist_matrix[clusters[i][j]][clusters[i][l]]
 	converged = False
 	while not converged:
 		converged = True
@@ -63,14 +70,20 @@ def goal_point():  # Could try precomputing d_bar to self for each cluster? (at 
 			cluster = -1
 			tdc = -1
 			for j in range(k):
-				td = tri_dist(i, j, S)
+				td = tri_dist(i, j, S, db_sum_self, clusters)
 				if (cluster == -1 or td < tdc) and td != -1:
 					cluster = j
 					tdc = td
 			if cluster != S[i]:
+				clusters[S[i]].remove(i)
+				clusters[cluster].append(i)
 				converged = False
+				for j in clusters[S[i]]:
+					db_sum_self[S[i]] -= 2*dist_matrix[j][i]
+				for j in clusters[cluster]:
+					db_sum_self[cluster] += 2*dist_matrix[i][j]
 				S[i] = cluster
-	cluster_fitness = [[f(c) for c in cuckoos[np.where(S == i)]] for i in range(k)]  # From here on is just a mess (I want gp to be the best cuckoo in the best habitat)
+	cluster_fitness = [[f(cuckoos[c]) for c in clusters[i]] for i in range(k)]
 	best_cluster = -1
 	best_cluster_mean_fitness = 0
 	for i in range(k):
@@ -181,8 +194,8 @@ for t in range(num_iterations):
 		cuckoos = cuckoos[np.array([f(c) for c in cuckoos]).argsort()]
 		cuckoos.resize((n_max, n))
 	n_pop = len(cuckoos)
-	#gp = goal_point()
-	gp = 0
+	gp = goal_point()
+	#gp = 0
 	f_max = f(cuckoos[gp])
 	f_min = f(cuckoos[n_pop - 1])
 	for i in range(n_pop):
