@@ -78,15 +78,13 @@ min_percent = 0.2
 T = 10000
 beta = 1.0005
 
-epsilon = 0.0001
-
 s = initial_solution()
 c = f(s)
 best = s
 best_c = c
 
 freeze_count = 0
-while freeze_count < freeze_lim and T > epsilon:  # I added the epsilon check (the algorithm wasn't terminating otherwise)
+while freeze_count < freeze_lim:  # I added the epsilon check (the algorithm wasn't terminating otherwise)
 	changes = 0; trials = 0
 	best_changed = False
 	while trials < size_factor*num_colours(s)*n and changes < cutoff*num_colours(s)*n:
@@ -104,10 +102,8 @@ while freeze_count < freeze_lim and T > epsilon:  # I added the epsilon check (t
 				best_c = c
 		elif np.random.uniform(0, 1) <= np.exp(-d/T):
 			changes += 1
-			if c < best_c:
-				best_changed = True
-				best_s = s
-				best_c = c
+			s = neighbour
+			c = neighbour_fitness
 	T /= beta
 	if best_changed:
 		freeze_count = 0
