@@ -1,4 +1,7 @@
 # This is slightly modified from the 1991 paper (I use colourings as assignments, rather than partitions)
+# TODO:
+	# Test running time
+
 import numpy as np
 
 adj_matrix = [	[0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
