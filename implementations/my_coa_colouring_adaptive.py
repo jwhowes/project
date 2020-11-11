@@ -1,14 +1,21 @@
-# Time with clustering: 57.84
-# Time without: 40 secs
+# Time for 6 nodes: 57.87
+# Time for 10 nodes: 1:07.21 = 67.21
+# Ratio of time: 1.16
+# Ratio of nodes: 1.67 so it's looking sublinear (thank god)
+# Also it coloured the petersen graph in 3 colours
 
 import numpy as np
 
-adj_matrix = [  [0, 1, 1, 1, 1, 1],
-				[1, 0, 1, 1, 1, 1],
-				[1, 1, 0, 1, 1, 1],
-				[1, 1, 1, 0, 1, 1],
-				[1, 1, 1, 1, 0, 1],
-				[1, 1, 1, 1, 1, 0]]
+adj_matrix = [	[0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
+				[1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+				[0, 1, 0, 1, 0, 0, 0, 1, 0, 0],
+				[0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
+				[1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+				[1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+				[0, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+				[0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+				[0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+				[0, 0, 0, 0, 1, 0, 1, 1, 0, 0]]
 n = len(adj_matrix)
 
 def f(x):
@@ -48,7 +55,7 @@ def tri_dist(i, j, S, dbss, clusters):
 def populate_dist_matrix():
 	for i in range(n_pop):
 		for j in range(i):
-			dist_matrix[i][j] = d(cuckoos[i], cuckoos[j])
+			dist_matrix[i][j] = d(cuckoos['cuckoo'][i], cuckoos['cuckoo'][j])
 			dist_matrix[j][i] = dist_matrix[i][j]
 
 k = 3
@@ -83,7 +90,7 @@ def goal_point():  # Could try precomputing d_bar to self for each cluster? (at 
 				for j in clusters[cluster]:
 					db_sum_self[cluster] += 2*dist_matrix[i][j]
 				S[i] = cluster
-	cluster_fitness = [[f(cuckoos[c]) for c in clusters[i]] for i in range(k)]
+	cluster_fitness = [[cuckoos['fitness'][c] for c in clusters[i]] for i in range(k)]
 	best_cluster = -1
 	best_cluster_mean_fitness = 0
 	for i in range(k):
@@ -92,7 +99,7 @@ def goal_point():  # Could try precomputing d_bar to self for each cluster? (at 
 			best_cluster_mean_fitness = np.mean(cluster_fitness[i])
 	gp = -1
 	for i in range(n_pop):
-		if S[i] == best_cluster and (gp == -1 or f(cuckoos[i]) < f(cuckoos[gp])):
+		if S[i] == best_cluster and (gp == -1 or cuckoos['fitness'][i] < cuckoos['fitness'][gp]):
 			gp = i
 	return gp
 
@@ -141,23 +148,23 @@ def migrate(x, y):
 	if f_max == f_min:
 		F = F_max
 	else:
-		F = F_min + ((f(x) - f_min)/(f_max - f_min))*(F_max - F_min)
+		F = F_min + ((cuckoos['fitness'][x] - f_min)/(f_max - f_min))*(F_max - F_min)
 	# Generate random proportion of distance to travel
 	r = np.random.uniform(0, 1)
 	# Let I be the vertices on which x and y disagree
-	I = np.array([i for i in range(n) if x[i] != y[i]])
+	I = np.array([i for i in range(n) if cuckoos['cuckoo'][x][i] != cuckoos['cuckoo'][y][i]])
 	for i in range(int(F * r * len(I))):
 		v = I[i]
 		# Replace i with y's colouring for i
-		x[v] = y[v]
+		cuckoos['cuckoo'][x][v] = cuckoos['cuckoo'][y][v]
 		# Clean up col
 		for j in range(i + 1, n):
 			# For every conflicting edge (v,j), replace j's colour with the smallest legal colour different than y[j]
-			if adj_matrix[j][v] == 1 and x[j] == x[v]:
+			if adj_matrix[j][v] == 1 and cuckoos['cuckoo'][x][j] == cuckoos['cuckoo'][x][v]:
 				c = 0
 				while True:
-					if c != y[j] and valid(j, c, x):
-						x[j] = c
+					if c != cuckoos['cuckoo'][y][j] and valid(j, c, cuckoos['cuckoo'][x]):
+						cuckoos['cuckoo'][x][j] = c
 						break
 					c += 1
 	#minimise(x)  # Not sure if necessary
@@ -173,33 +180,34 @@ n_max = 50
 num_iterations = 3000
 p = 0.1
 
-cuckoos = np.array([generate_cuckoo() for i in range(n_pop)])
+cuckoos = np.array([(generate_cuckoo(), 0) for i in range(n_pop)], dtype=[('cuckoo', np.ndarray), ('fitness', int)])
+cuckoos['fitness'] = np.array([f(c) for c in cuckoos['cuckoo']])  # The handling of sorting and of eggs could be improved
 
 dist_matrix = np.zeros((n_max, n_max), dtype=int)
 
 for t in range(num_iterations):
 	num_eggs = np.random.randint(5, 21, (n_pop))
 	tot_eggs = num_eggs.sum()
-	eggs = np.zeros((tot_eggs, n), dtype=int)
+	eggs = np.array([(np.zeros(n, dtype=int), 0) for i in range(tot_eggs)], dtype=[('cuckoo', np.ndarray), ('fitness', int)])
 	egg = 0
 	alpha = alpha_max - ((alpha_max - alpha_min)/(num_iterations - t))  # I don't think I need the +1 in the denominator as t < num_iterations always
 	for i in range(n_pop):
 		elr = alpha * num_eggs[i]/tot_eggs * n  # I've just put n instead of (v_hi - v_lo)
 		for j in range(num_eggs[i]):
-			eggs[egg] = get_egg(cuckoos[i], elr)
+			eggs['cuckoo'][egg] = get_egg(cuckoos['cuckoo'][i], elr)
+			eggs['fitness'][egg] = f(eggs['cuckoo'][egg])
 			egg += 1
-	eggs = eggs[np.array([f(e) for e in eggs]).argsort()]
+	eggs = eggs[eggs['fitness'].argsort()]
 	cuckoos = np.append(eggs[:int(tot_eggs * (1 - p))], cuckoos, axis=0)
 	if len(cuckoos) > n_max:
-		cuckoos = cuckoos[np.array([f(c) for c in cuckoos]).argsort()]
-		cuckoos.resize((n_max, n))
+		cuckoos = cuckoos[cuckoos['fitness'].argsort()]
+		cuckoos.resize((n_max))
 	n_pop = len(cuckoos)
 	gp = goal_point()
-	#gp = 0
-	f_max = f(cuckoos[gp])
-	f_min = f(cuckoos[n_pop - 1])
+	f_max = cuckoos['fitness'][gp]
+	f_min = cuckoos['fitness'][n_pop - 1]
 	for i in range(n_pop):
-		migrate(cuckoos[i], cuckoos[gp])
+		migrate(i, gp)
 
-cuckoos = cuckoos[np.array([f(c) for c in cuckoos]).argsort()]
+cuckoos = cuckoos[cuckoos['fitness'].argsort()]
 print(cuckoos[0])
