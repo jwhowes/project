@@ -1,8 +1,4 @@
-# Time for 6 nodes: 57.87
-# Time for 10 nodes: 1:07.21 = 67.21
-# Ratio of time: 1.16
-# Ratio of nodes: 1.67 so it's looking sublinear (thank god)
-# Also it coloured the petersen graph in 3 colours
+# Time for 10 nodes: 2:02.41
 
 import numpy as np
 
@@ -214,9 +210,9 @@ def sa(x):
 		T /= sa_beta
 
 #sa parameters
-sa_beta = 1.01
+sa_beta = 1.05
 sa_epsilon = 0.001
-sa_start_T = 100
+sa_start_T = 1000
 
 alpha_max = 20
 alpha_min = 0
