@@ -143,7 +143,7 @@ def minimise(col):
 		col[i] = colours.index(col[i])
 
 def migrate(x, y):
-	"""Migrates x towards y (in place)"""
+	"""Migrates cuckoo x towards cuckoo y (in place)"""
 	# Generate adaptive migration coefficient
 	if f_max == f_min:
 		F = F_max
@@ -167,7 +167,6 @@ def migrate(x, y):
 						cuckoos['cuckoo'][x][j] = c
 						break
 					c += 1
-	#minimise(x)  # Not sure if necessary
 
 alpha_max = 20
 alpha_min = 0
@@ -181,7 +180,7 @@ num_iterations = 3000
 p = 0.1
 
 cuckoos = np.array([(generate_cuckoo(), 0) for i in range(n_pop)], dtype=[('cuckoo', np.ndarray), ('fitness', int)])
-cuckoos['fitness'] = np.array([f(c) for c in cuckoos['cuckoo']])  # The handling of sorting and of eggs could be improved
+cuckoos['fitness'] = np.array([f(c) for c in cuckoos['cuckoo']])
 
 dist_matrix = np.zeros((n_max, n_max), dtype=int)
 
