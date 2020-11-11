@@ -1,13 +1,8 @@
 # Time for 6 nodes: 57.87
-# Time for 10 nodes: 1:08.88 = 68.88
-# Ratio of time: 1.19
+# Time for 10 nodes: 1:07.21 = 67.21
+# Ratio of time: 1.16
 # Ratio of nodes: 1.67 so it's looking sublinear (thank god)
 # Also it coloured the petersen graph in 3 colours
-
-# TODO:
-	# Fix sorting and egg handling now that fitness is stored separately
-		# See if this improves overall running time
-		# See how this affects running time with fancy objective function (currently it's around 2 mins)
 
 import numpy as np
 
@@ -23,18 +18,18 @@ adj_matrix = [	[0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
 				[0, 0, 0, 0, 1, 0, 1, 1, 0, 0]]
 n = len(adj_matrix)
 
-#def f(x):
-#	"""Returns the number of colours used by a colouring"""
-#	return x.max() + 1
+def f(x):
+	"""Returns the number of colours used by a colouring"""
+	return x.max() + 1
 
-def f(x):  # The fitness function proposed by local search colouring survey
-	classes = np.zeros(x.max() + 1, dtype=int)
-	ret = 0
-	for i in range(n):
-		classes[x[i]] += 1
-	for c in classes:
-		ret -= c*c
-	return ret
+#def f(x):  # The fitness function proposed by local search colouring survey
+#	classes = np.zeros(x.max() + 1, dtype=int)
+#	ret = 0
+#	for i in range(n):
+#		classes[x[i]] += 1
+#	for c in classes:
+#		ret -= c*c
+#	return ret
 
 def d(x, y):
 	"""Returns the distance between x and cuckoo y"""
