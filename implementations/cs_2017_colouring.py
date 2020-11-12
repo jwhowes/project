@@ -1,5 +1,7 @@
+# Running time on 100 vertices: 7.72 mins
 import numpy as np
 from math import sin, gamma, pi
+import time
 
 adj_matrix = [  [0, 1, 1, 0, 1, 0, 0],
 				[1, 0, 0, 0, 1, 0, 1],
@@ -8,13 +10,24 @@ adj_matrix = [  [0, 1, 1, 0, 1, 0, 0],
 				[1, 1, 0, 0, 0, 0, 0],
 				[0, 0, 1, 0, 0, 0, 0],
 				[0, 1, 1, 1, 0, 0, 0]]
-k = 3
+k = 20
+n = len(adj_matrix)
+
+def make_graph(num_vertices, edge_probability):
+	global adj_matrix
+	adj_matrix = np.zeros((num_vertices, num_vertices), dtype=int)
+	for i in range(num_vertices):
+		for j in range(i):
+			if np.random.uniform(0, 1) < edge_probability:
+				adj_matrix[i][j] = 1
+				adj_matrix[j][i] = 1
+#make_graph(100, 0.5)
 n = len(adj_matrix)
 
 def f(x):
 	"""Returns the number of conflicts in a given colouring x"""
 	num = 0
-	for i in range(len(adj_matrix)):
+	for i in range(n):
 		for j in range(i):
 			if adj_matrix[i][j] == 1 and x[i] == x[j]:
 				num += 1
@@ -45,22 +58,31 @@ def levy_flight(colouring):
 
 pa = 0.25
 num_nests = 50
-num_iterations = 1000
+num_iterations = 3000
 parasitism_comparison = True
 
-nests = np.random.randint(0, k, (num_nests, n))
+#nests = np.random.randint(0, k, (num_nests, n))
+nests = np.array([(np.random.randint(0, k, (n)), 0) for i in range(num_nests)], dtype=[('nest', np.ndarray), ('fitness', int)])
+nests['fitness'] = np.array([f(n) for n in nests['nest']])
+
+start = time.time()
 
 for t in range(num_iterations):
 	for i in range(num_nests):
 		# Generate first candidate replacement and replace if better
-		u_1 = levy_flight(nests[i])
-		if f(u_1) <= f(nests[i]):
-			nests[i] = u_1
+		u_1 = levy_flight(nests['nest'][i])
+		f_u_1 = f(u_1)
+		if f_u_1 <= nests['fitness'][i]:
+			nests['nest'][i] = u_1
+			nests['fitness'][i] = f_u_1
 		# With random chance pa produce a second candidate replacement and replace if better
 		if np.random.uniform(0, 1) <= pa:
-			u_2 = levy_flight(nests[i])
-			if not parasitism_comparison or f(u_2) <= f(nests[i]):  # parasitism_comparison toggles the parasitism comparison
-				nests[i] = u_2
+			u_2 = levy_flight(nests['nest'][i])
+			f_u_2 = f(u_2)
+			if not parasitism_comparison or f_u_2 <= nests['fitness'][i]:  # parasitism_comparison toggles the parasitism comparison
+				nests['nest'][i] = u_2
+				nests['fitness'][i] = f_u_2
 
-best = nests[np.array([f(n) for n in nests]).argmin()]
-print(best, f(best))
+best = nests[nests['fitness'].argmin()]
+print(best)
+print("Time taken:", time.time() - start)

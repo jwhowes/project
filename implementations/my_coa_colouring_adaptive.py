@@ -4,19 +4,37 @@
 # Ratio of nodes: 1.67 so it's looking sublinear (thank god)
 # Also it coloured the petersen graph in 3 colours
 
-import numpy as np
+# Time for 100 nodes: 5.06 minutes (with num_eggs = 1)
+# Estimated time for 1000 nodes: > 20 hrs (with num_eggs = 1)
 
-adj_matrix = [	[0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
-				[1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-				[0, 1, 0, 1, 0, 0, 0, 1, 0, 0],
-				[0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
-				[1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-				[1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-				[0, 1, 0, 0, 0, 0, 0, 0, 1, 1],
-				[0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
-				[0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
-				[0, 0, 0, 0, 1, 0, 1, 1, 0, 0]]
-n = len(adj_matrix)
+import numpy as np
+import time
+
+edge_list = [	[1, 4, 5],
+				[0, 2, 6],
+				[1, 3, 7],
+				[2, 4, 8],
+				[3, 1, 9],
+				[0, 7, 8],
+				[1, 8, 9],
+				[2, 5, 8],
+				[3, 5, 6],
+				[4, 6, 7]]
+
+def make_graph(num_vertices, edge_probability):
+	global edge_list
+	edge_list = np.empty((num_vertices), dtype=object)
+	adj_matrix = np.zeros((num_vertices, num_vertices), dtype=int)
+	for i in range(num_vertices):
+		edge_list[i] = []
+	for i in range(num_vertices):
+		for j in range(i):
+			if np.random.uniform(0, 1) < edge_probability:
+				edge_list[i].append(j)
+				edge_list[j].append(i)
+make_graph(100, 0.5)
+#print("100 vertices, edge probability 0.5")
+n = len(edge_list)
 
 def f(x):
 	"""Returns the number of colours used by a colouring"""
@@ -105,8 +123,8 @@ def goal_point():  # Could try precomputing d_bar to self for each cluster? (at 
 
 def valid(v, c, col):
 	"""Returns whether or not vertex v can be coloured c in col"""
-	for i in range(n):
-		if adj_matrix[v][i] == 1 and col[i] == c:
+	for i in edge_list[v]:
+		if col[i] == c:
 			return False
 	return True
 
@@ -160,7 +178,7 @@ def migrate(x, y):
 		# Clean up col
 		for j in range(i + 1, n):
 			# For every conflicting edge (v,j), replace j's colour with the smallest legal colour different than y[j]
-			if adj_matrix[j][v] == 1 and cuckoos['cuckoo'][x][j] == cuckoos['cuckoo'][x][v]:
+			if cuckoos['cuckoo'][x][j] == cuckoos['cuckoo'][x][v] and j in edge_list[v]:
 				c = 0
 				while True:
 					if c != cuckoos['cuckoo'][y][j] and valid(j, c, cuckoos['cuckoo'][x]):
@@ -178,6 +196,8 @@ n_pop = 5
 n_max = 50
 num_iterations = 3000
 p = 0.1
+
+start = time.time()
 
 cuckoos = np.array([(generate_cuckoo(), 0) for i in range(n_pop)], dtype=[('cuckoo', np.ndarray), ('fitness', int)])
 cuckoos['fitness'] = np.array([f(c) for c in cuckoos['cuckoo']])
@@ -202,11 +222,12 @@ for t in range(num_iterations):
 		cuckoos = cuckoos[cuckoos['fitness'].argsort()]
 		cuckoos.resize((n_max))
 	n_pop = len(cuckoos)
+	f_max = cuckoos['fitness'][cuckoos['fitness'].argmax()]
+	f_min = cuckoos['fitness'][cuckoos['fitness'].argmin()]
 	gp = goal_point()
-	f_max = cuckoos['fitness'][gp]
-	f_min = cuckoos['fitness'][n_pop - 1]
 	for i in range(n_pop):
 		migrate(i, gp)
 
 cuckoos = cuckoos[cuckoos['fitness'].argsort()]
 print(cuckoos[0])
+print("Time taken:", time.time() - start)
