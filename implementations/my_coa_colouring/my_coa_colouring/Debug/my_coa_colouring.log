@@ -1,0 +1,20 @@
+﻿  my_coa_colouring.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(22): warning C4091: 'typedef ': ignored on left of 'Cuckoo' when no variable is declared
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(41): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(79): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(80): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(91): warning C4244: 'return': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(119): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(148): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(151): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(162): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(181): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(207): warning C4244: 'argument': conversion from 'float' to 'IntType', possible loss of data
+          with
+          [
+              IntType=int
+          ]
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(248): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring\my_coa_colouring\my_coa_colouring.cpp(258): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+  my_coa_colouring.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\my_coa_colouring\Debug\my_coa_colouring.exe

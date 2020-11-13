@@ -64,7 +64,7 @@ def d_bar_sum(S1, S2):
 			num += dist_matrix[i][j]
 	return num
 
-def tri_dist(i, j, S, dbss, clusters):
+def tri_dist(i, j, dbss, clusters):
 	"""Finds the triangular distance between cuckoo i and cluster j"""
 	if len(clusters[j]) == 0:
 		return -1
@@ -95,7 +95,7 @@ def goal_point():  # Could try precomputing d_bar to self for each cluster? (at 
 			cluster = -1
 			tdc = -1
 			for j in range(k):
-				td = tri_dist(i, j, S, db_sum_self, clusters)
+				td = tri_dist(i, j, db_sum_self, clusters)
 				if (cluster == -1 or td < tdc) and td != -1:
 					cluster = j
 					tdc = td
