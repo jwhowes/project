@@ -21,7 +21,6 @@ def make_graph(num_vertices, edge_probability):
 			if np.random.uniform(0, 1) < edge_probability:
 				adj_matrix[i][j] = 1
 				adj_matrix[j][i] = 1
-#make_graph(100, 0.5)
 n = len(adj_matrix)
 
 def f(x):

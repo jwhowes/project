@@ -1,5 +1,6 @@
 ﻿  cppImp.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cppimp\cppimp\cppimp.cpp(37): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cppimp\cppimp\cppimp.cpp(73): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cppimp\cppimp\cppimp.cpp(40): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cppimp\cppimp\cppimp.cpp(40): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cppimp\cppimp\cppimp.cpp(87): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
   cppImp.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\cppImp\Debug\cppImp.exe
