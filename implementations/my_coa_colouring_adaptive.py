@@ -24,7 +24,6 @@ edge_list = [	[1, 4, 5],
 def make_graph(num_vertices, edge_probability):
 	global edge_list
 	edge_list = np.empty((num_vertices), dtype=object)
-	adj_matrix = np.zeros((num_vertices, num_vertices), dtype=int)
 	for i in range(num_vertices):
 		edge_list[i] = []
 	for i in range(num_vertices):
