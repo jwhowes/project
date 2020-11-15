@@ -1,22 +1,17 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 10
+#define NUM_VERTICES 100
 #define N_MAX 50
 
 // Time taken (full parameters):
-	// 100 vertices: 24.379093 secs
-	// 500 vertices: 4.5324301 mins (why did it say 68 secs before?)
-	// 1000 vertices (estimated): 27.8457 mins
+	// 100 vertices: 18.2233 secs
+	// 500 vertices: 4.5324301 mins
+	// 1000 vertices: 22.3274971833 mins
+		// Coloured in 143 colours
 
 // TODO:
-	// Fix whatever's causing (0, 0, ..., 0) to be returned (it's probably a memory leak)
-		// It's caused by migration (at least I've narrowed it down (thank god))
-	// Try out using iterators more
-	// Try adj matrix
 	// Try implementing edge lists with arrays
 		// edge_lists[NUM_VERTICES][NUM_VERTICES]
 		// edge_list_length[NUM_VERTICES]
-	// Consider laying eggs in place
-	// Look at OG github code to see what's different
 
 #include <iostream>
 #include <array>
@@ -71,20 +66,18 @@ uniform_real_distribution<float> uni(0, 1);
 uniform_int_distribution<int> random_vertex(0, NUM_VERTICES - 1);
 uniform_int_distribution<int> random_egg_num(min_eggs, max_eggs);
 
-void make_graph(float edge_probability) {
+void make_graph(float edge_probability) {  // Populates adj_matrix with a random graph
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		for (int j = 0; j < i; j++) {
 			if (uni(seed) < edge_probability) {
 				adj_matrix[i][j] = 1;
 				adj_matrix[j][i] = 1;
-				//edge_list[i].push_back(j);
-				//edge_list[j].push_back(i);
 			}
 		}
 	}
 }
 
-int f(int * x) {
+int f(int * x) {  // Returns the fitness of a cuckoo (number of colours used)
 	int max = 0;
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		if (x[i] > max) {
@@ -94,7 +87,7 @@ int f(int * x) {
 	return max + 1;
 }
 
-int d(int * x, int * y) {
+int d(int * x, int * y) {  // Returns the hamming distance between two colourings
 	int ret = 0;
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		if (x[i] != y[i]) {
@@ -104,7 +97,8 @@ int d(int * x, int * y) {
 	return ret;
 }
 
-int d_bar_sum(vector<int> S1, vector<int> S2) {
+int d_bar_sum(vector<int> S1, vector<int> & S2) {  // Calculates d_bar between two clusters S1 and S2
+	// Doesn't divide by clusters size to make changing clusters more efficient
 	int ret = 0;
 	for (int i = 0; i < S1.size(); i++) {
 		for (int j = 0; j < S2.size(); j++) {
@@ -114,14 +108,14 @@ int d_bar_sum(vector<int> S1, vector<int> S2) {
 	return ret;
 }
 
-float tri_dist(int i, int j, int * dbss, vector<int> * clusters) {
+float tri_dist(int i, int j, int * dbss, vector<int> * clusters) {  // Calculates tri dist between cuckoo i and cluster j
 	if (clusters[j].size() == 0) {
 		return -1;
 	}
 	return 2 * d_bar_sum({ i }, clusters[j]) / clusters[j].size() - dbss[j] / (clusters[j].size() * clusters[j].size());
 }
 
-void populate_dist_matrix() {
+void populate_dist_matrix() {  // Populates the distance matrix s.t. d[i][j] = d(cuckoos[i], cuckoos[j])
 	for (int i = 0; i < n_pop; i++) {
 		for (int j = 0; j < i; j++) {
 			dist_matrix[i][j] = d(cuckoos[i].cuckoo, cuckoos[j].cuckoo);
@@ -130,7 +124,7 @@ void populate_dist_matrix() {
 	}
 }
 
-const int k = 3;
+const int k = 3;  // The number of clusters
 const int max_clustering_iterations = 10;
 int S[N_MAX];
 vector<int> clusters[k];
@@ -141,13 +135,14 @@ int goal_point() {
 	populate_dist_matrix();
 	// Assign each cuckoo to a random cluster
 	for (int i = 0; i < k; i++) {
-		clusters[i].clear();
+		clusters[i].clear();  // Clear clusters from previous iteration
 	}
 	for (int i = 0; i < n_pop; i++) {
-		S[i] = random_cluster(seed);
-		clusters[S[i]].push_back(i);
+		S[i] = random_cluster(seed);  // S[i] stores the cluster of i
+		clusters[S[i]].push_back(i);  // clusters[i] stores cluster i
 	}
 	// Initialise db_sum_self
+	// db_sum_self stores the db sum of each cluster to itself, thus d_bar for cluster i is just db_sum_self[i]/clusters[i].size()
 	for (int i = 0; i < k; i++) {
 		db_sum_self[i] = 0;
 		for (int j = 0; j < clusters[i].size(); j++) {
@@ -158,9 +153,10 @@ int goal_point() {
 	}
 	bool converged = false;
 	int t = 0;
-	while (!converged && t < max_clustering_iterations) {
+	while (!converged && t < max_clustering_iterations) {  // Not entirely sure if max_clustering_iterations is strictly necessary
 		t++;
 		converged = true;
+		// Find the nearest cluster for each cuckoo
 		for (int i = 0; i < n_pop; i++) {
 			int cluster = -1;
 			float tdc = -1;
@@ -181,6 +177,7 @@ int goal_point() {
 				}
 				clusters[cluster].push_back(i);
 				converged = false;
+				// Update db_sum_self for affected clusters
 				for (int j = 0; j < clusters[S[i]].size(); j++) {
 					db_sum_self[S[i]] -= 2 * dist_matrix[i][clusters[S[i]][j]];
 				}
@@ -191,6 +188,7 @@ int goal_point() {
 			}
 		}
 	}
+	// Find the best cluster (the cluster with best mean fitness value)
 	int best_cluster = -1;
 	float best_cluster_mean_fitness = 0;
 	for (int i = 0; i < k; i++) {
@@ -204,6 +202,7 @@ int goal_point() {
 			best_cluster_mean_fitness = mean_cluster_fitness;
 		}
 	}
+	// Migration goal point is the best cuckoo of the best cluster
 	int gp = clusters[best_cluster][0];
 	for (int i = 1; i < clusters[best_cluster].size(); i++) {
 		if (cuckoos[clusters[best_cluster][i]].fitness < cuckoos[gp].fitness) {
@@ -213,23 +212,17 @@ int goal_point() {
 	return gp;
 }
 
-bool valid(int v, int c, int * col) {
+bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
 	for (int i = 0; i < NUM_VERTICES; i++) {
-		if (adj_matrix[v][i] == 1 && col[i] == c) {
+		if (adj_matrix[v][i] == 1 && col[i] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
 			return false;
 		}
 	}
-	/*for (int i = 0; i < edge_list[v].size(); i++) {
-		if (col[edge_list[v][i]] == c) {
-			return false;
-		}
-	}*/
-	return true;
+	return true;  // If no such i can be found then the assignment is valid
 }
 
 int order[NUM_VERTICES];
-
-void generate_cuckoo(int * cuckoo) {
+void generate_cuckoo(int * cuckoo) {  // Populates cuckoo with a random valid colouring
 	// Choose a random ordering of vertices
 	random_shuffle(begin(order), end(order));
 	for (int v : order) {
@@ -244,13 +237,13 @@ void generate_cuckoo(int * cuckoo) {
 	}
 }
 
-void get_egg(int * cuckoo, float elr) {
+void get_egg(int * cuckoo, float elr) {  // Populates cuckoo with a random colouring within distance elr of it
 	int num = uniform_int_distribution<int>(0, elr)(seed);
 	for (int i = 0; i < num; i++) {
 		int v = random_vertex(seed);
 		int c = 0;
 		while (true) {
-			if (c != cuckoo[v] && valid(v, c, cuckoo)) {
+			if (c != cuckoo[v] && valid(v, c, cuckoo)) {  // Changes num vertices to the smallest valid colour (different to their current one)
 				cuckoo[v] = c;
 				break;
 			}
@@ -259,18 +252,18 @@ void get_egg(int * cuckoo, float elr) {
 	}
 }
 
+// Comparison operators for sorting
 bool compare_cuckoos(Cuckoo c1, Cuckoo c2) {
 	return c1.fitness < c2.fitness;
 }
-
 bool reverse_compare_cuckoos(Cuckoo c1, Cuckoo c2) {
 	return c1.fitness > c2.fitness;
 }
 
 int I[NUM_VERTICES];
-void migrate(int * x, int * y) {
+void migrate(int * x, int * y) {  // Migrates x towards y
 	float r = uni(seed);
-	// Populate a vector I with all vertices on which x and y disagree
+	// Populate I with all vertices on which x and y disagree
 	int I_length = 0;
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		if (x[i] != y[i]) {
@@ -278,13 +271,13 @@ void migrate(int * x, int * y) {
 			I_length++;
 		}
 	}
-	for (int i = 0; i < r * I_length; i++) {
+	for (int i = 0; i < r * I_length; i++) {  // For a random
 		int v = I[i];
 		// Assign x y's colour for *it
 		x[v] = y[v];
 		// Clean up x
 		for (int j = i + 1; j < I_length; j++) {
-			// For every conflicting edge (v, *jit), replace *jit's colour with the smallest legal colour different than y[*jit]
+			// For every vertex I[j] in I with I-index j > i that conflicts with v, assign the smallest legal colour different thatn y[I[j]]
 			if (x[I[j]] == x[v] && adj_matrix[I[j]][v] == 1) {//find(edge_list[v].begin(), edge_list[v].end(), j) != edge_list[v].end()) {
 				int c = 0;
 				while (true) {
@@ -305,7 +298,7 @@ int main() {
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
 	}
-	// Populate cuckoo array
+	// Generate initial cuckoo population
 	for (int i = 0; i < n_pop; i++) {
 		generate_cuckoo(cuckoos[i].cuckoo);
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
@@ -315,13 +308,14 @@ int main() {
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
+		// Generate number of eggs for each cuckoo
 		for (int i = 0; i < n_pop; i++) {
 			num_eggs[i] = random_egg_num(seed);
 			tot_eggs += num_eggs[i];
 		}
 		for (int i = 0; i < n_pop; i++) {
-			float elr = alpha * (num_eggs[i] / (float)tot_eggs) * NUM_VERTICES;
-			for (int j = 0; j < num_eggs[i]; j++) {
+			float elr = alpha * (num_eggs[i] / (float)tot_eggs) * NUM_VERTICES;  // Find cuckoo i's elr
+			for (int j = 0; j < num_eggs[i]; j++) {  // Generate num_eggs[i] eggs for cuckoo i and append them to the eggs array
 				copy(begin(cuckoos[i].cuckoo), end(cuckoos[i].cuckoo), begin(eggs[egg].cuckoo));
 				get_egg(eggs[egg].cuckoo, elr);
 				eggs[egg].fitness = f(eggs[egg].cuckoo);
@@ -329,39 +323,49 @@ int main() {
 			}
 		}
 		// Kill a fraction p of the worst eggs
+		sort(begin(eggs), begin(eggs) + tot_eggs, compare_cuckoos);
 		tot_eggs *= (1 - p);
-		if (n_pop + tot_eggs > N_MAX) {  // See if we can get away without using copy here
-			for (int i = 0; i < N_MAX - n_pop; i++) {
+		if (n_pop + tot_eggs > N_MAX) {  // If appending the eggs to cuckoos will exceed N_MAX then we append the eggs and kill the worst cuckoos until pop < N_MAX
+			// Here is a way of achieving the above without exceeding the bounds of the cuckoos array
+			for (int i = 0; i < N_MAX - n_pop; i++) {  // First append as many eggs as we can
 				copy(begin(eggs[i].cuckoo), end(eggs[i].cuckoo), begin(cuckoos[n_pop + i].cuckoo));
 				cuckoos[n_pop + i].fitness = eggs[i].fitness;
 			}
 			sort(begin(cuckoos), begin(cuckoos) + n_pop, reverse_compare_cuckoos);
-			for (int i = N_MAX - n_pop; i < tot_eggs; i++) {
+			for (int i = N_MAX - n_pop; i < tot_eggs; i++) {  // Then iteratively replace the worst cuckoo with the best egg (if the egg is indeed better)
 				if (eggs[i].fitness < cuckoos[i - N_MAX + n_pop].fitness) {
 					copy(begin(eggs[i].cuckoo), end(eggs[i].cuckoo), begin(cuckoos[i - N_MAX + n_pop].cuckoo));
 					cuckoos[i - N_MAX + n_pop].fitness = eggs[i].fitness;
 				}
+				else {
+					// Eggs are increasing in fitness value while cuckoos are decreasing
+					// Hence, if we reach a point where a cuckoo has better fitness than an egg, no eggs will ever have a better fitness than any cuckoo from that point so we can exit the loop
+					break;
+
+				}
 			}
 			n_pop = N_MAX;
-		}
-		else {
+		} else {  // If we can append all eggs without exceeding N_MAX then we can simply append all the eggs without worry
 			for (int i = 0; i < tot_eggs; i++) {
 				copy(begin(eggs[i].cuckoo), end(eggs[i].cuckoo), begin(cuckoos[n_pop].cuckoo));
 				cuckoos[n_pop].fitness = eggs[i].fitness;
 				n_pop++;
 			}
 		}
+		// Cluster cuckoos to find goal point
 		int gp = goal_point();
+		// Migrate all cuckoos towards goal point
 		for (int i = 0; i < n_pop; i++) {
 			migrate(cuckoos[i].cuckoo, cuckoos[gp].cuckoo);
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	}
+	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << cuckoos[0].fitness << endl;
-	cout << "Time taken: " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count();
+	cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
 	return 0;
 }
