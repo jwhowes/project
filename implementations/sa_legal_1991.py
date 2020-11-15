@@ -83,7 +83,7 @@ beta = 1.0005
 
 s = initial_solution()
 c = f(s)
-best = s
+best_s = s
 best_c = c
 
 freeze_count = 0
