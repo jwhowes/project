@@ -265,7 +265,7 @@ void migrate(int x, int y) {
 			if (cuckoos[x].cuckoo[j] == cuckoos[x].cuckoo[v] && find(edge_list[v].begin(), edge_list[v].end(), j) != edge_list[v].end()) {
 				int c = 0;
 				while (true) {
-					if (c != cuckoos[y].cuckoo[v] && valid(j, c, x)) {
+					if (c != cuckoos[y].cuckoo[j] && valid(j, c, x)) {
 						cuckoos[x].cuckoo[j] = c;
 						break;
 					}

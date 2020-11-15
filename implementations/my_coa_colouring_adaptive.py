@@ -14,10 +14,10 @@ edge_list = [	[1, 4, 5],
 				[0, 2, 6],
 				[1, 3, 7],
 				[2, 4, 8],
-				[3, 1, 9],
+				[3, 0, 9],
 				[0, 7, 8],
 				[1, 8, 9],
-				[2, 5, 8],
+				[2, 5, 9],
 				[3, 5, 6],
 				[4, 6, 7]]
 
@@ -31,7 +31,7 @@ def make_graph(num_vertices, edge_probability):
 			if np.random.uniform(0, 1) < edge_probability:
 				edge_list[i].append(j)
 				edge_list[j].append(i)
-make_graph(100, 0.5)
+#make_graph(100, 0.5)
 #print("100 vertices, edge probability 0.5")
 n = len(edge_list)
 
@@ -103,7 +103,7 @@ def goal_point():  # Could try precomputing d_bar to self for each cluster? (at 
 				clusters[cluster].append(i)
 				converged = False
 				for j in clusters[S[i]]:
-					db_sum_self[S[i]] -= 2*dist_matrix[j][i]
+					db_sum_self[S[i]] -= 2*dist_matrix[i][j]
 				for j in clusters[cluster]:
 					db_sum_self[cluster] += 2*dist_matrix[i][j]
 				S[i] = cluster

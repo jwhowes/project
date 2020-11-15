@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{2E6CA872-6074-4F56-A920-05F408F8D87E}</ProjectGuid>
+    <ProjectGuid>{810D4AF2-D9D5-4AF5-986D-5D290D63F0FA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>mycoacolouring</RootNamespace>
+    <RootNamespace>mycoacolouringbasic</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -151,7 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="my_coa_colouring.cpp" />
+    <ClCompile Include="my_coa_colouring_basic.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
