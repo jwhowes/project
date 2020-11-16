@@ -1,11 +1,8 @@
 ﻿  ga_colouring.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(34): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(46): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(78): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(82): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(92): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(110): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(117): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(125): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(51): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(83): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(87): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(97): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\ga_colouring\ga_colouring\ga_colouring.cpp(142): warning C4018: '<': signed/unsigned mismatch
   ga_colouring.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\ga_colouring\Debug\ga_colouring.exe
