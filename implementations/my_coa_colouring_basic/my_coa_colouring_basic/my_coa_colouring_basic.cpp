@@ -253,10 +253,10 @@ void get_egg(int * cuckoo, float elr) {  // Populates cuckoo with a random colou
 }
 
 // Comparison operators for sorting
-bool compare_cuckoos(Cuckoo c1, Cuckoo c2) {
+bool compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 	return c1.fitness < c2.fitness;
 }
-bool reverse_compare_cuckoos(Cuckoo c1, Cuckoo c2) {
+bool reverse_compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 	return c1.fitness > c2.fitness;
 }
 
