@@ -1,5 +1,4 @@
-// sa_assignment.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+#define _SECURE_SCL 0
 
 #include <iostream>
 #include <vector>

@@ -37,7 +37,7 @@ def gpx(p1, p2):
 			parent = a; non_parent = b
 		else:
 			parent = b; non_parent = a
-		m = 1
+		m = 0
 		for j in range(1, k):
 			if len(parent[j]) > len(parent[m]):
 				m = j

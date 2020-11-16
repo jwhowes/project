@@ -1,7 +1,7 @@
 
 #define _USE_MATH_DEFINES
 #define _SECURE_SCL 0
-#define num_vertices 1000
+#define num_vertices 100
 #define num_nests 50
 
 #include <iostream>
@@ -28,7 +28,7 @@ mt19937 seed;
 	{0, 1, 1, 1, 0, 0, 0}
 };*/
 int adj_matrix[num_vertices][num_vertices];
-const int k = 20;
+const int k = 3;
 
 const float pa = 0.25;
 const int num_iterations = 3000;

@@ -63,8 +63,8 @@ def get_neighbour():
 	T.add((best_v, best_c))
 	return best
 
-# Generate initial random tabu list (they recommnend |T| = 7 but this graph is really small so I've gone for |T| = 3)
-T = TabuList(3)
+# Generate initial random tabu list (|T| = 7)
+T = TabuList(7)
 
 # Generate a random solution
 s = np.random.randint(0, k, (n))

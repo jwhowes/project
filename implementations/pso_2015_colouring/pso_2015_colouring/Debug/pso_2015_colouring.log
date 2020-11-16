@@ -1,0 +1,5 @@
+﻿  pso_2015_colouring.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\pso_2015_colouring\pso_2015_colouring\pso_2015_colouring.cpp(32): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\pso_2015_colouring\pso_2015_colouring\pso_2015_colouring.cpp(34): warning C4305: 'initializing': truncation from 'double' to 'float'
+  pso_2015_colouring.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\pso_2015_colouring\Debug\pso_2015_colouring.exe
