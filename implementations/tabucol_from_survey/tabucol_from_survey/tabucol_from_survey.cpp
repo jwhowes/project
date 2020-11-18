@@ -13,7 +13,6 @@ using namespace boost::random;
 
 const int k = 3;
 const int NUM_VERTICES = 10;
-int m;
 
 int adj_list[NUM_VERTICES][NUM_VERTICES] = {
 	{1, 4, 5, 0, 0, 0, 0, 0, 0, 0},
