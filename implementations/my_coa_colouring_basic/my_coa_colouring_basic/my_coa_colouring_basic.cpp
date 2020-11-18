@@ -1,17 +1,12 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 400
+#define NUM_VERTICES 100
 #define N_MAX 50
 
 // Time taken (full parameters):
-	// 100 vertices: 18.2233 secs
+	// 100 vertices: 15.3904 secs
 	// 500 vertices: 4.5324301 mins
 	// 1000 vertices: 22.3274971833 mins
-		// Coloured in 143 colours
-
-// TODO:
-	// Try implementing edge lists with arrays
-		// edge_lists[NUM_VERTICES][NUM_VERTICES]
-		// edge_list_length[NUM_VERTICES]
+		// Coloured in 124 colours
 
 #include <iostream>
 #include <array>
@@ -26,25 +21,15 @@
 using namespace std;
 using namespace boost::random;
 
-typedef struct Cuckoo {
+struct Cuckoo {
 	int cuckoo[NUM_VERTICES];
 	int fitness;
 };
 
-/*vector<int> edge_list[NUM_VERTICES] = {
-	{1, 4, 5},
-	{0, 2, 6},
-	{1, 3, 7},
-	{2, 4, 8},
-	{3, 0, 9},
-	{0, 7, 8},
-	{1, 8, 9},
-	{2, 5, 9},
-	{3, 5, 6},
-	{4, 6, 7}
-};*/
-
 int adj_matrix[NUM_VERTICES][NUM_VERTICES];
+
+int adj_list[NUM_VERTICES][NUM_VERTICES];
+int adj_list_length[NUM_VERTICES];
 
 int n_pop = 5;
 
@@ -68,8 +53,13 @@ uniform_int_distribution<int> random_egg_num(min_eggs, max_eggs);
 
 void make_graph(float edge_probability) {  // Populates adj_matrix with a random graph
 	for (int i = 0; i < NUM_VERTICES; i++) {
+		adj_list_length[i] = 0;
 		for (int j = 0; j < i; j++) {
 			if (uni(seed) < edge_probability) {
+				adj_list[i][adj_list_length[i]] = j;
+				adj_list[j][adj_list_length[j]] = i;
+				adj_list_length[i]++;
+				adj_list_length[j]++;
 				adj_matrix[i][j] = 1;
 				adj_matrix[j][i] = 1;
 			}
@@ -213,8 +203,8 @@ int goal_point() {
 }
 
 bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		if (adj_matrix[v][i] == 1 && col[i] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
 			return false;
 		}
 	}
