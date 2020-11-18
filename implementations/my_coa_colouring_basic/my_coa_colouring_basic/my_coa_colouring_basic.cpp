@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 100
+#define NUM_VERTICES 400
 #define N_MAX 50
 
 // Time taken (full parameters):

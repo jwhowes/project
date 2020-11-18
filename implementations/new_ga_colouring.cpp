@@ -1,7 +1,7 @@
 #define _SECURE_SCL 0
 
 // Running time (k = 0.2V):
-	// 100 vertices: 25.7828 secs
+	// 100 vertices: 76.3081 secs
 
 #include <iostream>
 #include <array>
@@ -76,11 +76,8 @@ int f(Partition & x) {
 }
 
 Partition parents[2];
-bool uncoloured[NUM_VERTICES];
 void gpx(Partition & p1, Partition & p2, Partition & x) {
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		uncoloured[i] = true;
-	}
+	vector<int> uncoloured(NUM_VERTICES);
 	int parent;
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		uncoloured[i] = i;
@@ -103,8 +100,7 @@ void gpx(Partition & p1, Partition & p2, Partition & x) {
 		copy(begin(parents[parent].partition[m]), begin(parents[parent].partition[m]) + parents[parent].partition_length[m], begin(x.partition[i]));
 		x.partition_length[i] = parents[parent].partition_length[m];
 		for (int i = 0; i < parents[parent].partition_length[m]; i++) {
-			uncoloured[parents[parent].partition[m][i]] = false;
-			//uncoloured.erase(remove(uncoloured.begin(), uncoloured.end(), parents[parent].partition[m][i]), uncoloured.end());
+			uncoloured.erase(remove(uncoloured.begin(), uncoloured.end(), parents[parent].partition[m][i]), uncoloured.end());
 		}
 		parents[parent].partition_length[m] = 0;
 		// Remove everything from x.partition[i] from parents[1-parent].partition
@@ -121,18 +117,11 @@ void gpx(Partition & p1, Partition & p2, Partition & x) {
 			}
 		}
 	}
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		if (uncoloured[i]) {
-			int c = random_colour(seed);
-			x.partition[c][x.partition_length[c]] = i;
-			x.partition_length[c]++;
-		}
-	}
-	/*for (int i = 0; i < uncoloured.size(); i++) {
+	for (int i = 0; i < uncoloured.size(); i++) {
 		int c = random_colour(seed);
 		x.partition[c][x.partition_length[c]] = uncoloured[i];
 		x.partition_length[c]++;
-	}*/
+	}
 }
 
 void generate_member(Partition & x) {

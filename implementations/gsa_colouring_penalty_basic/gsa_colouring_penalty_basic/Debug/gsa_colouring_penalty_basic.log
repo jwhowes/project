@@ -1,0 +1,5 @@
+﻿  gsa_colouring_penalty_basic.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\gsa_colouring_penalty_basic\gsa_colouring_penalty_basic\gsa_colouring_penalty_basic.cpp(188): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\gsa_colouring_penalty_basic\gsa_colouring_penalty_basic\gsa_colouring_penalty_basic.cpp(194): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  gsa_colouring_penalty_basic.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\gsa_colouring_penalty_basic\Debug\gsa_colouring_penalty_basic.exe
