@@ -160,7 +160,7 @@ int main(){
 			get_neighbour();
 			neighbour_c = f(neighbour);
 			int d = neighbour_c - c;
-			if (c < 0) {
+			if (d < 0) {
 				changes++;
 				copy(begin(neighbour), end(neighbour), begin(s));
 				c = neighbour_c;
