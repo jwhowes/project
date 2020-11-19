@@ -9,6 +9,8 @@
 	// See if doing a partition variant would improve run time (the fitness function would be much quicker)
 		// Use the array based partition approach from ga_colouring
 
+// 10 vertices produces fitnes -34
+
 #include <iostream>
 #include <array>
 #include <vector>

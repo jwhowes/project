@@ -228,7 +228,7 @@ void generate_cuckoo(int * cuckoo) {  // Populates cuckoo with a random valid co
 }
 
 void get_egg(int * cuckoo, float elr) {  // Populates cuckoo with a random colouring within distance elr of it
-	int num = uniform_int_distribution<int>(0, elr)(seed);
+	int num = uniform_int_distribution<int>(0, (int)elr)(seed);
 	for (int i = 0; i < num; i++) {
 		int v = random_vertex(seed);
 		int c = 0;
