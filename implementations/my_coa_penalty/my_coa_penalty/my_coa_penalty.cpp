@@ -1,9 +1,10 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 100
+#define NUM_VERTICES 500
 #define N_MAX 50
 
 // Results:
-	// 100 vertices: 61.5401 (18 colours)
+	// 100 vertices: 61.5401 secs (18 colours)
+	// 500 vertices: (about 7 mins, I forgot to print time) (72 colours)
 
 // TODO:
 	// See if doing a partition variant would improve run time (the fitness function would be much quicker)
@@ -114,24 +115,39 @@ int num_conflicts(int * x) {
 	return ret;
 }
 
-int colour_class_size[NUM_VERTICES];  // Maybe consider making these int[NUM_VERTICES]?
-int edge_conflicts[NUM_VERTICES];
-int f(int * x) {
+int max_colour(int * x) {
+	int max = 0;
 	for (int i = 0; i < NUM_VERTICES; i++) {
+		if (x[i] > max) {
+			max = x[i];
+		}
+	}
+	return max + 1;
+}
+
+int * colour_class_size;
+int * edge_conflicts;
+int f(int * x) {
+	delete[] colour_class_size;
+	delete[] edge_conflicts;
+	int n = max_colour(x);
+	colour_class_size = new int[n];
+	edge_conflicts = new int[n];
+	for (int i = 0; i < n; i++) {
 		colour_class_size[i] = 0;
 		edge_conflicts[i] = 0;
 	}
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		colour_class_size[x[i]]++;
-		for (int j = 0; j < i; j++) {
-			if (adj_matrix[i][j] == 1 && x[i] == x[j]) {  // Try and do this with adj_list instead?
+		for (int j = 0; j < adj_list_length[i]; j++) {
+			if (x[i] == x[adj_list[i][j]]) {
 				edge_conflicts[x[i]]++;
 			}
 		}
 	}
 	int ret = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		ret += 2 * colour_class_size[i] * edge_conflicts[i] - colour_class_size[i] * colour_class_size[i];
+	for (int i = 0; i < n; i++) {
+		ret += colour_class_size[i] * edge_conflicts[i] - colour_class_size[i] * colour_class_size[i];
 	}
 	return ret;
 }

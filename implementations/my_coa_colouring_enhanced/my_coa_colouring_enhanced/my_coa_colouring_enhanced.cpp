@@ -1,10 +1,10 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 550
+#define NUM_VERTICES 500
 #define N_MAX 50
 
 // Time taken (full parameters):
-	// 100 vertices: 21.1037 secs
-	// 500 vertices: 2.015 mins
+	// 100 vertices: 21.1037 secs (17 colours)
+	// 500 vertices: 2.015 mins (80 colours)
 
 #include <iostream>
 #include <array>

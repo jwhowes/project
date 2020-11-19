@@ -3,10 +3,9 @@
 #define N_MAX 50
 
 // Time taken (full parameters):
-	// 100 vertices: 15.8266 secs
-	// 500 vertices: 1.719 mins
-	// 1000 vertices: 22.3274971833 mins
-		// Coloured in 124 colours
+	// 100 vertices: 15.8266 secs (20 colours)
+	// 500 vertices: 1.719 mins (72 colours)
+	// 1000 vertices: 22.3274971833 mins (124 colours)
 
 #include <iostream>
 #include <array>
