@@ -1,0 +1,13 @@
+﻿  my_coa_penalty.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(54): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(143): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(144): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(155): warning C4244: 'return': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(188): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(221): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(224): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(236): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(247): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_penalty\my_coa_penalty\my_coa_penalty.cpp(342): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+  my_coa_penalty.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\my_coa_penalty\Debug\my_coa_penalty.exe
