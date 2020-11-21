@@ -5,6 +5,9 @@
 // Time taken (full parameters):
 	// 100 vertices: 21.1037 secs (17 colours)
 	// 500 vertices: 2.015 mins (80 colours)
+		// With alpha = 5, it took 6.9852 mins but coloured it in 73 colours
+	// 1000 vertices: estimated 10 minutes?
+		// With alpha = 5, estimated is 34.2772 minutes (this seems more like it)
 
 #include <iostream>
 #include <array>
@@ -31,7 +34,7 @@ int adj_list_length[NUM_VERTICES];
 
 int n_pop = 5;
 
-const int alpha = 1;
+const int alpha = 5;
 const int num_iterations = 3000;
 const float p = 0.1;
 const int min_eggs = 5;
@@ -309,8 +312,8 @@ int main() {
 		generate_cuckoo(cuckoos[i].cuckoo);
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
-	auto start = chrono::high_resolution_clock::now();
 	for (int t = 0; t < num_iterations; t++) {
+		auto start = chrono::high_resolution_clock::now();
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -368,13 +371,13 @@ int main() {
 			migrate(cuckoos[i].cuckoo, cuckoos[gp].cuckoo);
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
-		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+		cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	}
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
-	cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
+	//ut << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
 	return 0;
 }

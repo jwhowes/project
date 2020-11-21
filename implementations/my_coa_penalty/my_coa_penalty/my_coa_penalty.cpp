@@ -1,16 +1,15 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 500
+#define NUM_VERTICES 1000
 #define N_MAX 50
 
-// Results:
-	// 100 vertices: 61.5401 secs (18 colours)
-	// 500 vertices: (about 7 mins, I forgot to print time) (72 colours)
+// Results (alpha = 1):
+	// 100 vertices: 36.7039 secs (18 colours)
+	// 500 vertices: 8.51443 mins (68 colours)
+	// 1000 vertices: 31.2307 mins (123 colours)
 
 // TODO:
 	// See if doing a partition variant would improve run time (the fitness function would be much quicker)
 		// Use the array based partition approach from ga_colouring
-
-// 10 vertices produces fitnes -34
 
 #include <iostream>
 #include <array>
@@ -72,9 +71,12 @@ int dist_matrix[N_MAX][N_MAX];
 int num_eggs[N_MAX];
 Cuckoo eggs[N_MAX * max_eggs];
 
+int chromatic_bound = 0;
+
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
 uniform_int_distribution<int> random_vertex(0, NUM_VERTICES - 1);
+uniform_int_distribution<int> random_colour;
 uniform_int_distribution<int> random_egg_num(min_eggs, max_eggs);
 
 void make_graph(float edge_probability) {  // Populates adj_matrix with a random graph
@@ -131,6 +133,9 @@ int f(int * x) {
 	delete[] colour_class_size;
 	delete[] edge_conflicts;
 	int n = max_colour(x);
+	if (n < chromatic_bound) {
+		chromatic_bound = n;
+	}
 	colour_class_size = new int[n];
 	edge_conflicts = new int[n];
 	for (int i = 0; i < n; i++) {
@@ -295,6 +300,9 @@ void generate_cuckoo(int * cuckoo) {  // Populates cuckoo with a random valid co
 		while (true) {
 			if (valid(v, c, cuckoo)) {
 				cuckoo[v] = c;
+				if (c > chromatic_bound) {
+					chromatic_bound = c;
+				}
 				break;
 			}
 			c++;
@@ -304,8 +312,9 @@ void generate_cuckoo(int * cuckoo) {  // Populates cuckoo with a random valid co
 
 void get_egg(int * cuckoo, float elr) {
 	int num = uniform_int_distribution<int>(0, (int)elr)(seed);
+	random_colour = uniform_int_distribution<int>(0, chromatic_bound);
 	for (int i = 0; i < num; i++) {
-		cuckoo[random_vertex(seed)] = random_vertex(seed);
+		cuckoo[random_vertex(seed)] = random_colour(seed);
 	}
 }
 
