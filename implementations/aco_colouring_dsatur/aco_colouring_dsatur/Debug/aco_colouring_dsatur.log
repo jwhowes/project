@@ -1,0 +1,5 @@
+﻿  aco_colouring_dsatur.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\aco_colouring_dsatur\aco_colouring_dsatur\aco_colouring_dsatur.cpp(65): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\aco_colouring_dsatur\aco_colouring_dsatur\aco_colouring_dsatur.cpp(95): warning C4244: 'return': conversion from 'unsigned int' to 'float', possible loss of data
+  aco_colouring_dsatur.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\aco_colouring_dsatur\Debug\aco_colouring_dsatur.exe
