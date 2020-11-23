@@ -6,7 +6,7 @@
 	// 100 vertices: 21.1037 secs (17 colours)
 	// 500 vertices: 2.015 mins (80 colours)
 		// With alpha = 5, it took 6.9852 mins but coloured it in 73 colours
-	// 1000 vertices: estimated 10 minutes?
+	// 1000 vertices:
 		// With alpha = 5, estimated is 34.2772 minutes (this seems more like it)
 
 #include <iostream>

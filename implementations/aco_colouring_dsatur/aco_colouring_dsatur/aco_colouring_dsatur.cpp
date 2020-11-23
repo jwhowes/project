@@ -15,6 +15,7 @@
 // TODO:
 	// Figure out why it's returning invalid colourings
 		// weight_sum is sometimes 0 (if I use tau + 1 in the transition rule then this doesn't happen)
+		// The best solution is probably to add 1 to the weight of each uncoloured vertex
 
 using namespace std;
 using namespace boost::random;
@@ -127,7 +128,7 @@ int main(){
 					if (ant_solution[a][u] != -1) {
 						weight[u] = 0;
 					} else {
-						weight[u] = pow(tau[ant_pos[a]][u], alpha) * pow(eta(a, u) + 1, beta);
+						weight[u] = pow(tau[ant_pos[a]][u], alpha) * pow(eta(a, u), beta) + 1;
 						weight_sum += weight[u];
 					}
 				}
@@ -161,7 +162,7 @@ int main(){
 				ant_pos[a] = v;
 			}
 		}
-		// Find best solution (and update best if it's better
+		// Find best solution (and update best if it's better)
 		int b = 0;
 		int f_b = f(ant_solution[0]);
 		for(int i = 1; i < num_ants; i++){
