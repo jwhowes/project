@@ -1,9 +1,9 @@
 ﻿  cs_aco_colouring.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(73): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(73): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(113): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(146): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(158): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(171): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(69): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(69): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(152): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(164): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_colouring\cs_aco_colouring\cs_aco_colouring.cpp(177): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
   cs_aco_colouring.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\cs_aco_colouring\Debug\cs_aco_colouring.exe

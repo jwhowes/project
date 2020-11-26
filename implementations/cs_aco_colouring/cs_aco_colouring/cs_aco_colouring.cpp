@@ -1,20 +1,16 @@
 #define _USE_MATH_DEFINES
 #define _SECURE_SCL 0
 
-// Results
-	// alpha = 0.5
-		// 100 vertices:
-			// 20 colours: 8.01488 secs (0 conflicts)
-			// 19 colours: 13.7689 secs (0 conflicts)
-	// alpha = 1
-		// 100 vertices
-			// 20 colours: 12.9259 (0 conflicts)
-			// 19 colours: 10.0139 (0 conflicts)
-			// 18 colours: 24.1084 (0 conflicts)
-			// 17 colours: 36.6699 (2 conflicts)
-	// alpha = 0.5, before adding constant start vertex
-		// 500 vertices:
-			// 70 colours: 7.28205 mins (54 conflicts)
+// Results (3000 iterations):
+	// 100 vertices:
+		// 20 colours: 0.8017 secs (0 conflicts)
+		// ...
+		// 17 colours: 2.03416 secs (2 conflicts)
+	// 500 vertices:
+		// 70 colours: 33.517 secs (22 conflicts)
+		// 75 colours: 35.3846 secs (9 conflicts)
+
+// I know the results above seem poor but it's much quicker than other algorithms so we given the same time frame it could hopefully improve
 
 #include <iostream>
 #include <array>
@@ -56,7 +52,7 @@ int adj_list[num_vertices][num_vertices];/* = {
 	{4, 6, 7, 0, 0, 0, 0, 0, 0, 0}
 };*/
 int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-const int k = 17;
+const int k = 20;
 
 const int num_iterations = 3000;
 
@@ -133,13 +129,23 @@ int num_conflicts(int * nest) {
 	return num;
 }
 
-int neighbouring_colours[num_vertices];
+bool found[k];
+int neighbouring_colours[k];
 float eta(int * nest, int v) {
 	// Returns the heuristic value of v in nest
 	int num_neighbouring = 0;
-	for (int i = 0; i < adj_list_length[v]; i++) {
-		if (nest[adj_list[v][i]] != -1 && find(begin(neighbouring_colours), begin(neighbouring_colours) + num_neighbouring, nest[adj_list[v][i]]) == begin(neighbouring_colours) + num_neighbouring) {
+	for (int i = 0; i < k; i++) {
+		found[i] = false;
+	}
+	/*for (int i = 0; i < adj_list_length[v]; i++) {
+		if (find(begin(neighbouring_colours), begin(neighbouring_colours) + num_neighbouring, nest[adj_list[v][i]]) == begin(neighbouring_colours) + num_neighbouring) {
 			neighbouring_colours[num_neighbouring] = nest[adj_list[v][i]];
+			num_neighbouring++;
+		}
+	}*/
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		if (!found[nest[adj_list[v][i]]]) {
+			found[nest[adj_list[v][i]]] = true;
 			num_neighbouring++;
 		}
 	}
