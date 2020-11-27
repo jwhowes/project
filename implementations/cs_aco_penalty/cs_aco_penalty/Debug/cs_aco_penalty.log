@@ -1,0 +1,12 @@
+﻿  cs_aco_penalty.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(101): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(101): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(141): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(147): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(205): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(233): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(280): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(286): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(342): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+  cs_aco_penalty.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\cs_aco_penalty\Debug\cs_aco_penalty.exe

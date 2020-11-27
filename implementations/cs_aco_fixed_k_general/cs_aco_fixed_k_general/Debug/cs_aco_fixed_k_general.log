@@ -1,0 +1,8 @@
+﻿  cs_aco_fixed_k_general.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_fixed_k_general\cs_aco_fixed_k_general\cs_aco_fixed_k_general.cpp(58): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_fixed_k_general\cs_aco_fixed_k_general\cs_aco_fixed_k_general.cpp(58): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_fixed_k_general\cs_aco_fixed_k_general\cs_aco_fixed_k_general.cpp(98): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_fixed_k_general\cs_aco_fixed_k_general\cs_aco_fixed_k_general.cpp(136): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_fixed_k_general\cs_aco_fixed_k_general\cs_aco_fixed_k_general.cpp(147): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  cs_aco_fixed_k_general.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\cs_aco_fixed_k_general\Debug\cs_aco_fixed_k_general.exe

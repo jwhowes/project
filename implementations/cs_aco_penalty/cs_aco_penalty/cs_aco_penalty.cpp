@@ -83,9 +83,10 @@ int adj_list[num_vertices][num_vertices];/* = {
 	{4, 6, 7, 0, 0, 0, 0, 0, 0, 0}
 };*/
 int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-const int k = 18;
+int k = 17;
 
-const int num_iterations = 3000;
+const int num_iterations = 100;
+const auto duration = chrono::minutes{1};
 
 const float rho = 0.5;
 const float t_pow = 1;
@@ -142,8 +143,12 @@ void initialise_pheromones() {
 	}
 }
 
-int colour_class_size[k];
-int edge_conflicts[k];
+float recip_sigmoid(float x) {
+	return 1 + exp(-0.01*x);
+}
+
+int colour_class_size[num_vertices];
+int edge_conflicts[num_vertices];
 int f(int * x) {
 	for (int i = 0; i < k; i++) {
 		colour_class_size[i] = 0;
@@ -183,8 +188,8 @@ int num_conflicts(int * nest) {
 	return num;
 }
 
-bool found[k];
-int neighbouring_colours[k];
+bool found[num_vertices];
+int neighbouring_colours[num_vertices];
 float eta(int * nest, int v) {
 	// Returns the heuristic value of v in nest
 	int num_neighbouring = 0;
@@ -200,12 +205,29 @@ float eta(int * nest, int v) {
 	return num_neighbouring;
 }
 
+int num_colours(int * x) {
+	/*vector<int> colours_used;
+	for (int i = 0; i < num_vertices; i++) {
+		if (find(colours_used.begin(), colours_used.end(), x[i]) == colours_used.end()) {
+			colours_used.push_back(x[i]);
+		}
+	}
+	return colours_used.size();*/
+	int max = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (x[i] > max) {
+			max = x[i];
+		}
+	}
+	return max + 1;
+}
+
 float weight[num_vertices];
 int vertices[num_vertices];
-int colour_counts[k];
+int colour_counts[num_vertices];
 bool tabu[num_vertices];
 int e[num_vertices];
-int levy_flight(int * nest, int start, int nest_fitness) {
+float levy_flight(int * nest, int start) {
 	for (int i = 0; i < num_vertices; i++) {
 		tabu[i] = false;
 		e[i] = eta(nest, i);
@@ -223,7 +245,8 @@ int levy_flight(int * nest, int start, int nest_fitness) {
 		for (int w = 0; w < num_vertices; w++) {
 			if (tabu[w]) {
 				weight[w] = 0;
-			}else {
+			}
+			else {
 				weight[w] = pow(tau[u][w], t_pow) * pow(eta(nest, w), e_pow);
 				weight_sum += weight[w];
 			}
@@ -248,22 +271,51 @@ int levy_flight(int * nest, int start, int nest_fitness) {
 			}
 		}
 		// Print the colourings somewhere around here to see what's going wrong
-		nest_fitness += colour_counts[c] - colour_counts[nest[v]];
 		nest[v] = c;
 		tabu[v] = true;
 		u = v;
 	}
+	int fitness = f(nest);
 	for (int i = 0; i < M - 1; i++) {
-		d_tau[vertices[i]][vertices[i + 1]] += 1 / (nest_fitness + 1);
+		d_tau[vertices[i]][vertices[i + 1]] += 1 / recip_sigmoid(fitness);
 	}
-	return nest_fitness;
+	return fitness;
 }
 
-int main(){
+bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
+			return false;
+		}
+	}
+	return true;  // If no such i can be found then the assignment is valid
+}
+
+int chromatic_bound() {
+	int colouring[num_vertices];
+	int ret = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		int c = 0;
+		while (true) {
+			if (valid(i, c, colouring)) {
+				colouring[i] = c;
+				if (c > ret) {
+					ret = i;
+				}
+				break;
+			}
+			c++;
+		}
+	}
+	return ret;
+}
+
+int main() {
 	make_graph(0.5);
+	k = chromatic_bound();
 	for (int i = 0; i < num_nests; i++) {
 		get_cuckoo(nests[i]);
-		fitness[i] = num_conflicts(nests[i]);
+		fitness[i] = f(nests[i]);
 	}
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -274,7 +326,7 @@ int main(){
 	initialise_pheromones();
 	int nest_temp[num_vertices];
 	auto start = chrono::high_resolution_clock::now();
-	for (int t = 0; t < num_iterations; t++) {
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
 		// Reset d_tau
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
@@ -283,15 +335,10 @@ int main(){
 		}
 		for (int c = 0; c < num_nests; c++) {
 			copy(begin(nests[c]), end(nests[c]), begin(nest_temp));
-			int l_f = levy_flight(nest_temp, u, fitness[c]);
+			int l_f = levy_flight(nest_temp, u);
 			if (uni(seed) < pa || l_f < fitness[c]) {
 				copy(begin(nest_temp), end(nest_temp), begin(nests[c]));
 				fitness[c] = l_f;
-				if (l_f == 0) {
-					cout << "Iterations: " << t << endl;
-					t = num_iterations;
-					break;
-				}
 			}
 		}
 		for (int i = 0; i < num_vertices; i++) {
@@ -302,18 +349,19 @@ int main(){
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	}
 	int best = 0;
-	int best_n = fitness[0];
+	int best_f = fitness[0];
 	for (int i = 1; i < num_nests; i++) {
-		int n = fitness[i];
-		if (n < best_n) {
+		int f_temp = fitness[i];
+		if (f_temp < best_f) {
 			best = i;
-			best_n = n;
+			best_f = f_temp;
 		}
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		cout << nests[best][i] << " ";
 	}
-	cout << endl << "Number of conflicts: " << best_n;
+	cout << endl << "Number of colours: " << num_colours(nests[best]);
+	cout << endl << "Number of conflicts: " << num_conflicts(nests[best]);
 	cout << endl << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
 	return 0;
 }
