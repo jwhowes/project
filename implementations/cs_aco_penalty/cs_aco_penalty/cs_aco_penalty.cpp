@@ -1,48 +1,6 @@
 #define _USE_MATH_DEFINES
 #define _SECURE_SCL 0
 
-// The bottleneck is the eta function
-
-// Starting from highest degree vertex:
-	// 100 vertices:
-		// 20 colours: 0.8017 secs (0 conflicts)
-		// ...
-		// 17 colours: 2.03416 secs (2 conflicts)
-	// 500 vertices:
-		// 75 colours: 35.3846 secs (9 conflicts)
-		// 70 colours: 33.517 secs (22 conflicts)
-
-// Starting from random vertex:
-	// 100 vertices:
-		// 20 colours: 0.50653 secs (0 conflicts)
-		// 19 colours: 1.37949 secs (0 conflicts)
-		// 18 colours: 2.00710 secs (1 conflict)
-	// 500 vertices:
-		// 75 colours: 33.6179 secs (11 conflicts)
-		// 70 colours: 32.5405 secs (26 conflicts)
-
-// Starting from highest degree, setting M = num_vertices:
-	// 100 vertices:
-		// 20 colours: 0.24180 secs (0 conflicts)
-		// 19 colours: 0.43910 secs (0 conflicts)
-		// 18 colours: 0.63418 secs (0 conflicts)
-		// 17 colours: It crashed?
-
-// Starting from highest degree, alpha = 1, beta = 0.5
-	// 100 vertices:
-		// 20 colours: 0.14728 secs (0 conflicts)
-		// 19 colours: 0.11779 secs (0 conflicts)
-		// 18 colours: 0.40009 secs (0 conflicts)
-		// 17 colours: 0.93647 secs (0 conflicts)
-		// 16 colours: 87.5969 secs (2 conflicts)
-	// 500 vertices:
-		// 75 colours: 13.8668 secs (0 conflicts)
-		// 70 colours: 28.6291 secs (0 conflicts)
-		// 69 colours: 37.6985 secs (0 conflicts)
-		// 68 colours: 34.3267 secs (0 conflicts)
-		// 67 colours: 53.7195 secs (0 conflicts)
-		// 66 colours: 74.6965 secs (0 conflicts), 75 iterations (estimated 49.7977 mins for 3000 iterations)
-
 #include <iostream>
 #include <array>
 #include <vector>
@@ -54,10 +12,16 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+// Preliminary results (these are with running the program for 1 minute so take them with a grain of salt):
+	// 100 vertices: 19 colours (0 conflicts)
+	// 250 vertices: 40 colours (0 conflicts)
+	// 500 vertices: 70 colours (0 conflicts)
+	
+
 using namespace std;
 using namespace boost::random;
 
-const int num_vertices = 100;
+const int num_vertices = 250;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -83,7 +47,7 @@ int adj_list[num_vertices][num_vertices];/* = {
 	{4, 6, 7, 0, 0, 0, 0, 0, 0, 0}
 };*/
 int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-int k = 17;
+int k;
 
 const int num_iterations = 100;
 const auto duration = chrono::minutes{1};
@@ -91,9 +55,10 @@ const auto duration = chrono::minutes{1};
 const float rho = 0.5;
 const float t_pow = 1;
 const float e_pow = 1;
+const int w = 5;
 
 const int num_nests = 50;
-const float pa = 0.25;
+const float pa = 0.1;
 
 const float beta = 0.5;
 const float alpha = 1;
@@ -101,12 +66,14 @@ const float alpha = 1;
 const float sigma_p = pow((tgamma(1 + beta)*sin(M_PI*beta / 2)) / (tgamma((1 + beta) / 2)*beta*pow(2, (beta - 1) / 2)), 2 / beta);
 
 int nests[num_nests][num_vertices];
+int nest_path[num_nests][num_vertices];
+int nest_path_length[num_nests];
 int fitness[num_nests];
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
 uniform_int_distribution<int> random_vertex(0, num_vertices - 1);
-uniform_int_distribution<int> random_colour(0, k - 1);
+uniform_int_distribution<int> random_colour;
 normal_distribution<float> normal_q(0, 1);
 normal_distribution<float> normal_p(0, sigma_p);
 
@@ -147,10 +114,28 @@ float recip_sigmoid(float x) {
 	return 1 + exp(-0.01*x);
 }
 
+int num_colours(int * x) {
+	/*vector<int> colours_used;
+	for (int i = 0; i < num_vertices; i++) {
+		if (find(colours_used.begin(), colours_used.end(), x[i]) == colours_used.end()) {
+			colours_used.push_back(x[i]);
+		}
+	}
+	return colours_used.size();*/
+	int max = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (x[i] > max) {
+			max = x[i];
+		}
+	}
+	return max + 1;
+}
+
 int colour_class_size[num_vertices];
 int edge_conflicts[num_vertices];
 int f(int * x) {
-	for (int i = 0; i < k; i++) {
+	int n = num_colours(x);
+	for (int i = 0; i < n; i++) {
 		colour_class_size[i] = 0;
 		edge_conflicts[i] = 0;
 	}
@@ -163,7 +148,7 @@ int f(int * x) {
 		}
 	}
 	int ret = 0;
-	for (int i = 0; i < k; i++) {
+	for (int i = 0; i < n; i++) {
 		ret += colour_class_size[i] * edge_conflicts[i] - colour_class_size[i] * colour_class_size[i];
 	}
 	return ret;
@@ -192,8 +177,9 @@ bool found[num_vertices];
 int neighbouring_colours[num_vertices];
 float eta(int * nest, int v) {
 	// Returns the heuristic value of v in nest
+	int n = num_colours(nest);
 	int num_neighbouring = 0;
-	for (int i = 0; i < k; i++) {
+	for (int i = 0; i < n; i++) {
 		found[i] = false;
 	}
 	for (int i = 0; i < adj_list_length[v]; i++) {
@@ -205,29 +191,11 @@ float eta(int * nest, int v) {
 	return num_neighbouring;
 }
 
-int num_colours(int * x) {
-	/*vector<int> colours_used;
-	for (int i = 0; i < num_vertices; i++) {
-		if (find(colours_used.begin(), colours_used.end(), x[i]) == colours_used.end()) {
-			colours_used.push_back(x[i]);
-		}
-	}
-	return colours_used.size();*/
-	int max = 0;
-	for (int i = 0; i < num_vertices; i++) {
-		if (x[i] > max) {
-			max = x[i];
-		}
-	}
-	return max + 1;
-}
-
 float weight[num_vertices];
-int vertices[num_vertices];
 int colour_counts[num_vertices];
 bool tabu[num_vertices];
 int e[num_vertices];
-float levy_flight(int * nest, int start) {
+float levy_flight(int * nest, int start, int index) {
 	for (int i = 0; i < num_vertices; i++) {
 		tabu[i] = false;
 		e[i] = eta(nest, i);
@@ -237,9 +205,10 @@ float levy_flight(int * nest, int start) {
 	if (M > num_vertices) {
 		M = num_vertices;
 	}
+	nest_path_length[index] = M;
 	int v;
 	for (int i = 0; i < M; i++) {
-		vertices[i] = u;
+		nest_path[index][i] = u;
 		// Select a vertex v
 		float weight_sum = 0;
 		for (int w = 0; w < num_vertices; w++) {
@@ -277,7 +246,12 @@ float levy_flight(int * nest, int start) {
 	}
 	int fitness = f(nest);
 	for (int i = 0; i < M - 1; i++) {
-		d_tau[vertices[i]][vertices[i + 1]] += 1 / recip_sigmoid(fitness);
+		d_tau[nest_path[index][i]][nest_path[index][i + 1]] += 1 / recip_sigmoid(fitness);
+	}
+	int n = num_colours(nest);
+	if (n < k && num_conflicts(nest) == 0) {
+		k = n;
+		random_colour = uniform_int_distribution<int>(0, k - 1);
 	}
 	return fitness;
 }
@@ -313,6 +287,7 @@ int chromatic_bound() {
 int main() {
 	make_graph(0.5);
 	k = chromatic_bound();
+	random_colour = uniform_int_distribution<int>(0, k - 1);
 	for (int i = 0; i < num_nests; i++) {
 		get_cuckoo(nests[i]);
 		fitness[i] = f(nests[i]);
@@ -335,10 +310,16 @@ int main() {
 		}
 		for (int c = 0; c < num_nests; c++) {
 			copy(begin(nests[c]), end(nests[c]), begin(nest_temp));
-			int l_f = levy_flight(nest_temp, u);
+			int l_f = levy_flight(nest_temp, u, c);
 			if (uni(seed) < pa || l_f < fitness[c]) {
 				copy(begin(nest_temp), end(nest_temp), begin(nests[c]));
 				fitness[c] = l_f;
+			}
+		}
+		int best = 0;
+		for (int i = 1; i < num_nests; i++) {
+			if (fitness[i] < fitness[best]) {
+				best = i;
 			}
 		}
 		for (int i = 0; i < num_vertices; i++) {
@@ -346,15 +327,15 @@ int main() {
 				tau[i][j] = (1 - rho) * tau[i][j] + d_tau[i][j];
 			}
 		}
+		for (int i = 0; i < nest_path_length[best] - 1; i++) {
+			tau[nest_path[best][i]][nest_path[best][i + 1]] += w * 1 / recip_sigmoid(fitness[best]);
+		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	}
 	int best = 0;
-	int best_f = fitness[0];
 	for (int i = 1; i < num_nests; i++) {
-		int f_temp = fitness[i];
-		if (f_temp < best_f) {
+		if (fitness[i] < fitness[best]) {
 			best = i;
-			best_f = f_temp;
 		}
 	}
 	for (int i = 0; i < num_vertices; i++) {
