@@ -12,9 +12,9 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 
-// Preliminary results (these are with running the program for 1 minute so take them with a grain of salt):
+// Preliminary results (these are with running the program for 1 minute so take them with a grain of salt) (need to rerun for 100 and 500):
 	// 100 vertices: 19 colours (0 conflicts)
-	// 250 vertices: 40 colours (0 conflicts)
+	// 250 vertices: 39 colours (0 conflicts)
 	// 500 vertices: 70 colours (0 conflicts)
 	
 
@@ -70,6 +70,8 @@ int nest_path[num_nests][num_vertices];
 int nest_path_length[num_nests];
 int fitness[num_nests];
 
+int colouring[num_vertices];
+
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
 uniform_int_distribution<int> random_vertex(0, num_vertices - 1);
@@ -111,24 +113,36 @@ void initialise_pheromones() {
 }
 
 float recip_sigmoid(float x) {
-	return 1 + exp(-0.01*x);
+	return 1 + exp(-x);
 }
 
+bool found[num_vertices];
 int num_colours(int * x) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
 	/*vector<int> colours_used;
 	for (int i = 0; i < num_vertices; i++) {
 		if (find(colours_used.begin(), colours_used.end(), x[i]) == colours_used.end()) {
 			colours_used.push_back(x[i]);
 		}
 	}
-	return colours_used.size();*/
+	return colours_used.size();
 	int max = 0;
 	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] > max) {
 			max = x[i];
 		}
 	}
-	return max + 1;
+	return max + 1;*/
 }
 
 int colour_class_size[num_vertices];
@@ -173,7 +187,6 @@ int num_conflicts(int * nest) {
 	return num;
 }
 
-bool found[num_vertices];
 int neighbouring_colours[num_vertices];
 float eta(int * nest, int v) {
 	// Returns the heuristic value of v in nest
@@ -239,19 +252,19 @@ float levy_flight(int * nest, int start, int index) {
 				c = j;
 			}
 		}
-		// Print the colourings somewhere around here to see what's going wrong
 		nest[v] = c;
 		tabu[v] = true;
 		u = v;
 	}
 	int fitness = f(nest);
 	for (int i = 0; i < M - 1; i++) {
-		d_tau[nest_path[index][i]][nest_path[index][i + 1]] += 1 / recip_sigmoid(fitness);
+		d_tau[nest_path[index][i]][nest_path[index][i + 1]] += recip_sigmoid(fitness);
 	}
 	int n = num_colours(nest);
 	if (n < k && num_conflicts(nest) == 0) {
 		k = n;
 		random_colour = uniform_int_distribution<int>(0, k - 1);
+		cout << k << endl;
 	}
 	return fitness;
 }
@@ -328,7 +341,7 @@ int main() {
 			}
 		}
 		for (int i = 0; i < nest_path_length[best] - 1; i++) {
-			tau[nest_path[best][i]][nest_path[best][i + 1]] += w * 1 / recip_sigmoid(fitness[best]);
+			tau[nest_path[best][i]][nest_path[best][i + 1]] += w * recip_sigmoid(fitness[best]);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	}
