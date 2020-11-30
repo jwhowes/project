@@ -257,14 +257,14 @@ int chromatic_bound() {
 			if (valid(i, c, colouring)) {
 				colouring[i] = c;
 				if (c > ret) {
-					ret = i;
+					ret = c;
 				}
 				break;
 			}
 			c++;
 		}
 	}
-	return ret;
+	return ret + 1;
 }
 
 int num_colours(int * x) {
