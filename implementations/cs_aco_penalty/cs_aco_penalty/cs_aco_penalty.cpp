@@ -17,7 +17,7 @@
 // Preliminary results (these are with running the program for 1 minute so take them with a grain of salt) (need to rerun for new eta precomputation method):
 	// 100 vertices: 19 colours (0 conflicts)
 	// 250 vertices: 39 colours (0 conflicts)
-	// 500 vertices: 70 colours (0 conflicts), 1020 iterations
+	// 500 vertices: 70 colours (0 conflicts)
 
 
 using namespace std;
