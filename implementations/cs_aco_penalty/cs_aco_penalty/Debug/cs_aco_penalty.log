@@ -1,14 +1,15 @@
 ﻿  cs_aco_penalty.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(61): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(66): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(66): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(110): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(204): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(214): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(221): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(261): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(269): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(326): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(344): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(65): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(66): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(71): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(71): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(149): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(243): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(258): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(322): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(329): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(399): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(419): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_penalty\cs_aco_penalty\cs_aco_penalty.cpp(384): warning C4101: 'eta_temp': unreferenced local variable
   cs_aco_penalty.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\cs_aco_penalty\Debug\cs_aco_penalty.exe
