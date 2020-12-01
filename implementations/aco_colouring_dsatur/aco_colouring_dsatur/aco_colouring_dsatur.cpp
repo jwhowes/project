@@ -1,14 +1,17 @@
 #define _SECURE_SCL 0
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <array>
-#include <vector>
 #include <math.h>
 #include <chrono>
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 // They use small ant populations (< 50) on very small graphs (|V| <= 100) so I don't think this is a particularly efficient algorithm
 
@@ -20,9 +23,11 @@
 using namespace std;
 using namespace boost::random;
 
-const int num_vertices = 10;
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
-int adj_matrix[num_vertices][num_vertices] = {
+const int num_vertices = 250;
+
+int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
 	{0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
@@ -33,16 +38,19 @@ int adj_matrix[num_vertices][num_vertices] = {
 	{0, 0, 1, 0, 0, 1, 0, 0, 0, 1},
 	{0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
 	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
-};
+};*/
 
 float tau[num_vertices][num_vertices];
 
 const int num_ants = 50;
 const int num_iterations = 3000;
+const auto duration = chrono::minutes{ 2 };
 
 int ant_solution[num_ants][num_vertices];
 int ant_path[num_ants][num_vertices];  // Stores the path each ant takes through the construction graph (for Daemon actions)
 int ant_pos[num_ants];
+
+bool found[num_vertices];
 
 const float rho = 0.5;
 const float q = 0.5;
@@ -52,6 +60,29 @@ const float beta = 1;
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
 uniform_int_distribution<int> random_vertex(0, num_vertices - 1);
+
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+			}
+		}
+	}
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
+}
 
 int f(int * x) {
 	int max = 0;
@@ -88,24 +119,48 @@ bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be
 	return true;  // If no such i can be found then the assignment is valid
 }
 
-float eta(int ant, int v) {
-	// Returns the heuristic value of v in colouring ant
-	vector<int> neighbouring_colours;
+int num_colours(int ant) {
+	int num = 0;
 	for (int i = 0; i < num_vertices; i++) {
-		if (adj_matrix[v][i] == 1 && ant_solution[ant][i] != -1 && find(neighbouring_colours.begin(), neighbouring_colours.end(), ant_solution[ant][i]) == neighbouring_colours.end()) {
-			neighbouring_colours.push_back(ant_solution[ant][i]);
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (ant_solution[ant][i] != -1 && !found[ant_solution[ant][i]]) {
+			found[ant_solution[ant][i]] = true;
+			num++;
 		}
 	}
-	return neighbouring_colours.size();
+	return num + 1;
+}
+
+
+int neighbouring_colours[num_vertices];
+float eta(int ant, int v) {
+	// Returns the heuristic value of v in nest
+	int n = num_colours(ant);
+	int num_neighbouring = 0;
+	for (int i = 0; i < n; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (adj_matrix[v][i] == 1 && ant_solution[ant][i] != -1 && !found[ant_solution[ant][i]]) {
+			found[ant_solution[ant][i]] = true;
+			num_neighbouring++;
+		}
+	}
+	return num_neighbouring;
 }
 
 int main(){
+	read_graph("dsjc250.5.col");
 	int best[num_vertices];
 	int f_best;
 	float weight[num_vertices];
 	initialise_pheromones();
 	int v;
-	for (int t = 0; t < num_iterations; t++) {
+	int t = 0;
+	auto start = chrono::high_resolution_clock::now();
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
 		// Initialise ants (to a random vertex)
 		initialise_ants();
 		for (int i = 0; i < num_ants; i++) {
@@ -186,11 +241,13 @@ int main(){
 				tau[i][j] *= 1 - rho;
 			}
 		}
+		t++;
 	}
 	// Return best solution
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best[i] << " ";
 	}
 	cout << endl << "Number of colours: " << f_best;
+	cout << endl << "Number of iterations: " << t;
 	return 0;
 }

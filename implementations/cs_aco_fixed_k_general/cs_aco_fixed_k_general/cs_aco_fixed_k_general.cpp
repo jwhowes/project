@@ -19,7 +19,7 @@ using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
-const int num_vertices = 500;
+const int num_vertices = 250;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -183,32 +183,15 @@ int levy_flight(int * nest, int * e, int start, int nest_fitness, int index) {  
 	for (int i = 0; i < num_vertices; i++) {
 		tabu[i] = false;
 	}
-	int u = start;
+	int v = start;
 	float M = abs(alpha * levy()) + 1;
 	if (M > num_vertices) {
 		M = num_vertices;
 	}
 	nests[index].path_length = M;
-	int v;
+	int u;
 	for (int i = 0; i < M; i++) {
-		nests[index].path[i] = u;
-		// Select a vertex v
-		float weight_sum = 0;
-		for (int w = 0; w < num_vertices; w++) {
-			if (tabu[w]) {
-				weight[w] = 0;
-			}
-			else {
-				weight[w] = pow(tau[u][w], t_pow) * pow(e[w], e_pow);
-				weight_sum += weight[w];
-			}
-		}
-		float r = uni(seed);
-		v = -1;
-		do {
-			v++;
-			r -= weight[v] / weight_sum;
-		} while (r > 0);
+		nests[index].path[i] = v;
 		// Recolour v to colour causing fewest conflicts
 		int c = 0;
 		for (int j = 0; j < k; j++) {
@@ -245,7 +228,24 @@ int levy_flight(int * nest, int * e, int start, int nest_fitness, int index) {  
 			nest[v] = c;
 		}
 		tabu[v] = true;
-		u = v;
+		// Select a vertex u to colour next
+		float weight_sum = 0;
+		for (int w = 0; w < num_vertices; w++) {
+			if (tabu[w]) {
+				weight[w] = 0;
+			}
+			else {
+				weight[w] = pow(tau[v][w], t_pow) * pow(e[w], e_pow);
+				weight_sum += weight[w];
+			}
+		}
+		float r = uni(seed);
+		u = -1;
+		do {
+			u++;
+			r -= weight[u] / weight_sum;
+		} while (r > 0);
+		v = u;
 	}
 	for (int i = 0; i < M - 1; i++) {
 		d_tau[nests[index].path[i]][nests[index].path[i + 1]] += 1 / (nest_fitness + 1);
@@ -360,19 +360,19 @@ int num_colours(int * x) {
 }
 
 int main() {
-	read_graph("dsjc500.1.txt");
+	read_graph("dsjc250.5.col");
 	//make_graph(0.5);
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
 	while (found_colouring) {
 		found_colouring = find_colouring();
-		k--;
+		k = num_colours(colouring) - 1;
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		cout << colouring[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(colouring);  // It's k + 2 because we failed on k + 1 so k + 2 was the highest we got
-	cout << endl << "Number of iterations: " << t;
+	cout << endl << "Number of conflicts: " << num_conflicts(colouring);
 	return 0;
 }

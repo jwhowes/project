@@ -1,0 +1,6 @@
+dsjc250.5
+	2 minutes
+		cs_aco_penalty:		38 colours, 3078 iterations
+		cs_aco_k_general:	38 colours
+		aco_dsatur:			39 colours, 25 iterations (I haven't added the eta speed up yet)
+		ga:					
