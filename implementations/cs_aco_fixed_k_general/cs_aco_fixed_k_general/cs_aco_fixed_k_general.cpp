@@ -2,8 +2,10 @@
 #define _SECURE_SCL 0
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <array>
-#include <vector>
 #include <math.h>
 #include <chrono>
 #include <algorithm>
@@ -14,6 +16,8 @@
 
 using namespace std;
 using namespace boost::random;
+
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
 const int num_vertices = 500;
 int adj_matrix[num_vertices][num_vertices];/* = {
@@ -43,22 +47,33 @@ int adj_list[num_vertices][num_vertices];/* = {
 int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 int k;
 
-const int num_iterations = 3000;
+const int num_iterations = 100;
+chrono::time_point<chrono::steady_clock> start;
+const auto duration = chrono::minutes{ 2 };
 
 const float rho = 0.5;
 const float t_pow = 1;
 const float e_pow = 1;
+const int w = 5;
 
 const int num_nests = 50;
-const float pa = 0.25;
+const float pa = 0.1;
+const float p = 0.1;
 
 const float beta = 0.5;
 const float alpha = 1;
 
 const float sigma_p = pow((tgamma(1 + beta)*sin(M_PI*beta / 2)) / (tgamma((1 + beta) / 2)*beta*pow(2, (beta - 1) / 2)), 2 / beta);
 
-int nests[num_nests][num_vertices];
-int fitness[num_nests];
+struct Nest {
+	int nest[num_vertices];
+	int path[num_vertices];
+	int eta[num_vertices];
+	int path_length;
+	int fitness;
+};
+
+Nest nests[num_nests];
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
@@ -83,6 +98,31 @@ void make_graph(float edge_probability) {  // Populates adj_matrix with a random
 			}
 		}
 	}
+}
+
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+				adj_list[u][adj_list_length[u]] = v; adj_list[v][adj_list_length[v]] = u;
+				adj_list_length[u]++; adj_list_length[v]++;
+			}
+		}
+	}
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
 }
 
 void get_cuckoo(int * nest) { 
@@ -137,23 +177,21 @@ float eta(int * nest, int v) {
 }
 
 float weight[num_vertices];
-int vertices[num_vertices];
 int colour_counts[num_vertices];
 bool tabu[num_vertices];
-int e[num_vertices];
-int levy_flight(int * nest, int start, int nest_fitness) {
+int levy_flight(int * nest, int * e, int start, int nest_fitness, int index) {  // int * e comes after int * nest
 	for (int i = 0; i < num_vertices; i++) {
 		tabu[i] = false;
-		e[i] = eta(nest, i);
 	}
 	int u = start;
 	float M = abs(alpha * levy()) + 1;
 	if (M > num_vertices) {
 		M = num_vertices;
 	}
+	nests[index].path_length = M;
 	int v;
 	for (int i = 0; i < M; i++) {
-		vertices[i] = u;
+		nests[index].path[i] = u;
 		// Select a vertex v
 		float weight_sum = 0;
 		for (int w = 0; w < num_vertices; w++) {
@@ -161,7 +199,7 @@ int levy_flight(int * nest, int start, int nest_fitness) {
 				weight[w] = 0;
 			}
 			else {
-				weight[w] = pow(tau[u][w], t_pow) * pow(eta(nest, w), e_pow);
+				weight[w] = pow(tau[u][w], t_pow) * pow(e[w], e_pow);
 				weight_sum += weight[w];
 			}
 		}
@@ -186,23 +224,48 @@ int levy_flight(int * nest, int start, int nest_fitness) {
 		}
 		// Print the colourings somewhere around here to see what's going wrong
 		nest_fitness += colour_counts[c] - colour_counts[nest[v]];
-		nest[v] = c;
+		if (nest[v] != c) {
+			for (int j = 0; j < adj_list_length[v]; j++) {
+				bool found_v = false; bool found_c = false;
+				int neighbour = adj_list[v][j];
+				for (int l = 0; l < adj_list_length[neighbour]; l++) {
+					if (adj_list[neighbour][l] != v && nest[adj_list[neighbour][l]] == nest[v]) {
+						found_v = true;
+						break;
+					}
+				}
+				for (int l = 0; l < adj_list_length[neighbour]; l++) {
+					if (adj_list[neighbour][l] != v && nest[adj_list[neighbour][l]] == c) {
+						found_c = true;
+						break;
+					}
+				}
+				e[neighbour] += found_v - found_c;
+			}
+			nest[v] = c;
+		}
 		tabu[v] = true;
 		u = v;
 	}
 	for (int i = 0; i < M - 1; i++) {
-		d_tau[vertices[i]][vertices[i + 1]] += 1 / (nest_fitness + 1);
+		d_tau[nests[index].path[i]][nests[index].path[i + 1]] += 1 / (nest_fitness + 1);
 	}
 	return nest_fitness;
 }
 
+bool compare_nests(Nest & nest1, Nest & nest2) {
+	return nest1.fitness < nest2.fitness;
+}
+
+int t = 0;
 int colouring[num_vertices];
-auto start = chrono::high_resolution_clock::now();
-const auto duration = chrono::minutes{1};
 bool find_colouring() {
 	for (int i = 0; i < num_nests; i++) {
-		get_cuckoo(nests[i]);
-		fitness[i] = num_conflicts(nests[i]);
+		get_cuckoo(nests[i].nest);
+		nests[i].fitness = num_conflicts(nests[i].nest);
+		for (int j = 0; j < num_vertices; j++) {
+			nests[i].eta[j] = eta(nests[i].nest, j);
+		}
 	}
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -212,7 +275,9 @@ bool find_colouring() {
 	}
 	initialise_pheromones();
 	int nest_temp[num_vertices];
+	int eta_temp[num_vertices];
 	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		t++;
 		// Reset d_tau
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
@@ -220,20 +285,33 @@ bool find_colouring() {
 			}
 		}
 		for (int c = 0; c < num_nests; c++) {
-			copy(begin(nests[c]), end(nests[c]), begin(nest_temp));
-			int l_f = levy_flight(nest_temp, u, fitness[c]);
-			if (uni(seed) < pa || l_f < fitness[c]) {
+			copy(begin(nests[c].nest), end(nests[c].nest), begin(nest_temp));
+			copy(begin(nests[c].eta), end(nests[c].eta), begin(eta_temp));
+			int l_f = levy_flight(nest_temp, eta_temp, u, nests[c].fitness, c);
+			if (uni(seed) < pa || l_f < nests[c].fitness) {
 				if (l_f == 0) {
 					copy(begin(nest_temp), end(nest_temp), begin(colouring));
 					return true;
 				}
-				copy(begin(nest_temp), end(nest_temp), begin(nests[c]));
-				fitness[c] = l_f;
+				copy(begin(nest_temp), end(nest_temp), begin(nests[c].nest));
+				copy(begin(eta_temp), end(eta_temp), begin(nests[c].eta));
+				nests[c].fitness = l_f;
 			}
 		}
+		sort(begin(nests), end(nests), compare_nests);
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
 				tau[i][j] = (1 - rho) * tau[i][j] + d_tau[i][j];
+			}
+		}
+		for (int i = 0; i < nests[0].path_length - 1; i++) {
+			tau[nests[0].path[i]][nests[0].path[i + 1]] += 1 / (nests[0].fitness + 1);
+		}
+		for (int i = 0; i < num_nests * p; i++) {
+			get_cuckoo(nests[num_nests - i - 1].nest);
+			nests[num_nests - i - 1].fitness = num_conflicts(nests[num_nests - i - 1].nest);
+			for (int j = 0; j < num_vertices; j++) {
+				nests[num_nests - i - 1].eta[j] = eta(nests[num_nests - i - 1].nest, j);
 			}
 		}
 	}
@@ -268,19 +346,25 @@ int chromatic_bound() {
 }
 
 int num_colours(int * x) {
-	vector<int> colours_used;
+	int num = 0;
 	for (int i = 0; i < num_vertices; i++) {
-		if (find(colours_used.begin(), colours_used.end(), x[i]) == colours_used.end()) {
-			colours_used.push_back(x[i]);
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
 		}
 	}
-	return colours_used.size();
+	return num;
 }
 
 int main() {
-	make_graph(0.5);
-	k = chromatic_bound();
+	read_graph("dsjc500.1.txt");
+	//make_graph(0.5);
+	k = chromatic_bound() - 1;
 	bool found_colouring = true;
+	start = chrono::high_resolution_clock::now();
 	while (found_colouring) {
 		found_colouring = find_colouring();
 		k--;
@@ -289,5 +373,6 @@ int main() {
 		cout << colouring[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(colouring);  // It's k + 2 because we failed on k + 1 so k + 2 was the highest we got
+	cout << endl << "Number of iterations: " << t;
 	return 0;
 }
