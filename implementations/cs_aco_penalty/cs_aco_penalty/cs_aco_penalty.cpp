@@ -361,8 +361,8 @@ bool compare_nests(Nest & nest1, Nest & nest2) {
 }
 
 int main() {
-	//read_graph("dsjc500.1.txt");
-	make_graph(0.5);
+	read_graph("dsjc500.1.txt");
+	//make_graph(0.5);
 	k = chromatic_bound();
 	random_colour = uniform_int_distribution<int>(0, k - 1);
 	for (int i = 0; i < num_nests; i++) {
@@ -420,6 +420,9 @@ int main() {
 		for (int i = 0; i < num_nests * p; i++) {
 			get_cuckoo(nests[num_nests - i - 1].nest);
 			nests[num_nests - i - 1].fitness = f(nests[num_nests - i - 1].nest);
+			for (int j = 0; j < num_vertices; j++) {
+				nests[num_nests - i - 1].eta[j] = eta(nests[num_nests - i - 1].nest, j);
+			}
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start2).count() << endl;
 	}
