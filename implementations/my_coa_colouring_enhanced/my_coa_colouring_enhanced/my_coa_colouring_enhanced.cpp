@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 500
+#define NUM_VERTICES 250
 #define N_MAX 50
 
 // Time taken (full parameters):
@@ -10,17 +10,22 @@
 		// With alpha = 5, estimated is 34.2772 minutes (this seems more like it)
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <array>
-#include <vector>
 #include <math.h>
 #include <chrono>
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 using namespace std;
 using namespace boost::random;
+
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
 struct Cuckoo {
 	int cuckoo[NUM_VERTICES];
@@ -36,6 +41,8 @@ int n_pop = 5;
 
 const int alpha = 5;
 const int num_iterations = 3000;
+chrono::time_point<chrono::steady_clock> start;
+const auto duration = chrono::minutes{ 2 };
 const float p = 0.1;
 const int min_eggs = 5;
 const int max_eggs = 20;
@@ -71,7 +78,59 @@ void make_graph(float edge_probability) {  // Populates adj_matrix with a random
 	}
 }
 
-int num_colours(int * x) {  // Returns the fitness of a cuckoo (number of colours used)
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+				adj_list[u][adj_list_length[u]] = v; adj_list[v][adj_list_length[v]] = u;
+				adj_list_length[u]++; adj_list_length[v]++;
+			}
+		}
+	}
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
+}
+
+bool found[NUM_VERTICES];
+int num_colours(int * x) {
+	int num = 0;
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
+}
+
+int num_conflicts(int * x) {
+	int num = 0;
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		for (int j = 0; j < i; j++) {
+			if (adj_matrix[i][j] == 1 && x[i] == x[j]) {
+				num++;
+			}
+		}
+	}
+	return num;
+}
+
+int max_colour(int * x) {
 	int max = 0;
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		if (x[i] > max) {
@@ -81,17 +140,18 @@ int num_colours(int * x) {  // Returns the fitness of a cuckoo (number of colour
 	return max + 1;
 }
 
-int * classes;
+int colour_class_size[NUM_VERTICES];
 int f(int * x) {
-	int num_classes = num_colours(x);
-	delete[] classes;
-	classes = new int[num_classes];
-	int ret = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		classes[x[i]]++;
+	int n = max_colour(x);
+	for (int i = 0; i < n; i++) {
+		colour_class_size[i] = 0;
 	}
-	for (int i = 0; i < num_classes; i++) {
-		ret -= classes[i] * classes[i];
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		colour_class_size[x[i]]++;
+	}
+	int ret = 0;
+	for (int i = 0; i < n; i++) {
+		ret -= colour_class_size[i] * colour_class_size[i];
 	}
 	return ret;
 }
@@ -302,7 +362,8 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
-	make_graph(0.5);
+	//make_graph(0.5);
+	read_graph("dsjc250.5.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
@@ -312,8 +373,10 @@ int main() {
 		generate_cuckoo(cuckoos[i].cuckoo);
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
-	for (int t = 0; t < num_iterations; t++) {
-		auto start = chrono::high_resolution_clock::now();
+	start = chrono::high_resolution_clock::now();
+	int t = 0;
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		t++;
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -351,12 +414,10 @@ int main() {
 					// Eggs are increasing in fitness value while cuckoos are decreasing
 					// Hence, if we reach a point where a cuckoo has better fitness than an egg, no eggs will ever have a better fitness than any cuckoo from that point so we can exit the loop
 					break;
-
 				}
 			}
 			n_pop = N_MAX;
-		}
-		else {  // If we can append all eggs without exceeding N_MAX then we can simply append all the eggs without worry
+		}else {  // If we can append all eggs without exceeding N_MAX then we can simply append all the eggs without worry
 			for (int i = 0; i < tot_eggs; i++) {
 				copy(begin(eggs[i].cuckoo), end(eggs[i].cuckoo), begin(cuckoos[n_pop].cuckoo));
 				cuckoos[n_pop].fitness = eggs[i].fitness;
@@ -371,13 +432,14 @@ int main() {
 			migrate(cuckoos[i].cuckoo, cuckoos[gp].cuckoo);
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
-		cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	}
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
-	//ut << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
+	cout << "Number of conflicts: " << num_conflicts(cuckoos[0].cuckoo) << endl;
+	cout << "Number of iterations: " << t << endl;
 	return 0;
 }

@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 1000
+#define NUM_VERTICES 250
 #define N_MAX 50
 
 // Results (alpha = 1):
@@ -12,17 +12,22 @@
 		// Use the array based partition approach from ga_colouring
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <array>
-#include <vector>
 #include <math.h>
 #include <chrono>
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 using namespace std;
 using namespace boost::random;
+
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
 struct Cuckoo {
 	int cuckoo[NUM_VERTICES];
@@ -60,6 +65,7 @@ int n_pop = 5;
 
 const int alpha = 1;
 const int num_iterations = 3000;
+const auto duration = chrono::minutes{ 2 };
 const float p = 0.1;
 const int min_eggs = 5;
 const int max_eggs = 20;
@@ -95,26 +101,56 @@ void make_graph(float edge_probability) {  // Populates adj_matrix with a random
 	}
 }
 
-int num_colours(int * x) {
-	vector<int> colours_used;
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		if (find(colours_used.begin(), colours_used.end(), x[i]) == colours_used.end()) {
-			colours_used.push_back(x[i]);
-		}
-	}
-	return colours_used.size();
-}
-
-int num_conflicts(int * x) {
-	int ret = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		for (int j = 0; j < i; j++) {
-			if (adj_matrix[i][j] == 1 && x[i] == x[j]) {
-				ret += 1;
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+				adj_list[u][adj_list_length[u]] = v; adj_list[v][adj_list_length[v]] = u;
+				adj_list_length[u]++; adj_list_length[v]++;
 			}
 		}
 	}
-	return ret;
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
+}
+
+bool found[NUM_VERTICES];
+int num_colours(int * x) {
+	int num = 0;
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
+}
+
+int num_conflicts(int * x) {
+	int num = 0;
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		for (int j = 0; j < i; j++) {
+			if (adj_matrix[i][j] == 1 && x[i] == x[j]) {
+				num++;
+			}
+		}
+	}
+	return num;
 }
 
 int max_colour(int * x) {
@@ -127,17 +163,10 @@ int max_colour(int * x) {
 	return max + 1;
 }
 
-int * colour_class_size;
-int * edge_conflicts;
+int colour_class_size[NUM_VERTICES];
+int edge_conflicts[NUM_VERTICES];
 int f(int * x) {
-	delete[] colour_class_size;
-	delete[] edge_conflicts;
-	int n = max_colour(x);
-	if (n < chromatic_bound) {
-		chromatic_bound = n;
-	}
-	colour_class_size = new int[n];
-	edge_conflicts = new int[n];
+	int n = num_colours(x);
 	for (int i = 0; i < n; i++) {
 		colour_class_size[i] = 0;
 		edge_conflicts[i] = 0;
@@ -342,7 +371,8 @@ void migrate(int * x, int * y) {
 }
 
 int main() {
-	make_graph(0.5);
+	//make_graph(0.5);
+	read_graph("dsjc250.5.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
@@ -353,7 +383,9 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	auto start = chrono::high_resolution_clock::now();
-	for (int t = 0; t < num_iterations; t++) {
+	int t = 0;
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		t++;
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -416,6 +448,6 @@ int main() {
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
 	cout << "Number of conflicts: " << num_conflicts(cuckoos[0].cuckoo) << endl;
-	cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
+	cout << "Number of iterations: " << t << endl;
 	return 0;
 }

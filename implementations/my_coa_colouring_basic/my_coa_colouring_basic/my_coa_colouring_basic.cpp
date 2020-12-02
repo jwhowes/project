@@ -330,7 +330,6 @@ int main() {
 					// Eggs are increasing in fitness value while cuckoos are decreasing
 					// Hence, if we reach a point where a cuckoo has better fitness than an egg, no eggs will ever have a better fitness than any cuckoo from that point so we can exit the loop
 					break;
-
 				}
 			}
 			n_pop = N_MAX;
