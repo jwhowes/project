@@ -4,5 +4,5 @@ dsjc250.5
 		cs_aco_k_general:	38 colours
 		aco_dsatur:			39 colours, 25 iterations (I haven't added the eta speed up yet)
 		ga:					44 colours, 3248 iterations
-		my_coa_enhanced:	37 colours, 3036 iterations	
+		my_coa_enhanced:	37 colours, 3036 iterations
 		my_coa_penalty:		43 colours, 2595 iteraions (could maybe add enhancements from enhanced version?)

@@ -1,6 +1,6 @@
 ﻿  tabucol_from_survey.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\tabucol_from_survey\tabucol_from_survey\tabucol_from_survey.cpp(32): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\tabucol_from_survey\tabucol_from_survey\tabucol_from_survey.cpp(95): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\tabucol_from_survey\tabucol_from_survey\tabucol_from_survey.cpp(106): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\tabucol_from_survey\tabucol_from_survey\tabucol_from_survey.cpp(40): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\tabucol_from_survey\tabucol_from_survey\tabucol_from_survey.cpp(137): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\tabucol_from_survey\tabucol_from_survey\tabucol_from_survey.cpp(148): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
   tabucol_from_survey.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\tabucol_from_survey\Debug\tabucol_from_survey.exe

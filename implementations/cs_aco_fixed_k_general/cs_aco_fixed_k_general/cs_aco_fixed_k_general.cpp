@@ -19,7 +19,7 @@ using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
-const int num_vertices = 250;
+const int num_vertices = 100;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -360,12 +360,13 @@ int num_colours(int * x) {
 }
 
 int main() {
-	read_graph("dsjc250.5.col");
-	//make_graph(0.5);
+	//read_graph("dsjc250.5.col");
+	make_graph(0.5);
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
 	while (found_colouring) {
+		cout << k + 1 << endl;
 		found_colouring = find_colouring();
 		k = num_colours(colouring) - 1;
 	}

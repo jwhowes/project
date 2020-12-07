@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 250
+#define NUM_VERTICES 300
 #define N_MAX 50
 
 // Time taken (full parameters):
@@ -363,7 +363,7 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 
 int main() {
 	//make_graph(0.5);
-	read_graph("dsjc250.5.col");
+	read_graph("flat300_26.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;

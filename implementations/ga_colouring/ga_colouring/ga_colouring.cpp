@@ -22,7 +22,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
 int k;
-const int num_vertices = 250;
+const int num_vertices = 100;
 
 struct Partition {
 	int partition[num_vertices][num_vertices];
@@ -304,15 +304,15 @@ int num_colours(int * x) {
 }
 
 int main() {
-	//make_graph(0.5);
-	read_graph("dsjc250.5.col");
+	make_graph(0.5);
+	//read_graph("dsjc250.5.col");
 	k = chromatic_bound() - 1;
 	random_colour = uniform_int_distribution<int>(0, k - 1);
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
 	t = 0;
 	while (found_colouring) {
-		//cout << k + 1 << endl;
+		cout << k + 1 << endl;
 		found_colouring = find_colouring();
 		k = num_colours(colouring) - 1;
 		random_colour = uniform_int_distribution<int>(0, k - 1);

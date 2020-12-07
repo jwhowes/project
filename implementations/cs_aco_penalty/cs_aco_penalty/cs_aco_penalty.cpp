@@ -27,7 +27,7 @@ using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
-const int num_vertices = 250;
+const int num_vertices = 385;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -373,7 +373,7 @@ bool compare_nests(Nest & nest1, Nest & nest2) {
 }
 
 int main() {
-	read_graph("dsjc250.5.col");
+	read_graph("school1.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -409,6 +409,7 @@ int main() {
 				int n = num_colours(nest_temp);
 				if (n <= k && is_legal(nest_temp)) {
 					copy(begin(nest_temp), end(nest_temp), begin(colouring));
+					cout << k << endl;
 					k = n - 1;
 					random_colour = uniform_int_distribution<int>(0, k - 1);
 				}
