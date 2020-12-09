@@ -81,7 +81,7 @@ void read_graph(string filename) {
 
 void populate_gamma() {
 	for (int i = 0; i < num_vertices; i++) {
-		for (int j = 0; j < num_vertices; j++) {
+		for (int j = 0; j < k; j++) {
 			gamma[i][j] = 0;
 		}
 	}

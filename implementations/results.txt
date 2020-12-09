@@ -6,3 +6,7 @@ dsjc250.5
 		ga:					44 colours, 3248 iterations
 		my_coa_enhanced:	37 colours, 3036 iterations
 		my_coa_penalty:		43 colours, 2595 iteraions (could maybe add enhancements from enhanced version?)
+		cs_aco_tabucol_penalty:
+			100	t_iters:	34 colours, 116 iterations
+			50	t_iters:	35 colours, 198 iterations
+			10	t_iters:	40 colours, 1178 iterations

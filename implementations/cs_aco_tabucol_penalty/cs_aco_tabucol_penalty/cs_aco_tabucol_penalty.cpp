@@ -56,7 +56,7 @@ int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 int k;
 
 const int num_iterations = 100;
-const auto duration = chrono::minutes{2};
+const auto duration = chrono::minutes{ 2 };
 
 const float rho = 0.5;
 const float t_pow = 1;
@@ -87,7 +87,7 @@ int nest_path[num_nests][num_vertices];
 int nest_path_length[num_nests];
 int fitness[num_nests];*/
 
-int colouring[num_vertices];
+int best_colouring[num_vertices];
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
@@ -132,7 +132,8 @@ void read_graph(string filename) {
 				adj_list_length[u]++; adj_list_length[v]++;
 			}
 		}
-	}else {
+	}
+	else {
 		cout << "Couldn't open file." << endl;
 		exit(1);
 	}
@@ -152,20 +153,6 @@ int num_colours(int * x) {
 		}
 	}
 	return num;
-	/*vector<int> colours_used;
-	for (int i = 0; i < num_vertices; i++) {
-		if (find(colours_used.begin(), colours_used.end(), x[i]) == colours_used.end()) {
-			colours_used.push_back(x[i]);
-		}
-	}
-	return colours_used.size();
-	int max = 0;
-	for (int i = 0; i < num_vertices; i++) {
-		if (x[i] > max) {
-			max = x[i];
-		}
-	}
-	return max + 1;*/
 }
 
 int neighbouring_colours[num_vertices];
@@ -234,6 +221,7 @@ int f(int * x) {
 float levy() {
 	float p = normal_p(seed);
 	float q = normal_q(seed);
+	float M = p / pow(abs(q), 1 / beta);
 	return p / pow(abs(q), 1 / beta);
 }
 
@@ -371,8 +359,81 @@ bool compare_nests(Nest & nest1, Nest & nest2) {
 	return nest1.fitness < nest2.fitness;
 }
 
+int critical_vertices[num_vertices];
+int num_critical;
+const int tabucol_iterations = 50;
+int tabu_list[num_vertices][num_vertices];
+int gamma[num_vertices][num_vertices];
+uniform_int_distribution<int> random_L(0, 9);
+const float lambda = 0.6;
+
+void get_critical_vertices(int * colouring) {
+	num_critical = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (gamma[i][colouring[i]] > 0) {
+			critical_vertices[num_critical] = i;
+			num_critical++;
+		}
+	}
+}
+
+void inline update_gamma(int v, int c, int * colouring) {
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		gamma[adj_list[v][i]][c]++;
+		gamma[adj_list[v][i]][colouring[v]]--;
+	}
+}
+
+void tabucol_make_move(int t, int * colouring) {
+	bool initial = true;
+	int best_v; int best_c; int best_d;
+	get_critical_vertices(colouring);
+	for (int i = 0; i < num_critical; i++) {
+		int v = critical_vertices[i];
+		for (int c = 0; c < k; c++) {
+			int d = gamma[v][c] - gamma[v][colouring[v]];
+			if (d < 0) {
+				update_gamma(v, c, colouring);
+				colouring[v] = c;
+				tabu_list[v][c] = t + random_L(seed) + lambda * num_critical;
+				return;
+			}
+			else if (tabu_list[v][c] <= t && (initial || d < best_d)) {
+				initial = false;
+				best_d = d; best_v = v; best_c = c;
+			}
+		}
+	}
+	if (!initial) {
+		update_gamma(best_v, best_c, colouring);
+		colouring[best_v] = best_c;
+		tabu_list[best_v][best_c] = t + random_L(seed) + lambda * num_critical;
+	}
+}
+
+int tabucol(int * colouring) {
+	for (int i = 0; i < num_vertices; i++) {
+		for (int j = 0; j < k; j++) {
+			tabu_list[i][j] = 0;
+			gamma[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		for (int j = 0; j < adj_list_length[i]; j++) {
+			gamma[i][colouring[adj_list[i][j]]]++;
+		}
+	}
+	for (int t = 0; t < tabucol_iterations; t++) {
+		tabucol_make_move(t, colouring);
+		if (num_conflicts(colouring) == 0) {
+			return f(colouring);
+		}
+	}
+	return f(colouring);
+}
+
 int main() {
-	read_graph("school1.col");
+	read_graph("dsjc250.5.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -404,10 +465,10 @@ int main() {
 			copy(begin(nests[c].nest), end(nests[c].nest), begin(nest_temp));
 			copy(begin(nests[c].eta), end(nests[c].eta), begin(eta_temp));
 			int l_f = levy_flight(nest_temp, eta_temp, u, c);
-			if (uni(seed) < p || l_f < nests[c].fitness) {
+			if (uni(seed) < pa || l_f < nests[c].fitness) {
 				int n = num_colours(nest_temp);
 				if (n <= k && is_legal(nest_temp)) {
-					copy(begin(nest_temp), end(nest_temp), begin(colouring));
+					copy(begin(nest_temp), end(nest_temp), begin(best_colouring));
 					cout << k << endl;
 					k = n - 1;
 					random_colour = uniform_int_distribution<int>(0, k - 1);
@@ -417,12 +478,14 @@ int main() {
 				nests[c].fitness = l_f;
 			}
 		}
-		/*int best = 0;
-		for (int i = 1; i < num_nests; i++) {
-			if (nests[i].fitness < nests[best].fitness) {
-				best = i;
+		for (int c = 0; c < num_nests; c++) {
+			copy(begin(nests[c].nest), end(nests[c].nest), begin(nest_temp));
+			int t_f = tabucol(nest_temp);
+			if (t_f < nests[c].fitness) {
+				copy(begin(nest_temp), end(nest_temp), begin(nests[c].nest));
+				nests[c].fitness = t_f;
 			}
-		}*/
+		}
 		sort(begin(nests), end(nests), compare_nests);
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
@@ -432,17 +495,17 @@ int main() {
 		for (int i = 0; i < nests[0].path_length - 1; i++) {
 			tau[nests[0].path[i]][nests[0].path[i + 1]] += w * (1 - sigmoid(nests[0].fitness));
 		}
-		for (int i = 0; i < num_nests * pa; i++) {
+		for (int i = 0; i < num_nests * p; i++) {
 			get_cuckoo(nests[num_nests - i - 1].nest, nests[num_nests - i - 1].eta);
 			nests[num_nests - i - 1].fitness = f(nests[num_nests - i - 1].nest);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start2).count() << endl;
 	}
 	for (int i = 0; i < num_vertices; i++) {
-		cout << colouring[i] << " ";
+		cout << best_colouring[i] << " ";
 	}
-	cout << endl << "Number of colours: " << num_colours(colouring);
-	cout << endl << "Number of conflicts: " << num_conflicts(colouring);
+	cout << endl << "Number of colours: " << num_colours(best_colouring);
+	cout << endl << "Number of conflicts: " << num_conflicts(best_colouring);
 	cout << endl << "Number of iterations: " << t;
 	return 0;
 }

@@ -237,7 +237,7 @@ int K[NUM_VERTICES];
 int length_k;
 void kempe_chain(int c, int d, int v, int * cuckoo) {
 	K[0] = v;
-	length_k = 0;
+	length_k = 1;
 	int i = 0;
 	while (i < length_k) {
 		for (int j = 0; j < NUM_VERTICES; j++) {
@@ -261,11 +261,11 @@ void get_egg(int * cuckoo, int num_colours, float elr) {  // Populates cuckoo wi
 			d = (d + 1) % num_colours;
 		}
 		kempe_chain(c, d, v, cuckoo);
-		for (int i = 0; i < length_k; i++) {
-			if (cuckoo[K[i]] == c) {
-				cuckoo[K[i]] = d;
+		for (int j = 0; j < length_k; j++) {
+			if (cuckoo[K[j]] == c) {
+				cuckoo[K[j]] = d;
 			} else {
-				cuckoo[K[i]] = c;
+				cuckoo[K[j]] = c;
 			}
 		}
 	}
