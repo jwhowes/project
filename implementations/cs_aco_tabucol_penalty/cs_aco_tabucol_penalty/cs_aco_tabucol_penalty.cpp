@@ -27,7 +27,7 @@ using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
-const int num_vertices = 385;
+const int num_vertices = 250;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -172,6 +172,15 @@ float eta(int * nest, int v) {
 	return num_neighbouring;
 }
 
+bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
+			return false;
+		}
+	}
+	return true;  // If no such i can be found then the assignment is valid
+}
+
 float weight[num_vertices];
 int colour_counts[num_vertices];
 void get_cuckoo(int * nest, int * e) {
@@ -182,6 +191,8 @@ void get_cuckoo(int * nest, int * e) {
 		e[i] = eta(nest, i);
 	}
 }
+
+
 
 void initialise_pheromones() {
 	for (int i = 0; i < num_vertices; i++) {
@@ -327,29 +338,26 @@ float levy_flight(int * nest, int * e, int start, int index) {
 	return fitness;
 }
 
-bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
-	for (int i = 0; i < adj_list_length[v]; i++) {
-		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
-			return false;
-		}
-	}
-	return true;  // If no such i can be found then the assignment is valid
-}
-
 int chromatic_bound() {
 	int colouring[num_vertices];
 	int ret = 0;
 	for (int i = 0; i < num_vertices; i++) {
-		int c = 0;
-		while (true) {
-			if (valid(i, c, colouring)) {
-				colouring[i] = c;
-				if (c > ret) {
-					ret = c;
-				}
-				break;
+		colouring[i] = -1;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		int max = -1;
+		for (int j = 0; j < num_vertices; j++) {
+			if (colouring[j] == -1 && (max == -1 || eta(colouring, j) > eta(colouring, max))) {
+				max = j;
 			}
+		}
+		int c = 0;
+		while (!valid(max, c, colouring)) {
 			c++;
+		}
+		colouring[max] = c;
+		if (c > ret) {
+			ret = c;
 		}
 	}
 	return ret + 1;
@@ -361,7 +369,7 @@ bool compare_nests(Nest & nest1, Nest & nest2) {
 
 int critical_vertices[num_vertices];
 int num_critical;
-const int tabucol_iterations = 50;
+const int tabucol_iterations = 10;
 int tabu_list[num_vertices][num_vertices];
 int gamma[num_vertices][num_vertices];
 uniform_int_distribution<int> random_L(0, 9);
