@@ -394,11 +394,12 @@ bool compare_nests(Nest & nest1, Nest & nest2) {
 
 int critical_vertices[num_vertices];
 int num_critical;
-const int tabucol_iterations = 100;
+int tabucol_iterations;// = 100;
 int tabu_list[num_vertices][num_vertices];
 int gamma[num_vertices][num_vertices];
 uniform_int_distribution<int> random_L(0, 9);
 const float lambda = 0.6;
+const float move_p = 0.5;
 
 void get_critical_vertices(int * colouring) {
 	num_critical = 0;
@@ -422,18 +423,20 @@ void tabucol_make_move(int t, int * colouring) {
 	int best_v; int best_c; int best_d;
 	get_critical_vertices(colouring);
 	for (int i = 0; i < num_critical; i++) {
-		int v = critical_vertices[i];
-		for (int c = 0; c < k; c++) {
-			int d = gamma[v][c] - gamma[v][colouring[v]];
-			if (d < 0) {
-				update_gamma(v, c, colouring);
-				colouring[v] = c;
-				tabu_list[v][c] = t + random_L(seed) + lambda * num_critical;
-				return;
-			}
-			else if (tabu_list[v][c] <= t && (initial || d < best_d)) {
-				initial = false;
-				best_d = d; best_v = v; best_c = c;
+		if (uni(seed) <= move_p) {
+			int v = critical_vertices[i];
+			for (int c = 0; c < k; c++) {
+				int d = gamma[v][c] - gamma[v][colouring[v]];
+				if (d < 0) {
+					update_gamma(v, c, colouring);
+					colouring[v] = c;
+					tabu_list[v][c] = t + random_L(seed) + lambda * num_critical;
+					return;
+				}
+				else if (tabu_list[v][c] <= t && (initial || d < best_d)) {
+					initial = false;
+					best_d = d; best_v = v; best_c = c;
+				}
 			}
 		}
 	}
@@ -445,6 +448,10 @@ void tabucol_make_move(int t, int * colouring) {
 }
 
 int tabucol(int * colouring) {
+	if (num_conflicts(colouring) == 0) {
+		return f(colouring);
+	}
+	tabucol_iterations = k * num_vertices / (move_p * (k - 1) * num_conflicts(colouring));
 	for (int i = 0; i < num_vertices; i++) {
 		for (int j = 0; j < k; j++) {
 			tabu_list[i][j] = 0;
@@ -511,21 +518,13 @@ int main() {
 				nests[c].fitness = l_f;
 			}
 		}
-		for (int c = 0; c < num_nests; c++) {
-			copy(begin(nests[c].nest), end(nests[c].nest), begin(nest_temp));
-			int t_f = tabucol(nest_temp);
-			if (t_f < nests[c].fitness) {
-				copy(begin(nest_temp), end(nest_temp), begin(nests[c].nest));
-				nests[c].fitness = t_f;
-			}
-		}
 		sort(begin(nests), end(nests), compare_nests);
-		/*copy(begin(nests[0].nest), end(nests[0].nest), begin(nest_temp));
+		copy(begin(nests[0].nest), end(nests[0].nest), begin(nest_temp));
 		int t_f = tabucol(nest_temp);
 		if (t_f < nests[0].fitness) {
 			copy(begin(nest_temp), end(nest_temp), begin(nests[0].nest));
 			nests[0].fitness = t_f;
-		}*/
+		}
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
 				tau[i][j] = (1 - rho) * tau[i][j] + d_tau[i][j];
@@ -535,7 +534,7 @@ int main() {
 		for (int i = 0; i < nests[0].path_length - 1; i++) {
 			tau[nests[0].path[i]][nests[0].path[i + 1]] += w * (1 - sigmoid(nests[0].fitness));
 		}
-		// Apply tabucol in an attempt to improve the quality of the best nest
+		// Kill a fraction p of the worst nests
 		for (int i = 0; i < num_nests * p; i++) {
 			get_cuckoo(nests[num_nests - i - 1].nest, nests[num_nests - i - 1].eta);
 			nests[num_nests - i - 1].fitness = f(nests[num_nests - i - 1].nest);
