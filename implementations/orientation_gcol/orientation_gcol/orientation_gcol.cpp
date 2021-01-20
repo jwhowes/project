@@ -121,6 +121,9 @@ int populate_distances(int orientation[num_vertices][num_vertices], int * d_plus
 }
 
 int main(){
+	bool found[num_vertices];
+	int on_longest_path[num_vertices];
+	int on_longest_length;
 	int orientation[num_vertices][num_vertices];
 	int d_plus[num_vertices];
 	int d_minus[num_vertices];
@@ -132,7 +135,29 @@ int main(){
 		tabu_list[i][0] = 0;
 		tabu_list[i][1] = 0;
 	}
+	int lambda = populate_distances(orientation, d_plus, d_minus);
+	int best_lambda = lambda;
 	for (int t = 0; t < num_iterations; t++) {
+		on_longest_length = 0;
+		for (int i = 0; i < num_vertices; i++) {
+			found[i] = false;
+		}
+		for (int i = 0; i < num_vertices; i++) {
+			for (int j = i; j < num_vertices; j++) {
+				if ((orientation[i][j] == 1 && d_minus[i] + d_plus[j] == lambda) || (orientation[i][j] == -1 && d_minus[j] + d_plus[i] == lambda)) {
+					if (!found[i]) {
+						found[i] = true;
+						on_longest_path[on_longest_length] = i;
+						on_longest_length++;
+					}
+					if (!found[j]) {
+						found[j] = true;
+						on_longest_path[on_longest_length] = j;
+						on_longest_length++;
+					}
+				}
+			}
+		}
 	}
 	return 0;
 }
