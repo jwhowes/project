@@ -1,0 +1,1 @@
+For the network flows textbook, I use pages 107-108 for an algorithm to find longest paths involving a vertex v (for the orientation formulation of gcol)
