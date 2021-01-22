@@ -1,6 +1,6 @@
 ﻿  orientation_gcol.cpp
   Unknown compiler version - please run the configure tests and report the results
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\orientation_gcol\orientation_gcol\orientation_gcol.cpp(46): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\orientation_gcol\orientation_gcol\orientation_gcol.cpp(218): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\orientation_gcol\orientation_gcol\orientation_gcol.cpp(242): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\orientation_gcol\orientation_gcol\orientation_gcol.cpp(219): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\orientation_gcol\orientation_gcol\orientation_gcol.cpp(243): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
   orientation_gcol.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\orientation_gcol\Debug\orientation_gcol.exe

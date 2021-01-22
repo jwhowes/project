@@ -209,7 +209,8 @@ int main(){
 		for (int i = 0; i < on_longest_length; i++) {
 			for (int j = 0; j < 2; j++) {
 				int v = on_longest_path[i];
-				copy(&orientation[0][0], &orientation[0][0] + num_vertices * num_vertices, &orientation_temp[0][0]);
+				//copy(&orientation[0][0], &orientation[0][0] + num_vertices * num_vertices, &orientation_temp[0][0]);
+				copy_orientation(orientation, orientation_temp);
 				// Make the move on orientation_temp
 				make_move(orientation_temp, v, j);
 				int t_l = populate_distances(orientation_temp, d_p_temp, d_m_temp);
@@ -237,7 +238,7 @@ int main(){
 		if (!move_made && !initial) {
 			// Make the move on orientation
 			make_move(orientation, b_v, b_j);
-			lambda = populate_distances(orientation, d_plus, d_minus);
+			lambda = b_lambda;
 			// Make the move tabu
 			tabu_list[b_v][1 - b_j] = t + random_L(seed) + tabu_tenure * on_longest_length;
 		}
