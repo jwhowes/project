@@ -33,6 +33,8 @@ uniform_int_distribution<int> random_colour(0, k - 1);
 int colouring[num_vertices];
 
 int orientation[num_vertices][num_vertices];
+int d_plus[num_vertices];
+int d_minus[num_vertices];
 
 int f1(int * col) {
 	int num = 0;
@@ -59,11 +61,11 @@ int f2(int * col) {
 void t12(int * col) {
 	for (int i = 0; i < num_vertices; i++) {
 		for (int j = 0; j < i; j++) {
-			if (adj_matrix[i][j] == 1 && col[i] == col[j] && col[i] != k + 1 && col[j] != k + 1) {
+			if (adj_matrix[i][j] == 1 && col[i] == col[j] && col[i] != k && col[j] != k) {
 				if (uni(seed) < 0.5) {
-					col[i] = k + 1;
+					col[i] = k;
 				} else {
-					col[j] = k + 1;
+					col[j] = k;
 				}
 			}
 		}
@@ -75,14 +77,14 @@ int colour_counts[k];
 void t21(int * col) {
 	random_shuffle(begin(order), end(order));
 	for (int v : order) {
-		if (col[v] == k + 1) {
+		if (col[v] == k) {
 			// Assign to col[v] the colour causing the fewest conflicts
 			int c = 0;
 			for (int j = 0; j < k; j++) {
 				colour_counts[k] = 0;
 			}
 			for (int j = 0; j < num_vertices; j++) {
-				if (adj_matrix[v][j] == 1 && col[j] != k + 1) {
+				if (adj_matrix[v][j] == 1 && col[j] != k) {
 					colour_counts[col[j]]++;
 				}
 			}
@@ -100,7 +102,7 @@ void t21(int * col) {
 	}
 }
 
-void t3(int * col) {  // Transforms a colouring (partial or otherwise), into an oriented graph
+void t13(int * col) {  // Transforms a colouring (partial or otherwise), into an oriented graph
 	for (int i = 0; i < num_vertices; i++) {
 		for (int j = i; j < num_vertices; j++) {
 			if (adj_matrix[i][j] == 1) {
@@ -117,12 +119,29 @@ void t3(int * col) {  // Transforms a colouring (partial or otherwise), into an 
 	}
 }
 
-void t31(int *col) {
+int class_size[num_vertices];
 
+bool cmp_class_size(int i, int j) {
+	return class_size[i] > class_size[j];
 }
 
 void t32(int * col) {
-
+	//copy(&col, &col + num_vertices, begin(d_minus));
+	for (int i = 0; i < num_vertices; i++) {
+		class_size[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		class_size[d_minus[i]]++;
+	}
+	sort(begin(order), end(order), cmp_class_size);
+	int curr = 0;
+	col[order[0]] = 0;
+	for (int i = 1; i < num_vertices; i++) {
+		if (d_minus[order[i]] != d_minus[order[i - 1]] && curr < k) {
+			curr++;
+		}
+		col[order[i]] = curr;
+	}
 }
 
 int critical_vertices[num_vertices];
@@ -149,7 +168,7 @@ int num_uncoloured;
 void get_uncoloured(int * col) {
 	num_uncoloured = 0;
 	for (int i = 0; i < num_vertices; i++) {
-		if (col[i] == k + 1) {
+		if (col[i] == k) {
 			uncoloured[num_uncoloured] = i;
 			num_uncoloured++;
 		}
@@ -226,7 +245,7 @@ bool make_move_2(int t, int * colouring) {
 		colouring[best_v] = best_c;
 		for (int j = 0; j < num_vertices; j++) {
 			if (adj_matrix[best_v][j] == 1 && colouring[j] == best_c) {
-				colouring[j] = k + 1;
+				colouring[j] = k;
 			}
 		}
 		return false;
@@ -283,6 +302,10 @@ void tabucol_2() {
 	}
 }
 
+void tabucol_3() {
+
+}
+
 int main(){
 	// Populate order array
 	for (int i = 0; i < num_vertices; i++) {
@@ -294,9 +317,11 @@ int main(){
 	}
 	for (int t = 0; t < num_iterations; t++) {
 		tabucol_1();
-		t12(colouring);
-		tabucol_2();
-		t21(colouring);
+		t13(colouring);
+		//tabucol_3();
+		t32(colouring);
+		//tabucol_2();
+		//t21(colouring);
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		cout << colouring[i] << " ";
