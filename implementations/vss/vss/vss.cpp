@@ -22,7 +22,22 @@ int adj_matrix[num_vertices][num_vertices] = {
 	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
 };
 
-const int k = 2;
+int adj_list[num_vertices][num_vertices] = {
+	{1, 4, 5, 0, 0, 0, 0, 0, 0, 0},
+	{0, 2, 6, 0, 0, 0, 0, 0, 0, 0},
+	{1, 3, 7, 0, 0, 0, 0, 0, 0, 0},
+	{2, 4, 8, 0, 0, 0, 0, 0, 0, 0},
+	{0, 3, 9, 0, 0, 0, 0, 0, 0, 0},
+	{0, 7, 8, 0, 0, 0, 0, 0, 0, 0},
+	{1, 8, 9, 0, 0, 0, 0, 0, 0, 0},
+	{2, 5, 9, 0, 0, 0, 0, 0, 0, 0},
+	{3, 5, 6, 0, 0, 0, 0, 0, 0, 0},
+	{4, 6, 7, 0, 0, 0, 0, 0, 0, 0}
+};
+
+int adj_list_length[num_vertices] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+
+const int k = 3;
 
 const int num_iterations = 3000;
 
@@ -149,9 +164,10 @@ int num_critical;
 int tabu_list[num_vertices][num_vertices];
 int gamma[num_vertices][num_vertices];
 uniform_int_distribution<int> random_L(0, 9);
-const float lambda = 0.6;
+const float tabu_tenure = 0.6;
 const int I_t = 10;
 const int tabucol_iterations = 100;
+const int t_3_iterations = 10;
 
 void get_critical_vertices(int * colouring) {
 	num_critical = 0;
@@ -195,7 +211,7 @@ bool make_move_1(int t, int * colouring) {
 			if (d < 0) {
 				update_gamma(v, c, colouring);
 				colouring[v] = c;
-				tabu_list[v][c] = t + random_L(seed) + lambda * num_critical;
+				tabu_list[v][c] = t + random_L(seed) + tabu_tenure * num_critical;
 				return true;
 			}
 			else if (tabu_list[v][c] <= t && (initial || d < best_d)) {
@@ -207,7 +223,7 @@ bool make_move_1(int t, int * colouring) {
 	if (!initial) {
 		update_gamma(best_v, best_c, colouring);
 		colouring[best_v] = best_c;
-		tabu_list[best_v][best_c] = t + random_L(seed) + lambda * num_critical;
+		tabu_list[best_v][best_c] = t + random_L(seed) + tabu_tenure * num_critical;
 	}
 	return false;
 }
@@ -231,7 +247,7 @@ bool make_move_2(int t, int * colouring) {
 			if (f < F) {
 				// I don't think we need to worry about looping over N(v) here
 				colouring[v] = c;
-				tabu_list[v][c] = lambda * num_uncoloured + random_L(seed);
+				tabu_list[v][c] = tabu_tenure * num_uncoloured + random_L(seed);
 				return true;
 			}
 			else if (tabu_list[v][c] <= t && (initial || f < best_f)) {
@@ -241,7 +257,7 @@ bool make_move_2(int t, int * colouring) {
 		}
 	}
 	if (!initial) {
-		tabu_list[best_v][best_c] = lambda * num_uncoloured + random_L(seed);
+		tabu_list[best_v][best_c] = tabu_tenure * num_uncoloured + random_L(seed);
 		colouring[best_v] = best_c;
 		for (int j = 0; j < num_vertices; j++) {
 			if (adj_matrix[best_v][j] == 1 && colouring[j] == best_c) {
@@ -302,8 +318,152 @@ void tabucol_2() {
 	}
 }
 
-void tabucol_3() {
+int populate_distances(int orientation[num_vertices][num_vertices], int * d_plus, int * d_minus) {
+	int indegree[num_vertices];
+	int outdegree[num_vertices];
+	int queue[num_vertices];
+	int queue_length;
+	int lambda = 1;
+	for (int i = 0; i < num_vertices; i++) {
+		d_minus[i] = 1;
+		d_plus[i] = 1;
+		indegree[i] = 0;
+		outdegree[i] = 0;
+	}
+	queue_length = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		for (int j = 0; j < adj_list_length[i]; j++) {
+			if (orientation[i][adj_list[i][j]] == -1) {
+				indegree[i]++;
+			}
+			else {
+				outdegree[i]++;
+			}
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (outdegree[i] == 0) {
+			queue[queue_length] = i;
+			queue_length++;
+		}
+	}
+	int num_checked = 0;
+	while (num_checked < queue_length) {
+		int i = queue[num_checked];
+		for (int j = 0; j < num_vertices; j++) {
+			if (orientation[i][j] == -1) {
+				outdegree[j] -= 1;
+				if (d_plus[i] + 1 > d_plus[j]) {
+					d_plus[j] = d_plus[i] + 1;
+					if (d_plus[j] > lambda) {
+						lambda = d_plus[j];
+					}
+				}
+				if (outdegree[j] == 0) {
+					queue[queue_length] = j;
+					queue_length++;
+				}
+			}
+		}
+		num_checked++;
+	}
+	num_checked = 0;
+	queue_length = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (indegree[i] == 0) {
+			queue[queue_length] = i;
+			queue_length++;
+		}
+	}
+	while (num_checked < queue_length) {
+		int i = queue[num_checked];
+		for (int j = 0; j < num_vertices; j++) {
+			if (orientation[i][j] == 1) {
+				indegree[j] -= 1;
+				if (d_minus[i] + 1 > d_minus[j]) {
+					d_minus[j] = d_minus[i] + 1;
+				}
+				if (indegree[j] == 0) {
+					queue[queue_length] = j;
+					queue_length++;
+				}
+			}
+		}
+		num_checked++;
+	}
+	return lambda;
+}
 
+int on_longest_path[num_vertices];
+int on_longest_length;
+
+void make_move_3(int orientation[num_vertices][num_vertices], int v, int j) {
+
+}
+
+void tabucol_3() {
+	int orientation_temp[num_vertices][num_vertices];
+	int d_p_temp[num_vertices];
+	int d_m_temp[num_vertices];
+	bool found[num_vertices];
+	int lambda = populate_distances(orientation, d_plus, d_minus);
+	for (int i = 0; i < num_vertices; i++) {
+		tabu_list[i][0] = 0;
+		tabu_list[i][1] = 0;
+	}
+	for (int t = 0; t < t_3_iterations; t++) {
+		on_longest_length = 0;
+		for (int i = 0; i < num_vertices; i++) {
+			found[i] = false;
+		}
+		for (int i = 0; i < num_vertices; i++) {
+			for (int j = i; j < num_vertices; j++) {
+				if ((orientation[i][j] == 1 && d_minus[i] + d_plus[j] == lambda) || (orientation[i][j] == -1 && d_minus[j] + d_plus[i] == lambda)) {
+					if (!found[i]) {
+						found[i] = true;
+						on_longest_path[on_longest_length] = i;
+						on_longest_length++;
+					}
+					if (!found[j]) {
+						found[j] = true;
+						on_longest_path[on_longest_length] = j;
+						on_longest_length++;
+					}
+				}
+			}
+		}
+		bool move_made = false;
+		bool initial = true;
+		int b_lambda; int b_v; int b_j;
+		for (int i = 0; i < on_longest_length; i++) {
+			for (int j = 0; j < 2; j++) {
+				int v = on_longest_path[i];
+				copy(&orientation[0][0], &orientation[0][0] + num_vertices * num_vertices, &orientation_temp[0][0]);
+				make_move_3(orientation_temp, v, j);
+				int t_l = populate_distances(orientation_temp, d_p_temp, d_m_temp);
+				if (t_l < lambda) {
+					tabu_list[v][1 - j] = t + random_L(seed) + tabu_tenure * on_longest_length;
+					copy(&orientation_temp[0][0], &orientation_temp[0][0] + num_vertices * num_vertices, &orientation[0][0]);
+					copy(begin(d_p_temp), end(d_p_temp), begin(d_plus));
+					copy(begin(d_m_temp), end(d_m_temp), begin(d_minus));
+					lambda = t_l;
+					move_made = true;
+					break;
+				} else if (tabu_list[v][j] <= t && (initial || t_l < b_lambda)) {
+					initial = false;
+					b_lambda = t_l; b_v = v; b_j = j;
+				}
+			}
+			if (move_made) {
+				break;
+			}
+		}
+		if (!move_made && !initial) {
+			make_move_3(orientation, b_v, b_j);
+			lambda = b_lambda;
+			tabu_list[b_v][1 - b_j] = t + random_L(seed) + tabu_tenure * on_longest_length;
+		}
+	}
 }
 
 int main(){
@@ -318,10 +478,10 @@ int main(){
 	for (int t = 0; t < num_iterations; t++) {
 		tabucol_1();
 		t13(colouring);
-		//tabucol_3();
+		tabucol_3();
 		t32(colouring);
-		//tabucol_2();
-		//t21(colouring);
+		tabucol_2();
+		t21(colouring);
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		cout << colouring[i] << " ";

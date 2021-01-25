@@ -238,6 +238,7 @@ int main(){
 		if (!move_made && !initial) {
 			// Make the move on orientation
 			make_move(orientation, b_v, b_j);
+			populate_distances(orientation, d_plus, d_minus);
 			lambda = b_lambda;
 			// Make the move tabu
 			tabu_list[b_v][1 - b_j] = t + random_L(seed) + tabu_tenure * on_longest_length;
