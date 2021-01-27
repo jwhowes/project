@@ -43,8 +43,8 @@ int adj_matrix[num_vertices][num_vertices];/* = {
 float tau[num_vertices][num_vertices];
 
 const int num_ants = 50;
-const int num_iterations = 3000;
-const auto duration = chrono::minutes{ 2 };
+const int num_iterations = 10;
+const auto duration = chrono::minutes{5};
 
 int ant_solution[num_ants][num_vertices];
 int ant_path[num_ants][num_vertices];  // Stores the path each ant takes through the construction graph (for Daemon actions)
@@ -152,15 +152,18 @@ float eta(int ant, int v) {
 }
 
 int main(){
+	cout << "ACO\n";
 	read_graph("dsjc250.5.col");
 	int best[num_vertices];
 	int f_best;
 	float weight[num_vertices];
 	initialise_pheromones();
 	int v;
-	int t = 0;
+	//int t = 0;
 	auto start = chrono::high_resolution_clock::now();
-	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
+	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
+	for(int t = 0; t < num_iterations; t++){
+		cout << t << endl;
 		// Initialise ants (to a random vertex)
 		initialise_ants();
 		for (int i = 0; i < num_ants; i++) {
@@ -241,13 +244,14 @@ int main(){
 				tau[i][j] *= 1 - rho;
 			}
 		}
-		t++;
+		//t++;
 	}
 	// Return best solution
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best[i] << " ";
 	}
 	cout << endl << "Number of colours: " << f_best;
-	cout << endl << "Number of iterations: " << t;
+	//cout << endl << "Number of iterations: " << t;
+	cout << endl << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count();
 	return 0;
 }

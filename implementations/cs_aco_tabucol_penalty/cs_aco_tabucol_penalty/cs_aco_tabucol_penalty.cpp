@@ -56,7 +56,7 @@ int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 int k;
 
 const int num_iterations = 100;
-const auto duration = chrono::minutes{ 2 };
+const auto duration = chrono::minutes{5};
 
 const int num_nests = 50;
 const float pa = 0.1;
@@ -473,6 +473,7 @@ int tabucol(int * colouring) {
 }
 
 int main() {
+	cout << "CSACO_enhanced\n";
 	read_graph("dsjc250.5.col");
 	//make_graph(0.5);
 	int u = 0;
@@ -509,7 +510,6 @@ int main() {
 				int n = num_colours(nest_temp);
 				if (n <= k && is_legal(nest_temp)) {
 					copy(begin(nest_temp), end(nest_temp), begin(best_colouring));
-					cout << k << endl;
 					k = n - 1;
 					random_colour = uniform_int_distribution<int>(0, k - 1);
 				}

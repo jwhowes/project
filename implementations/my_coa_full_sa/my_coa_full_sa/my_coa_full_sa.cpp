@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 100
+#define NUM_VERTICES 250
 #define N_MAX 50
 
 // DON'T FORGET TO ADD A MINIMISE FUNCTION (I think this one needs it)
@@ -14,6 +14,9 @@
 	// 100 vertices: 24 colours, 17.4263 seconds
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <array>
 #include <vector>
 #include <math.h>
@@ -25,6 +28,8 @@
 
 using namespace std;
 using namespace boost::random;
+
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
 struct Cuckoo {
 	int cuckoo[NUM_VERTICES];
@@ -62,6 +67,8 @@ int n_pop = 5;
 
 const int alpha = 1;
 const int num_iterations = 3000;
+chrono::time_point<chrono::steady_clock> start;
+const auto duration = chrono::minutes{5};
 const float p = 0.1;
 const int min_eggs = 5;
 const int max_eggs = 20;
@@ -94,6 +101,31 @@ void make_graph(float edge_probability) {  // Populates adj_matrix with a random
 			}
 		}
 	}
+}
+
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+				adj_list[u][adj_list_length[u]] = v; adj_list[v][adj_list_length[v]] = u;
+				adj_list_length[u]++; adj_list_length[v]++;
+			}
+		}
+	}
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
 }
 
 int num_colours(int * x) {  // Returns the fitness of a cuckoo (number of colours used)
@@ -329,7 +361,9 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 int egg_temp[NUM_VERTICES];
 int parent_temp[NUM_VERTICES];
 int main() {
-	make_graph(0.5);
+	cout << "COA Full SA\n";
+	//make_graph(0.5);
+	read_graph("dsjc250.5.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
@@ -340,7 +374,9 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	auto start = chrono::high_resolution_clock::now();
-	for (int t = 0; t < num_iterations; t++) {
+	int t = 0;
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		t++;
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -362,12 +398,11 @@ int main() {
 					copy(begin(egg_temp), end(egg_temp), begin(cuckoos[n_pop + egg].cuckoo));
 					cuckoos[n_pop + egg].fitness = f(cuckoos[n_pop + egg].cuckoo);
 					egg++;
-				}
-				else {
+				} else {
 					egg_fitness = f(egg_temp);
 					int d = egg_fitness - cuckoos[i].fitness;
 					if (d < 0 || uni(seed) <= exp(-d / T)) {
-						copy(begin(egg_temp), end(egg_temp), begin(egg_temp));
+						copy(begin(egg_temp), end(egg_temp), begin(cuckoos[i].cuckoo));
 						cuckoos[i].fitness = egg_fitness;
 					}
 				}
@@ -394,6 +429,6 @@ int main() {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
-	cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
+	cout << "Number of iterations: " << t << endl;
 	return 0;
 }

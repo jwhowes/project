@@ -14,5 +14,5 @@ c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations
           [
               IntType=int
           ]
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_enhanced\my_coa_colouring_enhanced\my_coa_colouring_enhanced.cpp(399): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_enhanced\my_coa_colouring_enhanced\my_coa_colouring_enhanced.cpp(400): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
   my_coa_colouring_enhanced.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\my_coa_colouring_enhanced\Debug\my_coa_colouring_enhanced.exe

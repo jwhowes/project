@@ -41,7 +41,7 @@ const float lambda = 0.6;
 const int num_iterations = 3000;
 
 chrono::time_point<chrono::steady_clock> start;
-const auto duration = chrono::minutes{2};
+const auto duration = chrono::minutes{5};
 
 int s[num_vertices];
 
@@ -262,6 +262,7 @@ int num_colours(int * x) {
 }
 
 int main(){
+	cout << "TABUCOL\n";
 	read_graph("dsjc250.5.col");
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;

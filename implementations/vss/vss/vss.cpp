@@ -1,5 +1,9 @@
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <algorithm>
+#include <chrono>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -8,8 +12,10 @@
 using namespace std;
 using namespace boost::random;
 
-const int num_vertices = 10;
-int adj_matrix[num_vertices][num_vertices] = {
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+
+const int num_vertices = 250;
+int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
 	{0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
@@ -20,9 +26,9 @@ int adj_matrix[num_vertices][num_vertices] = {
 	{0, 0, 1, 0, 0, 1, 0, 0, 0, 1},
 	{0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
 	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
-};
+};*/
 
-int adj_list[num_vertices][num_vertices] = {
+int adj_list[num_vertices][num_vertices];/* = {
 	{1, 4, 5, 0, 0, 0, 0, 0, 0, 0},
 	{0, 2, 6, 0, 0, 0, 0, 0, 0, 0},
 	{1, 3, 7, 0, 0, 0, 0, 0, 0, 0},
@@ -33,23 +39,51 @@ int adj_list[num_vertices][num_vertices] = {
 	{2, 5, 9, 0, 0, 0, 0, 0, 0, 0},
 	{3, 5, 6, 0, 0, 0, 0, 0, 0, 0},
 	{4, 6, 7, 0, 0, 0, 0, 0, 0, 0}
-};
+};*/
 
-int adj_list_length[num_vertices] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 
-const int k = 3;
+int k;
 
 const int num_iterations = 3000;
+chrono::time_point<chrono::steady_clock> start;
+const auto duration = chrono::minutes{5};
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
-uniform_int_distribution<int> random_colour(0, k - 1);
+uniform_int_distribution<int> random_colour;//(0, k - 1);
 
 int colouring[num_vertices];
+int best_colouring[num_vertices];
 
 int orientation[num_vertices][num_vertices];
 int d_plus[num_vertices];
 int d_minus[num_vertices];
+
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+				adj_list[u][adj_list_length[u]] = v; adj_list[v][adj_list_length[v]] = u;
+				adj_list_length[u]++; adj_list_length[v]++;
+			}
+		}
+	}
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
+}
 
 int f1(int * col) {
 	int num = 0;
@@ -88,7 +122,7 @@ void t12(int * col) {
 }
 
 int order[num_vertices];
-int colour_counts[k];
+int colour_counts[num_vertices];
 void t21(int * col) {
 	random_shuffle(begin(order), end(order));
 	for (int v : order) {
@@ -466,26 +500,87 @@ void tabucol_3() {
 	}
 }
 
-int main(){
-	// Populate order array
-	for (int i = 0; i < num_vertices; i++) {
-		order[i] = i;
-	}
-	// Generate initial solution
+bool find_colouring() {
 	for (int i = 0; i < num_vertices; i++) {
 		colouring[i] = random_colour(seed);
 	}
-	for (int t = 0; t < num_iterations; t++) {
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
 		tabucol_1();
+		if (f1(colouring) == 0) {
+			copy(begin(colouring), end(colouring), begin(best_colouring));
+			return true;
+		}
 		t13(colouring);
 		tabucol_3();
 		t32(colouring);
 		tabucol_2();
 		t21(colouring);
 	}
+	return false;
+}
+
+int num_colours(int * x) {
+	bool found[num_vertices];
+	int num = 0;
 	for (int i = 0; i < num_vertices; i++) {
-		cout << colouring[i] << " ";
+		found[i] = false;
 	}
-	cout << endl << "Number of conflicts: " << f1(colouring) << endl;
+	for (int i = 0; i < num_vertices; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
+}
+
+bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
+			return false;
+		}
+	}
+	return true;  // If no such i can be found then the assignment is valid
+}
+
+int chromatic_bound() {
+	int ret = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		int c = 0;
+		while (true) {
+			if (valid(i, c, best_colouring)) {
+				best_colouring[i] = c;
+				if (c > ret) {
+					ret = c;
+				}
+				break;
+			}
+			c++;
+		}
+	}
+	return ret + 1;
+}
+
+int main(){
+	cout << "VSS\n";
+	read_graph("dsjc250.5.col");
+	// Populate order array
+	for (int i = 0; i < num_vertices; i++) {
+		order[i] = i;
+	}
+	k = chromatic_bound() - 1;
+	// Generate initial solution
+	bool found_colouring = true;
+	start = chrono::high_resolution_clock::now();
+	while (found_colouring) {
+		random_colour = uniform_int_distribution<int>(0, k - 1);
+		found_colouring = find_colouring();
+		k = num_colours(best_colouring) - 1;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		cout << best_colouring[i] << " ";
+	}
+	cout << endl << "Number of colours: " << num_colours(best_colouring) << endl;
+	cout << endl << "Number of conflicts: " << f1(best_colouring) << endl;
 	return 0;
 }

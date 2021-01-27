@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 300
+#define NUM_VERTICES 250
 #define N_MAX 50
 
 // Time taken (full parameters):
@@ -42,7 +42,7 @@ int n_pop = 5;
 const int alpha = 5;
 const int num_iterations = 3000;
 chrono::time_point<chrono::steady_clock> start;
-const auto duration = chrono::minutes{ 2 };
+const auto duration = chrono::minutes{5};
 const float p = 0.1;
 const int min_eggs = 5;
 const int max_eggs = 20;
@@ -362,8 +362,9 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
+	cout << "COA_enhanced\n";
 	//make_graph(0.5);
-	read_graph("flat300_26.col");
+	read_graph("dsjc250.5.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;

@@ -49,7 +49,7 @@ int k;
 
 const int num_iterations = 100;
 chrono::time_point<chrono::steady_clock> start;
-const auto duration = chrono::minutes{ 2 };
+const auto duration = chrono::minutes{ 5 };
 
 const float rho = 0.5;
 const float t_pow = 1;
@@ -360,13 +360,13 @@ int num_colours(int * x) {
 }
 
 int main() {
-	//read_graph("dsjc250.5.col");
-	make_graph(0.5);
+	cout << "GA\n";
+	read_graph("dsjc250.5.col");
+	//make_graph(0.5);
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
 	while (found_colouring) {
-		cout << k + 1 << endl;
 		found_colouring = find_colouring();
 		k = num_colours(colouring) - 1;
 	}

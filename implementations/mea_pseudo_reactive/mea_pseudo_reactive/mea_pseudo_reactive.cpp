@@ -1,5 +1,9 @@
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <algorithm>
+#include <chrono>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -8,10 +12,12 @@
 using namespace std;
 using namespace boost::random;
 
-const int num_vertices = 10;
-const int k = 3;
+const int num_vertices = 250;
+int k = 3;
 
-int adj_matrix[num_vertices][num_vertices] = {
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+
+int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
 	{0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
@@ -22,9 +28,35 @@ int adj_matrix[num_vertices][num_vertices] = {
 	{0, 0, 1, 0, 0, 1, 0, 0, 0, 1},
 	{0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
 	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
-};
+};*/
 
-const int num_iterations = 1;
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+			}
+		}
+	} else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
+}
+
+int best_col[num_vertices];
+
+const int num_iterations = 100;
+chrono::time_point<chrono::steady_clock> start;
+const auto duration = chrono::minutes{5};
 
 const int num_agents = 20;
 const int q = 500;
@@ -42,7 +74,7 @@ int elite_list[elite_list_size][num_vertices];
 int elite_fitness[elite_list_size];
 
 mt19937 seed;
-uniform_int_distribution<int> random_colour(0, k - 1);
+uniform_int_distribution<int> random_colour;// (0, k - 1);
 uniform_real_distribution<float> uni(0, 1);
 uniform_int_distribution<int> random_elite(0, elite_list_size - 1);
 
@@ -289,11 +321,26 @@ int tabucol(int * col, int fitness) {
 	return f(col);
 }
 
-int main() {
-	int solution = -1;
+bool found[num_vertices];
+int num_colours(int * x) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
+}
+
+bool find_colouring() {
 	int temp_agent[num_vertices];
 	generate_agents();
-	for (int t = 0; t < num_iterations; t++) {
+	int t = 0;
+	while(chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start) < duration){
 		for (int a = 0; a < num_agents; a++) {
 			lifespans[a]--;
 			if (lifespans[a] <= 0) {
@@ -309,7 +356,7 @@ int main() {
 			}
 		}
 		for (int a = 0; a < num_agents; a++) {
-			if (lifespans[a] > 0) {
+			if(lifespans[a] > 0) {
 				copy(begin(agents[a]), end(agents[a]), begin(temp_agent));
 				int t_f = tabucol(temp_agent, fitness[a]);
 				if (uni(seed) <= r || t_f < fitness[a]) {
@@ -318,22 +365,57 @@ int main() {
 					fitness[a] = t_f;
 				}
 				if (fitness[a] == 0) {
-					solution = a;
+					copy(begin(agents[a]), end(agents[a]), begin(best_col));
+					return true;
 				}
 			}
 		}
-		if (solution != -1) {
-			break;
+		t++;
+	}
+	return false;
+}
+
+bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
+	for (int i = 0; i < num_vertices; i++) {
+		if (adj_matrix[i][v] == 1 && col[i] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
+			return false;
 		}
 	}
-	if (solution != -1) {
-		for (int v = 0; v < num_vertices; v++) {
-			cout << agents[solution][v] << " ";
+	return true;  // If no such i can be found then the assignment is valid
+}
+
+int chromatic_bound() {
+	int ret = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		int c = 0;
+		while (true) {
+			if (valid(i, c, best_col)) {
+				best_col[i] = c;
+				if (c > ret) {
+					ret = c;
+				}
+				break;
+			}
+			c++;
 		}
-		cout << endl << "Number of conflicts: " << fitness[solution] << endl;
 	}
-	else {
-		cout << "No solution found" << endl;
+	return ret + 1;
+}
+
+int main() {
+	cout << "MEA pseudo-reactive\n";
+	read_graph("dsjc250.5.col");
+	k = chromatic_bound() - 1;
+	bool found_colouring = true;
+	start = chrono::high_resolution_clock::now();
+	while (found_colouring) {
+		random_colour = uniform_int_distribution<int>(0, k - 1);
+		found_colouring = find_colouring();
+		k = num_colours(best_col) - 1;
 	}
+	for (int i = 0; i < num_vertices; i++) {
+		cout << best_col[i] << " ";
+	}
+	cout << endl << "Number of colours: " << num_colours(best_col);
 	return 0;
 }

@@ -46,7 +46,7 @@ int adj_matrix[num_vertices][num_vertices];/* = {
 const int pop_size = 50;
 const int num_iterations = 3000;
 chrono::time_point<chrono::steady_clock> start;
-const auto duration = chrono::minutes{ 2 };
+const auto duration = chrono::minutes{ 5 };
 const float mutation_prob = 0.1f;
 
 Partition population[pop_size];
@@ -304,15 +304,15 @@ int num_colours(int * x) {
 }
 
 int main() {
-	make_graph(0.5);
-	//read_graph("dsjc250.5.col");
+	cout << "GA\n";
+	//make_graph(0.5);
+	read_graph("dsjc250.5.col");
 	k = chromatic_bound() - 1;
 	random_colour = uniform_int_distribution<int>(0, k - 1);
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
 	t = 0;
 	while (found_colouring) {
-		cout << k + 1 << endl;
 		found_colouring = find_colouring();
 		k = num_colours(colouring) - 1;
 		random_colour = uniform_int_distribution<int>(0, k - 1);
@@ -322,6 +322,5 @@ int main() {
 	}
 	cout << endl << "Number of colours: " << num_colours(colouring);
 	cout << endl << "Number of iterations: " << t;
-	cout << endl << "Time taken (minutes): " << chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

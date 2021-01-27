@@ -169,19 +169,22 @@ void get_neighbour() {  // Copy s into neighbour first
 }
 
 int main(){
+	cout << "SA\n";
 	//make_graph(0.5);
 	read_graph("dsjc250.5.col");
 	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
 	}
 	auto start = chrono::high_resolution_clock::now();
-	const auto duration = chrono::minutes{2};
+	const auto duration = chrono::minutes{5};
 	generate_initial_solution();
 	c = f(s);
 	copy(begin(s), end(s), begin(best_s));
 	best_c = c;
 	int freeze_count = 0;
+	int t = 0;
 	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration/*freeze_count < freeze_lim*/) {
+		t++;
 		int changes = 0; int trials = 0;
 		bool best_changed = false;
 		while (trials < size_factor * num_colours(s) * num_vertices && changes < cutoff * num_colours(s) * num_vertices) {  // Maybe make sure the float multiplication is returning a float
@@ -217,6 +220,6 @@ int main(){
 		std::cout << best_s[i] << " ";
 	}
 	std::cout << endl << "Number of colours: " << num_colours(best_s) << endl;
-	std::cout << "Time taken (microseconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count();
+	std::cout << "Number of iterations: " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count();
 	return 0;
 }
