@@ -35,6 +35,8 @@ int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
 };*/
 
+const int num_iterations = 10;
+
 void make_graph(float edge_probability) {
 	for (int i = 0; i < num_vertices; i++) {
 		for (int j = 0; j < i; j++) {
@@ -182,9 +184,10 @@ int main(){
 	copy(begin(s), end(s), begin(best_s));
 	best_c = c;
 	int freeze_count = 0;
-	int t = 0;
-	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration/*freeze_count < freeze_lim*/) {
-		t++;
+	//int t = 0;
+	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration/*freeze_count < freeze_lim*/) {
+	for(int t = 0; t < num_iterations; t++){
+		//t++;
 		int changes = 0; int trials = 0;
 		bool best_changed = false;
 		while (trials < size_factor * num_colours(s) * num_vertices && changes < cutoff * num_colours(s) * num_vertices) {  // Maybe make sure the float multiplication is returning a float
@@ -220,6 +223,6 @@ int main(){
 		std::cout << best_s[i] << " ";
 	}
 	std::cout << endl << "Number of colours: " << num_colours(best_s) << endl;
-	std::cout << "Number of iterations: " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count();
+	std::cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count();
 	return 0;
 }

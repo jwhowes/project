@@ -1,5 +1,5 @@
 ﻿  sa_assignment.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\sa_assignment\sa_assignment\sa_assignment.cpp(142): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\sa_assignment\sa_assignment\sa_assignment.cpp(162): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\sa_assignment\sa_assignment\sa_assignment.cpp(144): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\sa_assignment\sa_assignment\sa_assignment.cpp(164): warning C4018: '<': signed/unsigned mismatch
   sa_assignment.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\sa_assignment\Debug\sa_assignment.exe

@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 100
+#define NUM_VERTICES 250
 #define N_MAX 50
 
 // Results (alpha = 1):
@@ -28,6 +28,7 @@ using namespace std;
 using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
 struct Cuckoo {
 	int cuckoo[NUM_VERTICES];
@@ -65,7 +66,7 @@ int n_pop = 5;
 
 const int alpha = 1;
 const int num_iterations = 3000;
-const auto duration = chrono::minutes{ 2 };
+const auto duration = chrono::minutes{2};
 const float p = 0.1;
 const int min_eggs = 5;
 const int max_eggs = 20;
@@ -371,8 +372,11 @@ void migrate(int * x, int * y) {
 }
 
 int main() {
-	make_graph(0.5);
-	//read_graph("dsjc250.5.col");
+	cout << "COA_penalty\n";
+	//make_graph(0.5);
+	ofstream ofile;
+	ofile.open(results_directory + "r250.5_coa_penalty.txt");
+	read_graph("r250.5.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
@@ -383,9 +387,10 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	auto start = chrono::high_resolution_clock::now();
-	int t = 0;
-	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-		t++;
+	//int t = 0;
+	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	for(int t = 0; t < num_iterations; t++){
+		//t++;
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -441,13 +446,18 @@ int main() {
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+		if (t % 10 == 0) {
+			ofile << num_colours(cuckoos[0].cuckoo) << endl;
+		}
 	}
+	ofile.close();
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
 	cout << "Number of conflicts: " << num_conflicts(cuckoos[0].cuckoo) << endl;
-	cout << "Number of iterations: " << t << endl;
+	//cout << "Number of iterations: " << t << endl;
+	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

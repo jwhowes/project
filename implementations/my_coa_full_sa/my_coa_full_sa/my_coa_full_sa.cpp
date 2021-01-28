@@ -66,7 +66,7 @@ int adj_list_length[NUM_VERTICES];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 int n_pop = 5;
 
 const int alpha = 1;
-const int num_iterations = 3000;
+const int num_iterations = 10;
 chrono::time_point<chrono::steady_clock> start;
 const auto duration = chrono::minutes{5};
 const float p = 0.1;
@@ -374,9 +374,10 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	auto start = chrono::high_resolution_clock::now();
-	int t = 0;
-	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-		t++;
+	//int t = 0;
+	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	for(int t = 0; t < num_iterations; t++){
+		//t++;
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -429,6 +430,7 @@ int main() {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
-	cout << "Number of iterations: " << t << endl;
+	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	//cout << "Number of iterations: " << t << endl;
 	return 0;
 }

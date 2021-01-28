@@ -44,7 +44,7 @@ int adj_matrix[num_vertices][num_vertices];/* = {
 };*/
 
 const int pop_size = 50;
-const int num_iterations = 3000;
+const int num_iterations = 10;
 chrono::time_point<chrono::steady_clock> start;
 const auto duration = chrono::minutes{ 5 };
 const float mutation_prob = 0.1f;

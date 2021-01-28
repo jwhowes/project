@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 550
+#define NUM_VERTICES 250
 #define N_MAX 50
 
 // Time taken (full parameters):
@@ -8,6 +8,9 @@
 	// 1000 vertices: 22.3274971833 mins (124 colours)
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <array>
 #include <vector>
 #include <math.h>
@@ -19,6 +22,9 @@
 
 using namespace std;
 using namespace boost::random;
+
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
 struct Cuckoo {
 	int cuckoo[NUM_VERTICES];
@@ -32,7 +38,7 @@ int adj_list_length[NUM_VERTICES];
 
 int n_pop = 5;
 
-const int alpha = 1;
+const int alpha = 5;
 const int num_iterations = 3000;
 const float p = 0.1;
 const int min_eggs = 5;
@@ -66,14 +72,44 @@ void make_graph(float edge_probability) {  // Populates adj_matrix with a random
 	}
 }
 
-int f(int * x) {  // Returns the fitness of a cuckoo (number of colours used)
-	int max = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
-		if (x[i] > max) {
-			max = x[i];
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+				adj_list[u][adj_list_length[u]] = v; adj_list[v][adj_list_length[v]] = u;
+				adj_list_length[u]++; adj_list_length[v]++;
+			}
 		}
 	}
-	return max + 1;
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
+}
+
+bool found[NUM_VERTICES];
+int f(int * x) {
+	int num = 0;
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
 }
 
 int d(int * x, int * y) {  // Returns the hamming distance between two colourings
@@ -282,7 +318,11 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
-	make_graph(0.5);
+	cout << "COA_basic\n";
+	ofstream ofile;
+	ofile.open(results_directory + "r250.5_coa_basic.txt");
+	read_graph("r250.5.col");
+	//make_graph(0.5);
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
@@ -348,6 +388,9 @@ int main() {
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+		if (t % 10 == 0) {
+			ofile << cuckoos[0].fitness << endl;
+		}
 	}
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < NUM_VERTICES; i++) {
