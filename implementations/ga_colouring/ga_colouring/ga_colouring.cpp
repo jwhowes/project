@@ -20,9 +20,10 @@ using namespace std;
 using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
 int k;
-const int num_vertices = 100;
+const int num_vertices = 250;
 
 struct Partition {
 	int partition[num_vertices][num_vertices];
@@ -44,7 +45,7 @@ int adj_matrix[num_vertices][num_vertices];/* = {
 };*/
 
 const int pop_size = 50;
-const int num_iterations = 10;
+const int num_iterations = 3000;
 chrono::time_point<chrono::steady_clock> start;
 const auto duration = chrono::minutes{ 5 };
 const float mutation_prob = 0.1f;
@@ -110,6 +111,7 @@ int f(Partition & x) {
 Partition parents[2];
 bool uncoloured[num_vertices];
 void gpx(Partition & p1, Partition & p2, Partition & x) {
+	bool col_zero = false;
 	for (int i = 0; i < num_vertices; i++) {
 		uncoloured[i] = true;
 	}
@@ -176,7 +178,115 @@ void generate_member(Partition & x) {
 	}
 }
 
-void mutate(Partition & x) {  // Randomly moves a vertex from one colour class to another
+int ass_num_conflicts(int * col) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		for (int j = 0; j < i; j++) {
+			if (adj_matrix[i][j] == 1 && col[i] == col[j]) {
+				num++;
+			}
+		}
+	}
+	return num;
+}
+
+const int tabucol_iterations = 10;
+const float lambda = 0.6;
+uniform_int_distribution<int> random_L(0, 9);
+int tabu_list[num_vertices][num_vertices];
+int gamma[num_vertices][num_vertices];
+int critical_vertices[num_vertices];
+int num_critical;
+
+void inline update_gamma(int v, int c, int * col) {
+	for (int i = 0; i < num_vertices; i++) {
+		if (adj_matrix[v][i] == 1) {
+			gamma[i][c]++;
+			gamma[i][col[v]]++;
+		}
+	}
+}
+
+void get_critical_vertices(int * col) {
+	num_critical = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (gamma[i][colouring[i]] > 0) {
+			critical_vertices[num_critical] = i;
+			num_critical++;
+		}
+	}
+}
+
+void make_move(int t, int * col) {
+	bool initial = true;
+	int best_v; int best_c; int best_d;
+	get_critical_vertices(col);
+	for (int i = 0; i < num_critical; i++) {
+		int v = critical_vertices[i];
+		for (int c = 0; c < k; c++) {
+			int d = gamma[v][c] - gamma[v][col[v]];
+			if (d < 0) {
+				update_gamma(v, c, col);
+				col[v] = c;
+				tabu_list[v][c] = t + random_L(seed) + lambda * num_critical;
+				return;
+			} else if (tabu_list[v][c] <= t && (initial || d < best_d)) {
+				initial = false;
+				best_d = d; best_v = v; best_c = c;
+			}
+		}
+	}
+	if (!initial) {
+		update_gamma(best_v, best_c, col);
+		col[best_v] = best_c;
+		tabu_list[best_v][best_c] = t + random_L(seed) + lambda * num_critical;
+	}
+}
+
+void ass_to_partition(int * ass, Partition & part) {
+	for (int c = 0; c < k; c++) {
+		part.partition_length[c] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		part.partition[ass[i]][part.partition_length[ass[i]]] = i;
+		part.partition_length[ass[i]]++;
+	}
+}
+
+void tabucol(Partition & x) {
+	int assignment[num_vertices];
+	for (int c = 0; c < k; c++) {
+		for (int i = 0; i < x.partition_length[c]; i++) {
+			assignment[x.partition[c][i]] = c;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (assignment[i] < 0) {
+			assignment[i] = 0;
+		}
+		for (int j = 0; j < k; j++) {
+			tabu_list[i][j] = 0;
+			gamma[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		for (int j = 0; j < num_vertices; j++) {
+			if (adj_matrix[i][j] == 1) {
+				gamma[i][assignment[j]]++;
+			}
+		}
+	}
+	for (int t = 0; t < tabucol_iterations; t++) {
+		make_move(t, assignment);
+		if (ass_num_conflicts(assignment) == 0) {
+			ass_to_partition(assignment, x);
+			return;
+		}
+	}
+	ass_to_partition(assignment, x);
+}
+
+/*void mutate(Partition & x) {  // Randomly moves a vertex from one colour class to another
 	int c = random_colour(seed);
 	while (x.partition_length[c] == 0) {
 		c = (c + 1) % k;
@@ -190,7 +300,7 @@ void mutate(Partition & x) {  // Randomly moves a vertex from one colour class t
 	x.partition[d][x.partition_length[d]] = v;
 	x.partition_length[d]++;
 	//x[d].push_back(v);
-}
+}*/
 
 bool compare_partitions(Partition & x, Partition & y) {
 	return x.fitness < y.fitness;
@@ -232,7 +342,23 @@ void partition_to_colouring(Partition & p) {
 	}
 }
 
+bool found[num_vertices];
+int num_colours(int * x) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
+}
+
 int t;
+ofstream ofile;
 bool find_colouring() {
 	int p1; int p2;
 	int F;
@@ -240,8 +366,8 @@ bool find_colouring() {
 		generate_member(population[i]);
 		population[i].fitness = f(population[i]);
 	}
-	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-		t++;
+	//while(t < num_iterations) {
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
 		sort(begin(population), end(population), compare_partitions);
 		F = 0;
 		for (int i = 0; i < pop_size; i++) {
@@ -251,7 +377,7 @@ bool find_colouring() {
 			get_parents(&p1, &p2, F);
 			gpx(population[p1], population[p2], new_population[i]);
 			if (uni(seed) < mutation_prob) {
-				mutate(new_population[i]);
+				tabucol(new_population[i]);
 			}
 		}
 		for (int i = 0; i < pop_size; i++) {
@@ -266,6 +392,10 @@ bool find_colouring() {
 			}
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+		//if (t % 10 == 0) {
+		//	ofile << num_colours(colouring) << endl;
+		//}
+		t++;
 	}
 	return false;
 }
@@ -288,23 +418,9 @@ int chromatic_bound() {
 	return ret + 1;
 }
 
-bool found[num_vertices];
-int num_colours(int * x) {
-	int num = 0;
-	for (int i = 0; i < num_vertices; i++) {
-		found[i] = false;
-	}
-	for (int i = 0; i < num_vertices; i++) {
-		if (!found[x[i]]) {
-			found[x[i]] = true;
-			num++;
-		}
-	}
-	return num;
-}
-
 int main() {
 	cout << "GA\n";
+	ofile.open(results_directory + "dsjc250.5_ga.txt");
 	//make_graph(0.5);
 	read_graph("dsjc250.5.col");
 	k = chromatic_bound() - 1;
@@ -317,6 +433,7 @@ int main() {
 		k = num_colours(colouring) - 1;
 		random_colour = uniform_int_distribution<int>(0, k - 1);
 	}
+	ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << colouring[i] << " ";
 	}

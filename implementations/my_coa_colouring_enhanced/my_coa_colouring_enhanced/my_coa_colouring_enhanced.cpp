@@ -1,5 +1,4 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 250
 #define N_MAX 50
 
 // Time taken (full parameters):
@@ -28,15 +27,39 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
+const int num_vertices = 250;
+
 struct Cuckoo {
-	int cuckoo[NUM_VERTICES];
+	int cuckoo[num_vertices];
 	int fitness;
 };
 
-int adj_matrix[NUM_VERTICES][NUM_VERTICES];
+int adj_matrix[num_vertices][num_vertices] = {
+	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
+	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
+	{0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
+	{0, 0, 1, 0, 1, 0, 0, 0, 1, 0},
+	{1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 1, 1, 0},
+	{0, 1, 0, 0, 0, 0, 0, 0, 1, 1},
+	{0, 0, 1, 0, 0, 1, 0, 0, 0, 1},
+	{0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
+	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
+};
 
-int adj_list[NUM_VERTICES][NUM_VERTICES];
-int adj_list_length[NUM_VERTICES];
+int adj_list[num_vertices][num_vertices] = {
+	{1, 4, 5, 0, 0, 0, 0, 0, 0, 0},
+	{0, 2, 6, 0, 0, 0, 0, 0, 0, 0},
+	{1, 3, 7, 0, 0, 0, 0, 0, 0, 0},
+	{2, 4, 8, 0, 0, 0, 0, 0, 0, 0},
+	{0, 3, 9, 0, 0, 0, 0, 0, 0, 0},
+	{0, 7, 8, 0, 0, 0, 0, 0, 0, 0},
+	{1, 8, 9, 0, 0, 0, 0, 0, 0, 0},
+	{2, 5, 9, 0, 0, 0, 0, 0, 0, 0},
+	{3, 5, 6, 0, 0, 0, 0, 0, 0, 0},
+	{4, 6, 7, 0, 0, 0, 0, 0, 0, 0}
+};
+int adj_list_length[num_vertices] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 
 int n_pop = 5;
 
@@ -60,11 +83,11 @@ Cuckoo eggs[N_MAX * max_eggs];
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
-uniform_int_distribution<int> random_vertex(0, NUM_VERTICES - 1);
+uniform_int_distribution<int> random_vertex(0, num_vertices - 1);
 uniform_int_distribution<int> random_egg_num(min_eggs, max_eggs);
 
 void make_graph(float edge_probability) {  // Populates adj_matrix with a random graph
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		adj_list_length[i] = 0;
 		for (int j = 0; j < i; j++) {
 			if (uni(seed) < edge_probability) {
@@ -104,13 +127,13 @@ void read_graph(string filename) {
 	file.close();
 }
 
-bool found[NUM_VERTICES];
+bool found[num_vertices];
 int num_colours(int * x) {
 	int num = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		found[i] = false;
 	}
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		if (!found[x[i]]) {
 			found[x[i]] = true;
 			num++;
@@ -121,7 +144,7 @@ int num_colours(int * x) {
 
 int num_conflicts(int * x) {
 	int num = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		for (int j = 0; j < i; j++) {
 			if (adj_matrix[i][j] == 1 && x[i] == x[j]) {
 				num++;
@@ -133,7 +156,7 @@ int num_conflicts(int * x) {
 
 int max_colour(int * x) {
 	int max = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] > max) {
 			max = x[i];
 		}
@@ -141,13 +164,13 @@ int max_colour(int * x) {
 	return max + 1;
 }
 
-int colour_class_size[NUM_VERTICES];
+int colour_class_size[num_vertices];
 int f(int * x) {
 	int n = max_colour(x);
 	for (int i = 0; i < n; i++) {
 		colour_class_size[i] = 0;
 	}
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		colour_class_size[x[i]]++;
 	}
 	int ret = 0;
@@ -157,15 +180,96 @@ int f(int * x) {
 	return ret;
 }
 
-int d(int * x, int * y) {  // Returns the hamming distance between two colourings
+int pi[num_vertices][num_vertices];
+int d(int * x, int * y) {
+	int k = num_colours(x);
+	int dist = -k;
+	for (int i = 0; i < k; i++) {
+		for (int j = 0; j < k; j++) {
+			pi[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (pi[x[i]][y[i]] == 0) {
+			dist++;
+		}
+		pi[x[i]][y[i]]++;
+	}
+	return dist;
+}
+
+bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
+			return false;
+		}
+	}
+	return true;  // If no such i can be found then the assignment is valid
+}
+
+int ass[num_vertices];
+bool issue[num_vertices];
+void impose(int * x, int * y) {
+	int k = num_colours(x);
+	for (int i = 0; i < k; i++) {
+		for (int j = 0; j < k; j++) {
+			pi[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		ass[i] = -1;
+		found[i] = false;
+		issue[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		pi[x[i]][y[i]]++;
+		if (ass[x[i]] == -1) {
+			ass[x[i]] = y[i];
+			found[y[i]] = true;
+		} else if (y[i] != ass[x[i]]){
+			issue[x[i]] = true;
+		}
+	}
+	/*for (int i = 0; i < num_vertices; i++) {
+		if (issue[x[i]]) {
+			int c = 0;
+			while (found[c]) {
+				c++;
+			}
+			ass[x[i]] = c;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		x[i] = ass[x[i]];
+	}*/
+	for (int i = 0; i < num_vertices; i++) {
+		if (!issue[x[i]]) {
+			x[i] = ass[x[i]];
+		} else {
+			found[i] = true;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (found[i]) {
+			// Recolour i to smallest valid colour different from x[i] and y[i]
+			int c = 0;
+			while (!valid(i, c, x)) {
+				c++;
+			}
+			x[i] = c;
+		}
+	}
+}
+
+/*int d(int * x, int * y) {  // Returns the hamming distance between two colourings
 	int ret = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] != y[i]) {
 			ret++;
 		}
 	}
 	return ret;
-}
+}*/
 
 int d_bar_sum(vector<int> S1, vector<int> & S2) {  // Calculates d_bar between two clusters S1 and S2
 	// Doesn't divide by clusters size to make changing clusters more efficient
@@ -282,16 +386,7 @@ int goal_point() {
 	return gp;
 }
 
-bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
-	for (int i = 0; i < adj_list_length[v]; i++) {
-		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
-			return false;
-		}
-	}
-	return true;  // If no such i can be found then the assignment is valid
-}
-
-int order[NUM_VERTICES];
+int order[num_vertices];
 void generate_cuckoo(int * cuckoo) {  // Populates cuckoo with a random valid colouring
 	// Choose a random ordering of vertices
 	random_shuffle(begin(order), end(order));
@@ -330,17 +425,19 @@ bool reverse_compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 	return c1.fitness > c2.fitness;
 }
 
-int I[NUM_VERTICES];
+int I[num_vertices];
 void migrate(int * x, int * y) {  // Migrates x towards y
 	float r = uni(seed);
+	impose(x, y);
 	// Populate I with all vertices on which x and y disagree
 	int I_length = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] != y[i]) {
 			I[I_length] = i;
 			I_length++;
 		}
 	}
+	random_shuffle(begin(I), begin(I) + I_length);
 	for (int i = 0; i < r * I_length; i++) {  // For a random
 		int v = I[i];
 		// Assign x y's colour for *it
@@ -363,13 +460,13 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
-	cout << "COA_enhanced\n";
+	cout << "COA_imposed\n";
 	ofstream ofile;
-	ofile.open(results_directory + "r250.5_coa_enhanced.txt");
+	ofile.open(results_directory + "dsjc250.5_coa_enhanced_imposed.txt");
 	//make_graph(0.5);
-	read_graph("r250.5.col");
+	read_graph("dsjc250.5.col");
 	// Populate order array for generating cuckoos
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
 	}
 	// Generate initial cuckoo population
@@ -391,7 +488,7 @@ int main() {
 			tot_eggs += num_eggs[i];
 		}
 		for (int i = 0; i < n_pop; i++) {
-			float elr = alpha * (num_eggs[i] / (float)tot_eggs) * NUM_VERTICES;  // Find cuckoo i's elr
+			float elr = alpha * (num_eggs[i] / (float)tot_eggs) * num_vertices;  // Find cuckoo i's elr
 			for (int j = 0; j < num_eggs[i]; j++) {  // Generate num_eggs[i] eggs for cuckoo i and append them to the eggs array
 				copy(begin(cuckoos[i].cuckoo), end(cuckoos[i].cuckoo), begin(eggs[egg].cuckoo));
 				get_egg(eggs[egg].cuckoo, elr);
@@ -444,7 +541,7 @@ int main() {
 	}
 	ofile.close();
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;

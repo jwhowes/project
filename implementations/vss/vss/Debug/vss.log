@@ -1,12 +1,12 @@
 ﻿  vss.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(201): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(248): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(260): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(284): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(294): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(267): warning C4101: 'temp_col': unreferenced local variable
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(479): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(498): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(303): warning C4715: 'make_move_2': not all control paths return a value
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(202): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(249): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(261): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(285): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(295): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(268): warning C4101: 'temp_col': unreferenced local variable
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(480): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(499): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\vss\vss\vss.cpp(304): warning C4715: 'make_move_2': not all control paths return a value
   vss.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\vss\Debug\vss.exe

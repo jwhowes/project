@@ -1,0 +1,20 @@
+﻿  csaco_tsl.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(63): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(64): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(75): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(75): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(175): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(218): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(226): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(275): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(325): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(340): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(345): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(400): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(432): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(445): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(453): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(515): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\csaco_tsl\csaco_tsl\csaco_tsl.cpp(543): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  csaco_tsl.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\csaco_tsl\Debug\csaco_tsl.exe

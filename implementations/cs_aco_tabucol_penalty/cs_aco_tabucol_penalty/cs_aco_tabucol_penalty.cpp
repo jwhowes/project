@@ -28,7 +28,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 250;
+const int num_vertices = 300;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -57,7 +57,7 @@ int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 int k;
 
 const int num_iterations = 3000;
-const auto duration = chrono::minutes{5};
+const auto duration = chrono::minutes{60};
 
 const int num_nests = 50;
 const float pa = 0.1;
@@ -328,7 +328,7 @@ float levy_flight(int * nest, int * e, int start, int index) {
 		do {
 			u++;
 			r -= weight[u] / weight_sum;
-		} while (r > 0);
+		} while (r > 0 && u < num_vertices - 1);
 		// Recolour v to colour causing fewest conflicts
 		v = u;
 	}
@@ -425,8 +425,7 @@ void tabucol_make_move(int t, int * colouring) {
 					colouring[v] = c;
 					tabu_list[v][c] = t + random_L(seed) + lambda * num_critical;
 					return;
-				}
-				else if (tabu_list[v][c] <= t && (initial || d < best_d)) {
+				} else if (tabu_list[v][c] <= t && (initial || d < best_d)) {
 					initial = false;
 					best_d = d; best_v = v; best_c = c;
 				}
@@ -468,8 +467,8 @@ int tabucol(int * colouring) {
 int main() {
 	cout << "CSACO_enhanced\n";
 	ofstream ofile;
-	ofile.open(results_directory + "r250.5_csaco_tabucol.txt");
-	read_graph("r250.5.col");
+	ofile.open(results_directory + "flat300_26_csaco_tabucol.txt");
+	read_graph("flat300_26.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {

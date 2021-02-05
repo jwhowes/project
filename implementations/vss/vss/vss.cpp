@@ -13,8 +13,9 @@ using namespace std;
 using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 250;
+const int num_vertices = 300;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -201,7 +202,7 @@ uniform_int_distribution<int> random_L(0, 9);
 const float tabu_tenure = 0.6;
 const int I_t = 10;
 const int tabucol_iterations = 100;
-const int t_3_iterations = 10;
+const int t_3_iterations = 1;
 
 void get_critical_vertices(int * colouring) {
 	num_critical = 0;
@@ -500,25 +501,6 @@ void tabucol_3() {
 	}
 }
 
-bool find_colouring() {
-	for (int i = 0; i < num_vertices; i++) {
-		colouring[i] = random_colour(seed);
-	}
-	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-		tabucol_1();
-		if (f1(colouring) == 0) {
-			copy(begin(colouring), end(colouring), begin(best_colouring));
-			return true;
-		}
-		t13(colouring);
-		tabucol_3();
-		t32(colouring);
-		tabucol_2();
-		t21(colouring);
-	}
-	return false;
-}
-
 int num_colours(int * x) {
 	bool found[num_vertices];
 	int num = 0;
@@ -532,6 +514,32 @@ int num_colours(int * x) {
 		}
 	}
 	return num;
+}
+
+int t;
+ofstream ofile;
+bool find_colouring() {
+	for (int i = 0; i < num_vertices; i++) {
+		colouring[i] = random_colour(seed);
+	}
+	while(t < num_iterations){
+	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		tabucol_1();
+		if (t % 10 == 0) {
+			ofile << num_colours(colouring) << endl;
+		}
+		t++;
+		if (f1(colouring) == 0) {
+			copy(begin(colouring), end(colouring), begin(best_colouring));
+			return true;
+		}
+		t13(colouring);
+		tabucol_3();
+		t32(colouring);
+		tabucol_2();
+		t21(colouring);
+	}
+	return false;
 }
 
 bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
@@ -563,7 +571,8 @@ int chromatic_bound() {
 
 int main(){
 	cout << "VSS\n";
-	read_graph("dsjc250.5.col");
+	read_graph("flat300_26.col");
+	ofile.open(results_directory + "flat300_26_vss.txt");
 	// Populate order array
 	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
@@ -577,6 +586,7 @@ int main(){
 		found_colouring = find_colouring();
 		k = num_colours(best_colouring) - 1;
 	}
+	ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_colouring[i] << " ";
 	}

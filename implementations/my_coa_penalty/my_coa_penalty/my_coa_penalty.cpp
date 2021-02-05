@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 250
+#define NUM_VERTICES 300
 #define N_MAX 50
 
 // Results (alpha = 1):
@@ -375,8 +375,8 @@ int main() {
 	cout << "COA_penalty\n";
 	//make_graph(0.5);
 	ofstream ofile;
-	ofile.open(results_directory + "r250.5_coa_penalty.txt");
-	read_graph("r250.5.col");
+	ofile.open(results_directory + "flat300_26_coa_penalty.txt");
+	read_graph("flat300_26.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;

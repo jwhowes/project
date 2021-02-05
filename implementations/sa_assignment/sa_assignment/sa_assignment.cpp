@@ -15,8 +15,9 @@ using namespace std;
 using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 250;
+const int num_vertices = 500;
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
@@ -35,7 +36,7 @@ int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
 };*/
 
-const int num_iterations = 10;
+const int num_iterations = 3000;
 
 void make_graph(float edge_probability) {
 	for (int i = 0; i < num_vertices; i++) {
@@ -138,30 +139,38 @@ void generate_initial_solution() {
 	}
 }
 
-vector<int> kempe_chain(int c, int d, int v) {
-	vector<int> K = { v };
+int K[num_vertices];
+int K_length;
+void kempe_chain(int c, int d, int v) {
+	bool in_chain[num_vertices];
+	for (int i = 0; i < num_vertices; i++) {
+		in_chain[i] = false;
+	}
+	K[0] = v;
+	K_length = 1;
 	int i = 0;
-	while (i < K.size()) {
+	while (i < K_length) {
 		for (int j = 0; j < num_vertices; j++) {
-			if (adj_matrix[K[i]][j] == 1 && (s[j] == c || s[j] == d) && find(K.begin(), K.end(), j) == K.end()) {
-				K.push_back(j);
+			if (adj_matrix[K[i]][j] == 1 && (s[j] == c || s[j] == d) && !in_chain[j]) {
+				in_chain[j] = true;
+				K[K_length] = j;
+				K_length++;
 			}
 		}
 		i++;
 	}
-	return K;
 }
 
 void get_neighbour() {  // Copy s into neighbour first
 	int v = random_vertex(seed);
 	int c = s[v];
 	int n = num_colours(s) - 1;
-	int d = uniform_int_distribution<int>(0, n)(seed);
+	int d = uniform_int_distribution<int>(0, n - 1)(seed);
 	if (d == c) {
 		d = (d + 1) % n;
 	}
-	vector<int> K = kempe_chain(c, d, v);
-	for (int i = 0; i < K.size(); i++) {
+	kempe_chain(c, d, v);
+	for (int i = 0; i < K_length; i++) {
 		if (s[K[i]] == c) {
 			neighbour[K[i]] = d;
 		}else {
@@ -172,8 +181,10 @@ void get_neighbour() {  // Copy s into neighbour first
 
 int main(){
 	cout << "SA\n";
+	ofstream ofile;
+	ofile.open(results_directory + "dsjc500.5_sa.txt");
 	//make_graph(0.5);
-	read_graph("dsjc250.5.col");
+	read_graph("dsjc500.5.col");
 	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
 	}
@@ -218,11 +229,16 @@ int main(){
 		if (changes / (float)trials < min_percent) {
 			freeze_count++;
 		}
+		if (t % 10 == 0) {
+			ofile << num_colours(s) << endl;
+		}
 	}
+	ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
-		std::cout << best_s[i] << " ";
+		cout << best_s[i] << " ";
 	}
-	std::cout << endl << "Number of colours: " << num_colours(best_s) << endl;
-	std::cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count();
+	cout << endl << "Number of colours: " << num_colours(best_s) << endl;
+	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	//cout << "Number of iterations: " << t << endl;
 	return 0;
 }

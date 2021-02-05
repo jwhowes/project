@@ -18,22 +18,23 @@ using namespace std;
 using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 250;
+const int num_vertices = 500;
 int adj_matrix[num_vertices][num_vertices];
 int adj_list[num_vertices][num_vertices];
 int adj_list_length[num_vertices];
 
 int k;
 
-const int num_iterations = 10;
-const auto duration = chrono::minutes{5};
+const int num_iterations = 3000;
+const auto duration = chrono::minutes{60};
 
 const int num_nests = 50;
 const float pa = 0.1;
 const float p = 0.1;
 
-const float rho = 0.5;
+const float rho = 0.2;
 const float t_pow = 1;
 const float e_pow = 1;
 const int w = 5;
@@ -59,8 +60,8 @@ struct Reference {
 
 Nest nests[num_nests];
 
-const int b = 3;
-const int d = 2;
+const int b = 5;
+const int d = 5;
 Reference ref_set[b + d];
 int worst_best_set = 0;
 int most_diverse_div_set = 0;
@@ -194,14 +195,133 @@ void get_random_cuckoo(int * nest, int * e) {
 	}
 }
 
+int num_conflicts(int * nest) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		for (int j = 0; j < i; j++) {
+			if (adj_matrix[i][j] == 1 && nest[i] == nest[j]) {
+				num++;
+			}
+		}
+	}
+	return num;
+}
+
+int pi[num_vertices][num_vertices];
+int distance(int * x, int * y) {
+	int k = num_colours(x);
+	int d = -k;
+	for (int i = 0; i < k; i++) {
+		for (int j = 0; j < k; j++) {
+			pi[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (pi[x[i]][y[i]] == 0) {
+			d++;
+		}
+		pi[x[i]][y[i]]++;
+	}
+	return d;
+}
+
+/*int distance(int * col1, int * col2) {  // Hamming distance
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (col1[i] != col2[i]) {
+			num++;
+		}
+	}
+	return num;
+}*/
+
+void gpx(int * nest, int * p1, int * p2) {
+	int colour_class_size_1[num_vertices];
+	int colour_class_size_2[num_vertices];
+	for (int i = 0; i < num_vertices; i++) {
+		nest[i] = -1;
+		colour_class_size_1[i] = 0;
+		colour_class_size_1[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		colour_class_size_1[p1[i]]++;
+		colour_class_size_2[p2[i]]++;
+	}
+	int m;
+	for (int i = 0; i < k; i++) {
+		if (i % 2 == 0) {
+			m = 0;
+			for (int j = 1; j < k; j++) {
+				if (colour_class_size_1[j] > colour_class_size_1[m]) {
+					m = j;
+				}
+			}
+			for (int j = 0; j < num_vertices; j++) {
+				if (p1[j] == m) {
+					nest[j] = i;  // Could make it nest[j] = i instead? (To maintain diversity)
+					colour_class_size_2[p2[j]]--;
+					p2[j] = -1;
+					p1[j] = -1;
+				}
+			}
+			colour_class_size_1[m] = 0;
+		} else {
+			m = 0;
+			for (int j = 1; j < k; j++) {
+				if (colour_class_size_2[j] > colour_class_size_2[m]) {
+					m = j;
+				}
+			}
+			for (int j = 0; j < num_vertices; j++) {
+				if (p2[j] == m) {
+					nest[j] = i;  // Could make it nest[j] = i instead? (To maintain diversity)
+					colour_class_size_1[p2[j]]--;
+					p1[j] = -1;
+					p2[j] = -1;
+				}
+			}
+			colour_class_size_2[m] = 0;
+		}
+	}
+	// Colour uncoloured vertices in nest randomly
+	for (int i = 0; i < num_vertices; i++) {
+		if (nest[i] == -1) {
+			//nest[i] = random_colour(seed);
+			int c = 0;
+			for (int j = 0; j < k; j++) {
+				colour_counts[j] = 0;
+			}
+			for (int j = 0; j < adj_list_length[i]; j++) {
+				if (nest[adj_list[i][j]] != -1) {
+					colour_counts[nest[adj_list[i][j]]]++;
+				}
+			}
+			for (int j = 0; j < k; j++) {
+				if (colour_counts[j] == 0) {
+					c = j;
+					break;
+				}
+				if (colour_counts[j] < colour_counts[c]) {
+					c = j;
+				}
+			}
+			nest[i] = c;
+		}
+	}
+}
+
 void get_cuckoo(int * nest, int * e) {
 	// Generate new cuckoo from RefSet via GPX
 	int p1 = random_ref_set(seed);
 	int p2 = random_ref_set(seed);
+	int p1_temp[num_vertices];
+	int p2_temp[num_vertices];
 	if (p1 == p2) {
 		copy(begin(ref_set[p1].nest), end(ref_set[p1].nest), nest);
 	} else {
-		// TODO: GPX
+		copy(begin(ref_set[p1].nest), end(ref_set[p1].nest), begin(p1_temp));
+		copy(begin(ref_set[p2].nest), end(ref_set[p2].nest), begin(p2_temp));
+		gpx(nest, p1_temp, p2_temp);
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		e[i] = eta(nest, i);
@@ -226,18 +346,6 @@ float levy() {
 	float q = normal_q(seed);
 	float M = p / pow(abs(q), 1 / beta);
 	return p / pow(abs(q), 1 / beta);
-}
-
-int num_conflicts(int * nest) {
-	int num = 0;
-	for (int i = 0; i < num_vertices; i++) {
-		for (int j = 0; j < i; j++) {
-			if (adj_matrix[i][j] == 1 && nest[i] == nest[j]) {
-				num++;
-			}
-		}
-	}
-	return num;
 }
 
 bool is_legal(int * nest) {
@@ -319,7 +427,7 @@ float levy_flight(int * nest, int * e, int start, int index) {
 		do {
 			u++;
 			r -= weight[u] / weight_sum;
-		} while (r > 0);
+		} while (r > 0 && u < num_vertices - 1);
 		// Recolour v to colour causing fewest conflicts
 		v = u;
 	}
@@ -330,26 +438,43 @@ float levy_flight(int * nest, int * e, int start, int index) {
 	return fitness;
 }
 
-int chromatic_bound() {
-	int colouring[num_vertices];
+/*int chromatic_bound() {
 	int ret = 0;
 	for (int i = 0; i < num_vertices; i++) {
-		colouring[i] = -1;
+		best_colouring[i] = -1;
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		int max = -1;
 		for (int j = 0; j < num_vertices; j++) {
-			if (colouring[j] == -1 && (max == -1 || eta(colouring, j) > eta(colouring, max))) {
+			if (best_colouring[j] == -1 && (max == -1 || eta(best_colouring, j) > eta(best_colouring, max))) {
 				max = j;
 			}
 		}
 		int c = 0;
-		while (!valid(max, c, colouring)) {
+		while (!valid(max, c, best_colouring)) {
 			c++;
 		}
-		colouring[max] = c;
+		best_colouring[max] = c;
 		if (c > ret) {
 			ret = c;
+		}
+	}
+	return ret + 1;
+}*/
+
+int chromatic_bound() {
+	int ret = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		int c = 0;
+		while (true) {
+			if (valid(i, c, best_colouring)) {
+				best_colouring[i] = c;
+				if (c > ret) {
+					ret = c;
+				}
+				break;
+			}
+			c++;
 		}
 	}
 	return ret + 1;
@@ -439,16 +564,6 @@ int tabucol(int * colouring) {
 	return f(colouring);
 }
 
-int distance(int * col1, int * col2) {
-	int num = 0;
-	for (int i = 0; i < num_vertices; i++) {
-		if (col1[i] != col2[i]) {
-			num++;
-		}
-	}
-	return num;
-}
-
 void update_ref_set() {
 	most_diverse_div_set = 0;
 	for (int i = 0; i < b + d; i++) {
@@ -469,8 +584,10 @@ void update_ref_set() {
 }
 
 int main() {
-	cout << "CSACO_enhanced\n";
-	read_graph("dsjc250.5.col");
+	cout << "CSACO_refset\n";
+	ofstream ofile;
+	ofile.open(results_directory + "dsjc500.5_csaco_refset4.2.txt");
+	read_graph("dsjc500.5.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -493,10 +610,10 @@ int main() {
 	int nest_temp[num_vertices];
 	int eta_temp[num_vertices];
 	auto start = chrono::high_resolution_clock::now();
-	int t = 0;
-	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-	//for (int t = 0; t < num_iterations; t++) {
-		t++;
+	//int t = 0;
+	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	for (int t = 0; t < num_iterations; t++) {
+		//t++;
 		// Reset d_tau
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
@@ -558,13 +675,17 @@ int main() {
 			get_cuckoo(nests[num_nests - i - 1].nest, nests[num_nests - i - 1].eta);
 			nests[num_nests - i - 1].fitness = f(nests[num_nests - i - 1].nest);
 		}
+		if (t % 10 == 0) {
+			ofile << num_colours(best_colouring) << endl;
+		}
 	}
+	ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_colouring[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(best_colouring) << endl;
 	cout << "Number of conflicts: " << num_conflicts(best_colouring) << endl;
-	cout << "Number of iterations: " << t << endl;
-	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	//cout << "Number of iterations: " << t << endl;
+	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

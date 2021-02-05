@@ -47,6 +47,7 @@ const int num_iterations = 10;
 const auto duration = chrono::minutes{5};
 
 int ant_solution[num_ants][num_vertices];
+int ant_eta[num_ants][num_vertices];
 int ant_path[num_ants][num_vertices];  // Stores the path each ant takes through the construction graph (for Daemon actions)
 int ant_pos[num_ants];
 
@@ -106,6 +107,7 @@ void initialise_ants() {
 	for (int i = 0; i < num_ants; i++) {
 		for (int j = 0; j < num_vertices; j++) {
 			ant_solution[i][j] = -1;
+			ant_eta[i][j] = 0;
 		}
 	}
 }
@@ -159,11 +161,10 @@ int main(){
 	float weight[num_vertices];
 	initialise_pheromones();
 	int v;
-	//int t = 0;
+	int t = 0;
 	auto start = chrono::high_resolution_clock::now();
-	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
-	for(int t = 0; t < num_iterations; t++){
-		cout << t << endl;
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
+	//for(int t = 0; t < num_iterations; t++){
 		// Initialise ants (to a random vertex)
 		initialise_ants();
 		for (int i = 0; i < num_ants; i++) {
@@ -186,7 +187,7 @@ int main(){
 					if (ant_solution[a][u] != -1) {
 						weight[u] = 0;
 					} else {
-						weight[u] = pow(tau[ant_pos[a]][u], alpha) * pow(eta(a, u), beta) + 1;
+						weight[u] = pow(tau[ant_pos[a]][u], alpha) * pow(ant_eta[a][u], beta) + 1;
 						weight_sum += weight[u];
 					}
 				}
@@ -209,6 +210,26 @@ int main(){
 				int c = 0;
 				while (true) {
 					if (valid(v, c, ant_solution[a])) {
+						if (ant_solution[a][v] != c) {
+							for (int j = 0; j < num_vertices; j++) {
+								if (adj_matrix[v][j] == 1) {
+									bool found_v = false; bool found_c = false;
+									for (int k = 0; k < num_vertices; k++) {
+										if (adj_matrix[j][k] == 1 && k != v && ant_solution[a][k] == ant_solution[a][v]) {
+											found_v = true;
+											break;
+										}
+									}
+									for (int k = 0; k < num_vertices; k++) {
+										if (adj_matrix[j][k] == 1 && k != v && ant_solution[a][k] == c) {
+											found_c = true;
+											break;
+										}
+									}
+									ant_eta[a][j] += found_v - found_c;
+								}
+							}
+						}
 						ant_solution[a][v] = c;
 						break;
 					}
@@ -244,14 +265,14 @@ int main(){
 				tau[i][j] *= 1 - rho;
 			}
 		}
-		//t++;
+		t++;
 	}
 	// Return best solution
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best[i] << " ";
 	}
 	cout << endl << "Number of colours: " << f_best;
-	//cout << endl << "Number of iterations: " << t;
+	cout << endl << "Number of iterations: " << t;
 	cout << endl << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count();
 	return 0;
 }

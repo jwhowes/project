@@ -363,7 +363,7 @@ int parent_temp[NUM_VERTICES];
 int main() {
 	cout << "COA Full SA\n";
 	//make_graph(0.5);
-	read_graph("dsjc250.5.col");
+	read_graph("r250.5.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
@@ -374,10 +374,10 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	auto start = chrono::high_resolution_clock::now();
-	//int t = 0;
-	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-	for(int t = 0; t < num_iterations; t++){
-		//t++;
+	int t = 0;
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	//for(int t = 0; t < num_iterations; t++){
+		t++;
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -431,6 +431,6 @@ int main() {
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
 	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-	//cout << "Number of iterations: " << t << endl;
+	cout << "Number of iterations: " << t << endl;
 	return 0;
 }

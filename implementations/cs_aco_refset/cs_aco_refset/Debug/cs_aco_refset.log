@@ -1,0 +1,22 @@
+﻿  cs_aco_refset.cpp
+  Unknown compiler version - please run the configure tests and report the results
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(34): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(35): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(37): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(45): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(45): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(152): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(194): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(327): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(335): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(372): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(421): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(436): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(438): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(493): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(525): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(538): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(546): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(626): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\cs_aco_refset\cs_aco_refset\cs_aco_refset.cpp(671): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  cs_aco_refset.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\cs_aco_refset\Debug\cs_aco_refset.exe

@@ -17,9 +17,10 @@ using namespace std;
 using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
 int k;
-const int num_vertices = 250;
+const int num_vertices = 300;
 
 int adj_matrix[num_vertices][num_vertices];
 
@@ -231,21 +232,6 @@ void generate_initial_solution() {
 	}
 }
 
-int t;
-bool find_colouring() {
-	generate_initial_solution();
-	populate_gamma();
-	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-		make_move(t);
-		if (f(s) == 0) {
-			copy(begin(s), end(s), begin(colouring));
-			return true;
-		}
-		t++;
-	}
-	return false;
-}
-
 bool found[num_vertices];
 int num_colours(int * x) {
 	int num = 0;
@@ -261,12 +247,35 @@ int num_colours(int * x) {
 	return num;
 }
 
+int t;
+int global_t;
+ofstream ofile;
+bool find_colouring() {
+	generate_initial_solution();
+	populate_gamma();
+	while(global_t < num_iterations){
+		make_move(t);
+		if (global_t % 10 == 0) {
+			ofile << num_colours(colouring) << endl;
+		}
+		t++;
+		global_t++;
+		if (f(s) == 0) {
+			copy(begin(s), end(s), begin(colouring));
+			return true;
+		}
+	}
+	return false;
+}
+
 int main(){
 	cout << "TABUCOL\n";
-	read_graph("dsjc250.5.col");
+	read_graph("flat300_26.col");
+	ofile.open(results_directory + "flat300_26_tabucol.txt");
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
+	global_t = 0;
 	while(found_colouring){
 		t = 0;
 		found_colouring = find_colouring();

@@ -12,10 +12,11 @@
 using namespace std;
 using namespace boost::random;
 
-const int num_vertices = 250;
+const int num_vertices = 300;
 int k = 3;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
@@ -54,7 +55,7 @@ void read_graph(string filename) {
 
 int best_col[num_vertices];
 
-const int num_iterations = 100;
+const int num_iterations = 3000;
 chrono::time_point<chrono::steady_clock> start;
 const auto duration = chrono::minutes{5};
 
@@ -63,7 +64,7 @@ const int q = 500;
 const int T_b = 100;
 const float r = 1.0f;
 const float p = 1.0f;
-const int beta = 100;
+const int beta = 2;
 const int elite_list_size = 5;
 
 int agents[num_agents][num_vertices];
@@ -120,10 +121,12 @@ void kill_agent(int index) {
 			replace_num++;
 		}
 	}
-	uniform_int_distribution<int> random_replace(0, replace_num - 1);
-	int rep = random_replace(seed);
-	copy(begin(agents[index]), end(agents[index]), begin(elite_list[rep]));
-	elite_fitness[rep] = fitness[index];
+	if (replace_num > 0) {
+		uniform_int_distribution<int> random_replace(0, replace_num - 1);
+		int rep = random_replace(seed);
+		copy(begin(agents[index]), end(agents[index]), begin(elite_list[rep]));
+		elite_fitness[rep] = fitness[index];
+	}
 }
 
 void create_agent(int index) {
@@ -263,6 +266,9 @@ int tabucol(int * col, int fitness) {
 	phi = random_phi(seed);
 	b = random_b(seed);
 	c = random_c(seed);
+	if (fitness == 0) {
+		return fitness;
+	}
 	int iterations = beta * k * num_vertices / ((k - 1)*fitness);
 	for (int i = 0; i < num_vertices; i++) {
 		for (int j = 0; j < k; j++) {
@@ -336,11 +342,15 @@ int num_colours(int * x) {
 	return num;
 }
 
+ofstream ofile;
+int global_t;
 bool find_colouring() {
 	int temp_agent[num_vertices];
 	generate_agents();
+	generate_elite_list();
 	int t = 0;
-	while(chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start) < duration){
+	while(global_t < num_iterations){
+	//while(chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start) < duration){
 		for (int a = 0; a < num_agents; a++) {
 			lifespans[a]--;
 			if (lifespans[a] <= 0) {
@@ -355,6 +365,10 @@ bool find_colouring() {
 				}
 			}
 		}
+		if (global_t % 10 == 0) {
+			ofile << num_colours(best_col) << endl;
+		}
+		global_t++;
 		for (int a = 0; a < num_agents; a++) {
 			if(lifespans[a] > 0) {
 				copy(begin(agents[a]), end(agents[a]), begin(temp_agent));
@@ -404,15 +418,18 @@ int chromatic_bound() {
 
 int main() {
 	cout << "MEA pseudo-reactive\n";
-	read_graph("dsjc250.5.col");
+	ofile.open(results_directory + "flat300_26_mea.txt");
+	read_graph("flat300_26.col");
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;
+	global_t = 0;
 	start = chrono::high_resolution_clock::now();
 	while (found_colouring) {
 		random_colour = uniform_int_distribution<int>(0, k - 1);
 		found_colouring = find_colouring();
 		k = num_colours(best_col) - 1;
 	}
+	ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_col[i] << " ";
 	}
