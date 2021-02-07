@@ -180,7 +180,92 @@ int f(int * x) {
 	return ret;
 }
 
-int pi[num_vertices][num_vertices];
+int D[num_vertices][num_vertices];
+int px[num_vertices][num_vertices];
+int px_length[num_vertices];
+int py[num_vertices][num_vertices];
+int py_length[num_vertices];
+int min_D[num_vertices];
+int mapping[num_vertices];
+int colours[num_vertices];
+bool taken[num_vertices];
+
+bool compare_classes(int c1, int c2) {
+	return min_D[c1] < min_D[c2];
+}
+
+int d(int * x, int * y) {
+	int k = num_colours(x);
+	int k_2 = num_colours(y);
+	if (k_2 > k) {
+		k = k_2;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		px_length[i] = 0;
+		py_length[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		px[x[i]][px_length[x[i]]] = i;
+		px_length[x[i]]++;
+		py[y[i]][py_length[y[i]]] = i;
+		py_length[y[i]]++;
+	}
+	for (int i = 0; i < k; i++) {
+		colours[i] = i;
+		min_D[i] = -1;
+		taken[i] = false;
+		for (int j = 0; j < k; j++) {
+			// Set D[j][i] = |x_i \ y_j| + |y_j \ x_i|
+			D[j][i] = 0;
+			int pos_x = 0;
+			int pos_y = 0;
+			while (pos_x < px_length[i] && pos_y < py_length[j]) {
+				if (px[i][pos_x] < py[j][pos_y]) {
+					D[j][i]++;
+					pos_x++;
+				} else if (px[i][pos_x] > py[j][pos_y]) {
+					D[j][i]++;
+					pos_y++;
+				} else {
+					pos_x++;
+					pos_y++;
+				}
+			}
+			if (pos_x < px_length[i]) {
+				D[j][i] += px_length[i] - pos_x;
+			} else if (pos_y < py_length[j]) {
+				D[j][i] += py_length[j] - pos_y;
+			}
+			if (min_D[i] == -1 || D[j][i] < min_D[i]) {
+				min_D[i] = D[j][i];
+			}
+		}
+	}
+	// Sort vertices into order based on min_D[i]
+	sort(begin(colours), begin(colours) + k, compare_classes);
+	// Create the mapping
+	for (int i = 0; i < k; i++) {
+		int c = colours[i];
+		int min = -1;
+		for (int j = 0; j < k; j++) {
+			if (!taken[j] && (min == -1 || D[c][j] < D[c][min])) {
+				min = j;
+			}
+		}
+		mapping[c] = min;
+		taken[min] = true;
+	}
+	// Create x'
+	int d = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (mapping[x[i]] != y[i]) {
+			d++;
+		}
+	}
+	return d;
+}
+
+/*int pi[num_vertices][num_vertices];
 int d(int * x, int * y) {
 	int k = num_colours(x);
 	int dist = -k;
@@ -196,7 +281,7 @@ int d(int * x, int * y) {
 		pi[x[i]][y[i]]++;
 	}
 	return dist;
-}
+}*/
 
 bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
 	for (int i = 0; i < adj_list_length[v]; i++) {
@@ -207,7 +292,7 @@ bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be
 	return true;  // If no such i can be found then the assignment is valid
 }
 
-int ass[num_vertices];
+/*int ass[num_vertices];
 bool issue[num_vertices];
 void impose(int * x, int * y) {
 	int k = num_colours(x);
@@ -230,18 +315,6 @@ void impose(int * x, int * y) {
 			issue[x[i]] = true;
 		}
 	}
-	/*for (int i = 0; i < num_vertices; i++) {
-		if (issue[x[i]]) {
-			int c = 0;
-			while (found[c]) {
-				c++;
-			}
-			ass[x[i]] = c;
-		}
-	}
-	for (int i = 0; i < num_vertices; i++) {
-		x[i] = ass[x[i]];
-	}*/
 	for (int i = 0; i < num_vertices; i++) {
 		if (!issue[x[i]]) {
 			x[i] = ass[x[i]];
@@ -259,7 +332,7 @@ void impose(int * x, int * y) {
 			x[i] = c;
 		}
 	}
-}
+}*/
 
 /*int d(int * x, int * y) {  // Returns the hamming distance between two colourings
 	int ret = 0;
@@ -289,7 +362,7 @@ float tri_dist(int i, int j, int * dbss, vector<int> * clusters) {  // Calculate
 	return 2 * d_bar_sum({ i }, clusters[j]) / clusters[j].size() - dbss[j] / (clusters[j].size() * clusters[j].size());
 }
 
-void populate_dist_matrix() {  // Populates the distance matrix s.t. d[i][j] = d(cuckoos[i], cuckoos[j])
+void populate_dist_matrix() {  // Populates the distance matrix s.t. D[i][j] = d(cuckoos[i], cuckoos[j])
 	for (int i = 0; i < n_pop; i++) {
 		for (int j = 0; j < i; j++) {
 			dist_matrix[i][j] = d(cuckoos[i].cuckoo, cuckoos[j].cuckoo);
@@ -428,7 +501,7 @@ bool reverse_compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 int I[num_vertices];
 void migrate(int * x, int * y) {  // Migrates x towards y
 	float r = uni(seed);
-	impose(x, y);
+	//impose(x, y);
 	// Populate I with all vertices on which x and y disagree
 	int I_length = 0;
 	for (int i = 0; i < num_vertices; i++) {
