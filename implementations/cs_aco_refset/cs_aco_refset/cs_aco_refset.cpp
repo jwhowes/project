@@ -20,7 +20,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 500;
+const int num_vertices = 300;
 int adj_matrix[num_vertices][num_vertices];
 int adj_list[num_vertices][num_vertices];
 int adj_list_length[num_vertices];
@@ -34,7 +34,7 @@ const int num_nests = 50;
 const float pa = 0.1;
 const float p = 0.1;
 
-const float rho = 0.2;
+const float rho = 0.1;
 const float t_pow = 1;
 const float e_pow = 1;
 const int w = 5;
@@ -55,7 +55,7 @@ struct Nest {
 struct Reference {
 	int nest[num_vertices];
 	int fitness;
-	float diversity;
+	int diversity;
 };
 
 Nest nests[num_nests];
@@ -207,7 +207,154 @@ int num_conflicts(int * nest) {
 	return num;
 }
 
-int pi[num_vertices][num_vertices];
+int max_colour(int * x) {
+	int m = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (x[i] > m) {
+			m = x[i];
+		}
+	}
+	return m;
+}
+
+int D[num_vertices][num_vertices];
+int px[num_vertices][num_vertices];
+int px_length[num_vertices];
+int py[num_vertices][num_vertices];
+int py_length[num_vertices];
+int min_D[num_vertices];
+int mapping[num_vertices];
+int colours[num_vertices];
+bool taken[num_vertices];
+
+bool compare_classes(int c1, int c2) {
+	return min_D[c1] < min_D[c2];
+}
+
+int distance(int * x, int * y) {
+	int k = max_colour(x) + 1;
+	int k_2 = max_colour(y) + 1;
+	if (k_2 > k) {
+		k = k_2;
+	}
+	for (int i = 0; i < k; i++) {
+		min_D[i] = -1;
+		colours[i] = i;
+		px_length[i] = 0;
+		py_length[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		px_length[x[i]]++;
+		py_length[y[i]]++;
+	}
+	for (int i = 0; i < k; i++) {
+		taken[i] = false;
+		for (int j = 0; j < k; j++) {
+			D[j][i] = px_length[i] + py_length[j];
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		D[y[i]][x[i]] -= 2;
+		if (min_D[x[i]] == -1 || D[y[i]][x[i]] < min_D[x[i]]) {
+			min_D[x[i]] = D[y[i]][x[i]];
+		}
+	}
+	sort(begin(colours), begin(colours) + k, compare_classes);
+	for (int i = 0; i < k; i++) {
+		int c = colours[i];
+		int min = -1;
+		for (int j = 0; j < k; j++) {
+			if (!taken[j] && (min == -1 || D[c][j] < D[c][min])) {
+				min = j;
+			}
+		}
+		mapping[c] = min;
+		taken[min] = true;
+	}
+	int d = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (mapping[x[i]] != y[i]) {
+			d++;
+		}
+	}
+	return d;
+}
+
+/*int distance2(int * x, int * y) {
+	int k = max_colour(x);
+	int k_2 = max_colour(y);
+	if (k_2 > k) {
+		k = k_2;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		px_length[i] = 0;
+		py_length[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		px[x[i]][px_length[x[i]]] = i;
+		px_length[x[i]]++;
+		py[y[i]][py_length[y[i]]] = i;
+		py_length[y[i]]++;
+	}
+	for (int i = 0; i < k; i++) {
+		colours[i] = i;
+		min_D[i] = -1;
+		taken[i] = false;
+		for (int j = 0; j < k; j++) {
+			// Set D[j][i] = |x_i \ y_j| + |y_j \ x_i|
+			D[j][i] = 0;
+			int pos_x = 0;
+			int pos_y = 0;
+			while (pos_x < px_length[i] && pos_y < py_length[j]) {
+				if (px[i][pos_x] < py[j][pos_y]) {
+					D[j][i]++;
+					pos_x++;
+				}
+				else if (px[i][pos_x] > py[j][pos_y]) {
+					D[j][i]++;
+					pos_y++;
+				}
+				else {
+					pos_x++;
+					pos_y++;
+				}
+			}
+			if (pos_x < px_length[i]) {
+				D[j][i] += px_length[i] - pos_x;
+			}
+			else if (pos_y < py_length[j]) {
+				D[j][i] += py_length[j] - pos_y;
+			}
+			if (min_D[i] == -1 || D[j][i] < min_D[i]) {
+				min_D[i] = D[j][i];
+			}
+		}
+	}
+	// Sort vertices into order based on min_D[i]
+	sort(begin(colours), begin(colours) + k, compare_classes);
+	// Create the mapping
+	for (int i = 0; i < k; i++) {
+		int c = colours[i];
+		int min = -1;
+		for (int j = 0; j < k; j++) {
+			if (!taken[j] && (min == -1 || D[c][j] < D[c][min])) {
+				min = j;
+			}
+		}
+		mapping[c] = min;
+		taken[min] = true;
+	}
+	// Create x'
+	int d = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (mapping[x[i]] != y[i]) {
+			d++;
+		}
+	}
+	return d;
+}*/
+
+/*int pi[num_vertices][num_vertices];
 int distance(int * x, int * y) {
 	int k = num_colours(x);
 	int d = -k;
@@ -223,7 +370,7 @@ int distance(int * x, int * y) {
 		pi[x[i]][y[i]]++;
 	}
 	return d;
-}
+}*/
 
 /*int distance(int * col1, int * col2) {  // Hamming distance
 	int num = 0;
@@ -235,13 +382,13 @@ int distance(int * x, int * y) {
 	return num;
 }*/
 
-void gpx(int * nest, int * p1, int * p2) {
-	int colour_class_size_1[num_vertices];
-	int colour_class_size_2[num_vertices];
+int colour_class_size_1[num_vertices];
+int colour_class_size_2[num_vertices];
+void gpx(int * egg, int * p1, int * p2) {
 	for (int i = 0; i < num_vertices; i++) {
-		nest[i] = -1;
+		egg[i] = -1;
 		colour_class_size_1[i] = 0;
-		colour_class_size_1[i] = 0;
+		colour_class_size_2[i] = 0;
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		colour_class_size_1[p1[i]]++;
@@ -257,15 +404,14 @@ void gpx(int * nest, int * p1, int * p2) {
 				}
 			}
 			for (int j = 0; j < num_vertices; j++) {
-				if (p1[j] == m) {
-					nest[j] = i;  // Could make it nest[j] = i instead? (To maintain diversity)
+				if (egg[j] == -1 && p1[j] == m) {
+					egg[j] = i;
 					colour_class_size_2[p2[j]]--;
-					p2[j] = -1;
-					p1[j] = -1;
 				}
 			}
 			colour_class_size_1[m] = 0;
-		} else {
+		}
+		else {
 			m = 0;
 			for (int j = 1; j < k; j++) {
 				if (colour_class_size_2[j] > colour_class_size_2[m]) {
@@ -273,27 +419,30 @@ void gpx(int * nest, int * p1, int * p2) {
 				}
 			}
 			for (int j = 0; j < num_vertices; j++) {
-				if (p2[j] == m) {
-					nest[j] = i;  // Could make it nest[j] = i instead? (To maintain diversity)
-					colour_class_size_1[p2[j]]--;
-					p1[j] = -1;
-					p2[j] = -1;
+				if (egg[j] == -1 && p2[j] == m) {
+					egg[j] = i;  // Could make it egg[j] = i instead? (To maintain diversity)
+					colour_class_size_1[p1[j]]--;
 				}
 			}
 			colour_class_size_2[m] = 0;
 		}
 	}
-	// Colour uncoloured vertices in nest randomly
+	// Colour uncoloured vertices in egg randomly
 	for (int i = 0; i < num_vertices; i++) {
-		if (nest[i] == -1) {
-			//nest[i] = random_colour(seed);
+		if (egg[i] == -1) {
+			egg[i] = random_colour(seed);
+		}
+	}
+	// Colour uncoloured vertices to most legal colours
+	/*for (int i = 0; i < num_vertices; i++) {
+		if (egg[i] == -1) {
 			int c = 0;
 			for (int j = 0; j < k; j++) {
 				colour_counts[j] = 0;
 			}
 			for (int j = 0; j < adj_list_length[i]; j++) {
-				if (nest[adj_list[i][j]] != -1) {
-					colour_counts[nest[adj_list[i][j]]]++;
+				if (egg[adj_list[i][j]] != -1) {
+					colour_counts[egg[adj_list[i][j]]]++;
 				}
 			}
 			for (int j = 0; j < k; j++) {
@@ -305,23 +454,19 @@ void gpx(int * nest, int * p1, int * p2) {
 					c = j;
 				}
 			}
-			nest[i] = c;
+			egg[i] = c;
 		}
-	}
+	}*/
 }
 
 void get_cuckoo(int * nest, int * e) {
 	// Generate new cuckoo from RefSet via GPX
 	int p1 = random_ref_set(seed);
 	int p2 = random_ref_set(seed);
-	int p1_temp[num_vertices];
-	int p2_temp[num_vertices];
 	if (p1 == p2) {
 		copy(begin(ref_set[p1].nest), end(ref_set[p1].nest), nest);
 	} else {
-		copy(begin(ref_set[p1].nest), end(ref_set[p1].nest), begin(p1_temp));
-		copy(begin(ref_set[p2].nest), end(ref_set[p2].nest), begin(p2_temp));
-		gpx(nest, p1_temp, p2_temp);
+		gpx(nest, ref_set[p1].nest, ref_set[p2].nest);
 	}
 	for (int i = 0; i < num_vertices; i++) {
 		e[i] = eta(nest, i);
@@ -564,6 +709,30 @@ int tabucol(int * colouring) {
 	return f(colouring);
 }
 
+void ref_set_replace(int pos, int * new_nest, int new_fitness, int new_div) {
+	most_diverse_div_set = -1;
+	for (int i = 0; i < b + d; i++) {
+		if (i != pos) {
+			ref_set[i].diversity += distance(ref_set[i].nest, new_nest) - distance(ref_set[i].nest, ref_set[pos].nest);
+			if (most_diverse_div_set == -1 || ref_set[i].diversity > ref_set[most_diverse_div_set].diversity) {
+				most_diverse_div_set = i;
+			}
+		}
+	}
+	copy(new_nest, new_nest + num_vertices, begin(ref_set[pos].nest));
+	ref_set[pos].fitness = new_fitness;
+	ref_set[pos].diversity = new_div;
+	if (ref_set[pos].diversity > ref_set[most_diverse_div_set].diversity) {
+		most_diverse_div_set = pos;
+	}
+	worst_best_set = 0;
+	for (int i = 1; i < b; i++) {
+		if (ref_set[i].fitness > ref_set[worst_best_set].fitness) {
+			worst_best_set = i;
+		}
+	}
+}
+
 void update_ref_set() {
 	most_diverse_div_set = 0;
 	for (int i = 0; i < b + d; i++) {
@@ -571,7 +740,6 @@ void update_ref_set() {
 		for (int j = 0; j < b + d; j++) {
 			ref_set[i].diversity += distance(ref_set[i].nest, ref_set[j].nest);
 		}
-		ref_set[i].diversity /= b + d;
 		if (ref_set[i].diversity > ref_set[most_diverse_div_set].diversity) {
 			most_diverse_div_set = i;
 		}
@@ -586,8 +754,8 @@ void update_ref_set() {
 int main() {
 	cout << "CSACO_refset\n";
 	ofstream ofile;
-	ofile.open(results_directory + "dsjc500.5_csaco_refset4.2.txt");
-	read_graph("dsjc500.5.col");
+	ofile.open(results_directory + "flat300_26_csaco_refset2.1r_ast.txt");
+	read_graph("flat300_26.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -644,7 +812,7 @@ int main() {
 			nests[0].fitness = t_f;
 		}
 		for (int i = 0; i < num_nests; i++) {
-			if (nests[i].fitness < ref_set[worst_best_set].fitness) {
+			/*if (nests[i].fitness < ref_set[worst_best_set].fitness) {
 				copy(begin(nests[i].nest), end(nests[i].nest), begin(ref_set[worst_best_set].nest));
 				ref_set[worst_best_set].fitness = nests[i].fitness;
 				update_ref_set();
@@ -653,11 +821,23 @@ int main() {
 				for (int j = 0; j < b + d; j++) {
 					div += distance(nests[i].nest, ref_set[j].nest);
 				}
-				div /= b + d;
 				if (div > ref_set[most_diverse_div_set].diversity) {
 					copy(begin(nests[i].nest), end(nests[i].nest), begin(ref_set[most_diverse_div_set].nest));
 					ref_set[most_diverse_div_set].fitness = nests[i].fitness;
 					update_ref_set();
+				}
+			}*/
+			int div = 0;
+			for (int j = 0; j < b + d; j++) {
+				div += distance(nests[i].nest, ref_set[j].nest);
+			}
+			if (nests[i].fitness < ref_set[worst_best_set].fitness) {
+				div -= distance(nests[i].nest, ref_set[worst_best_set].nest);
+				ref_set_replace(worst_best_set, nests[i].nest, nests[i].fitness, div);
+			} else {
+				if (div > ref_set[most_diverse_div_set].diversity) {
+					div -= distance(nests[i].nest, ref_set[most_diverse_div_set].nest);
+					ref_set_replace(most_diverse_div_set, nests[i].nest, nests[i].fitness, div);
 				}
 			}
 		}

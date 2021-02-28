@@ -23,7 +23,7 @@ const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_scien
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
 int k;
-const int num_vertices = 250;
+const int num_vertices = 300;
 
 struct Partition {
 	int partition[num_vertices][num_vertices];
@@ -190,7 +190,7 @@ int ass_num_conflicts(int * col) {
 	return num;
 }
 
-const int tabucol_iterations = 10;
+const int tabucol_iterations = 100;
 const float lambda = 0.6;
 uniform_int_distribution<int> random_L(0, 9);
 int tabu_list[num_vertices][num_vertices];
@@ -420,9 +420,9 @@ int chromatic_bound() {
 
 int main() {
 	cout << "GA\n";
-	ofile.open(results_directory + "dsjc250.5_ga.txt");
+	ofile.open(results_directory + "flat300_26_ga.txt");
 	//make_graph(0.5);
-	read_graph("dsjc250.5.col");
+	read_graph("flat300_26.col");
 	k = chromatic_bound() - 1;
 	random_colour = uniform_int_distribution<int>(0, k - 1);
 	bool found_colouring = true;

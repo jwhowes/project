@@ -1,24 +1,24 @@
 ﻿  my_coa_enhanced_deviation.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(48): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(64): warning C4305: 'argument': truncation from 'double' to 'RealType'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(49): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(65): warning C4305: 'argument': truncation from 'double' to 'RealType'
           with
           [
               RealType=float
           ]
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(175): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(176): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(187): warning C4244: 'return': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(220): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(253): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(256): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(268): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(279): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(313): warning C4244: 'argument': conversion from 'float' to 'IntType', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(240): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(241): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(252): warning C4244: 'return': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(285): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(318): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(321): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(333): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(344): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(378): warning C4244: 'argument': conversion from 'float' to 'IntType', possible loss of data
           with
           [
               IntType=int
           ]
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(339): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(417): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(404): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\my_coa_enhanced_deviation\my_coa_enhanced_deviation.cpp(483): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
   my_coa_enhanced_deviation.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\my_coa_enhanced_deviation\Debug\my_coa_enhanced_deviation.exe

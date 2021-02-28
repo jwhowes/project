@@ -28,7 +28,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 300;
+const int num_vertices = 450;
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
 	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
@@ -92,6 +92,7 @@ int best_colouring[num_vertices];
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
+uniform_int_distribution<int> random_nest(0, num_nests - 1);
 uniform_int_distribution<int> random_vertex(0, num_vertices - 1);
 uniform_int_distribution<int> random_colour;
 normal_distribution<float> normal_q(0, 1);
@@ -467,8 +468,8 @@ int tabucol(int * colouring) {
 int main() {
 	cout << "CSACO_enhanced\n";
 	ofstream ofile;
-	ofile.open(results_directory + "flat300_26_csaco_tabucol.txt");
-	read_graph("flat300_26.col");
+	ofile.open(results_directory + "le450_5a_csaco_tabucol.txt");
+	read_graph("le450_5a.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
