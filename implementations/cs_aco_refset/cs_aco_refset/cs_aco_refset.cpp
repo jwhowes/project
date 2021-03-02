@@ -28,7 +28,7 @@ int adj_list_length[num_vertices];
 int k;
 
 const int num_iterations = 3000;
-const auto duration = chrono::minutes{60};
+const auto duration = chrono::minutes{5};
 
 const int num_nests = 50;
 const float pa = 0.1;
@@ -279,98 +279,6 @@ int distance(int * x, int * y) {
 	}
 	return d;
 }
-
-/*int distance2(int * x, int * y) {
-	int k = max_colour(x);
-	int k_2 = max_colour(y);
-	if (k_2 > k) {
-		k = k_2;
-	}
-	for (int i = 0; i < num_vertices; i++) {
-		px_length[i] = 0;
-		py_length[i] = 0;
-	}
-	for (int i = 0; i < num_vertices; i++) {
-		px[x[i]][px_length[x[i]]] = i;
-		px_length[x[i]]++;
-		py[y[i]][py_length[y[i]]] = i;
-		py_length[y[i]]++;
-	}
-	for (int i = 0; i < k; i++) {
-		colours[i] = i;
-		min_D[i] = -1;
-		taken[i] = false;
-		for (int j = 0; j < k; j++) {
-			// Set D[j][i] = |x_i \ y_j| + |y_j \ x_i|
-			D[j][i] = 0;
-			int pos_x = 0;
-			int pos_y = 0;
-			while (pos_x < px_length[i] && pos_y < py_length[j]) {
-				if (px[i][pos_x] < py[j][pos_y]) {
-					D[j][i]++;
-					pos_x++;
-				}
-				else if (px[i][pos_x] > py[j][pos_y]) {
-					D[j][i]++;
-					pos_y++;
-				}
-				else {
-					pos_x++;
-					pos_y++;
-				}
-			}
-			if (pos_x < px_length[i]) {
-				D[j][i] += px_length[i] - pos_x;
-			}
-			else if (pos_y < py_length[j]) {
-				D[j][i] += py_length[j] - pos_y;
-			}
-			if (min_D[i] == -1 || D[j][i] < min_D[i]) {
-				min_D[i] = D[j][i];
-			}
-		}
-	}
-	// Sort vertices into order based on min_D[i]
-	sort(begin(colours), begin(colours) + k, compare_classes);
-	// Create the mapping
-	for (int i = 0; i < k; i++) {
-		int c = colours[i];
-		int min = -1;
-		for (int j = 0; j < k; j++) {
-			if (!taken[j] && (min == -1 || D[c][j] < D[c][min])) {
-				min = j;
-			}
-		}
-		mapping[c] = min;
-		taken[min] = true;
-	}
-	// Create x'
-	int d = 0;
-	for (int i = 0; i < num_vertices; i++) {
-		if (mapping[x[i]] != y[i]) {
-			d++;
-		}
-	}
-	return d;
-}*/
-
-/*int pi[num_vertices][num_vertices];
-int distance(int * x, int * y) {
-	int k = num_colours(x);
-	int d = -k;
-	for (int i = 0; i < k; i++) {
-		for (int j = 0; j < k; j++) {
-			pi[i][j] = 0;
-		}
-	}
-	for (int i = 0; i < num_vertices; i++) {
-		if (pi[x[i]][y[i]] == 0) {
-			d++;
-		}
-		pi[x[i]][y[i]]++;
-	}
-	return d;
-}*/
 
 /*int distance(int * col1, int * col2) {  // Hamming distance
 	int num = 0;
@@ -754,7 +662,7 @@ void update_ref_set() {
 int main() {
 	cout << "CSACO_refset\n";
 	ofstream ofile;
-	ofile.open(results_directory + "flat300_26_csaco_refset2.1r_ast.txt");
+	ofile.open(results_directory + "flat300_26_csaco_refset2.1r.txt");
 	read_graph("flat300_26.col");
 	//make_graph(0.5);
 	int u = 0;
@@ -778,10 +686,10 @@ int main() {
 	int nest_temp[num_vertices];
 	int eta_temp[num_vertices];
 	auto start = chrono::high_resolution_clock::now();
-	//int t = 0;
-	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-	for (int t = 0; t < num_iterations; t++) {
-		//t++;
+	int t = 0;
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	//for (int t = 0; t < num_iterations; t++) {
+		t++;
 		// Reset d_tau
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
@@ -855,9 +763,9 @@ int main() {
 			get_cuckoo(nests[num_nests - i - 1].nest, nests[num_nests - i - 1].eta);
 			nests[num_nests - i - 1].fitness = f(nests[num_nests - i - 1].nest);
 		}
-		if (t % 10 == 0) {
-			ofile << num_colours(best_colouring) << endl;
-		}
+		//if (t % 10 == 0) {
+		//	ofile << num_colours(best_colouring) << endl;
+		//}
 	}
 	ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
@@ -865,7 +773,7 @@ int main() {
 	}
 	cout << endl << "Number of colours: " << num_colours(best_colouring) << endl;
 	cout << "Number of conflicts: " << num_conflicts(best_colouring) << endl;
-	//cout << "Number of iterations: " << t << endl;
-	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	cout << "Number of iterations: " << t << endl;
+	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

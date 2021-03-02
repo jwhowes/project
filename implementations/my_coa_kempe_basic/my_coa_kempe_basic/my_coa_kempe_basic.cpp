@@ -1,49 +1,67 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 500
+#define _USE_MATH_DEFINES
 #define N_MAX 50
 
-// Results:
-	// alpha = 1
-		// 100 vertices: 13.971 secs (20 colours)
-		// 500 vertices: 22.12363 secs (72 colours)
-	// alpha = 5
-		// 100 vertices: 17.2969 secs (20 colours)
-		// 500 vertices: 40.683 secs (73 colours)
-
-// TODO:
-	// Implement with enhanced fitness function
-		
+// Time taken (full parameters):
+	// 100 vertices: 21.1037 secs (17 colours)
+	// 500 vertices: 2.015 mins (80 colours)
+		// With alpha = 5, it took 6.9852 mins but coloured it in 73 colours
+	// 1000 vertices:
+		// With alpha = 5, estimated is 34.2772 minutes (this seems more like it)
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <array>
-#include <vector>
 #include <math.h>
 #include <chrono>
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 using namespace std;
 using namespace boost::random;
 
+const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
+const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
+
+const int num_vertices = 450;
+
 struct Cuckoo {
-	int cuckoo[NUM_VERTICES];
+	int cuckoo[num_vertices];
 	int fitness;
 };
 
-int adj_matrix[NUM_VERTICES][NUM_VERTICES];
-
-int adj_list[NUM_VERTICES][NUM_VERTICES];
-int adj_list_length[NUM_VERTICES];
+int adj_matrix[num_vertices][num_vertices];/* = {
+	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
+	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
+	{0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
+	{0, 0, 1, 0, 1, 0, 0, 0, 1, 0},
+	{1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 1, 1, 0},
+	{0, 1, 0, 0, 0, 0, 0, 0, 1, 1},
+	{0, 0, 1, 0, 0, 1, 0, 0, 0, 1},
+	{0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
+	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
+};*/
+int adj_list[num_vertices][num_vertices];
+int adj_list_length[num_vertices];
 
 int n_pop = 5;
 
-const int alpha = 5;
+const int alpha = 2;
 const int num_iterations = 3000;
+chrono::time_point<chrono::steady_clock> start;
+const auto duration = chrono::minutes{ 5 };
 const float p = 0.1;
 const int min_eggs = 5;
 const int max_eggs = 20;
+
+float T = 10000;
+const float beta = 1.0005f;
 
 Cuckoo cuckoos[N_MAX];
 
@@ -54,11 +72,12 @@ Cuckoo eggs[N_MAX * max_eggs];
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
-uniform_int_distribution<int> random_vertex(0, NUM_VERTICES - 1);
+uniform_real_distribution<float> angle(0, M_PI / 6);
+uniform_int_distribution<int> random_vertex(0, num_vertices - 1);
 uniform_int_distribution<int> random_egg_num(min_eggs, max_eggs);
 
 void make_graph(float edge_probability) {  // Populates adj_matrix with a random graph
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		adj_list_length[i] = 0;
 		for (int j = 0; j < i; j++) {
 			if (uni(seed) < edge_probability) {
@@ -73,9 +92,61 @@ void make_graph(float edge_probability) {  // Populates adj_matrix with a random
 	}
 }
 
-int f(int * x) {  // Returns the fitness of a cuckoo (number of colours used)
+void read_graph(string filename) {
+	string line;
+	ifstream file;
+	int u; int v;
+	file.open(graph_directory + filename);
+	if (file.is_open()) {
+		while (getline(file, line)) {
+			stringstream line_stream(line);
+			line_stream >> line;
+			if (line == "e") {
+				line_stream >> u; line_stream >> v;
+				u--; v--;
+				adj_matrix[u][v] = 1; adj_matrix[v][u] = 1;
+				adj_list[u][adj_list_length[u]] = v; adj_list[v][adj_list_length[v]] = u;
+				adj_list_length[u]++; adj_list_length[v]++;
+			}
+		}
+	}
+	else {
+		cout << "Couldn't open file." << endl;
+		exit(1);
+	}
+	file.close();
+}
+
+bool found[num_vertices];
+int num_colours(int * x) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
+}
+
+int num_conflicts(int * x) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		for (int j = 0; j < i; j++) {
+			if (adj_matrix[i][j] == 1 && x[i] == x[j]) {
+				num++;
+			}
+		}
+	}
+	return num;
+}
+
+int max_colour(int * x) {
 	int max = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] > max) {
 			max = x[i];
 		}
@@ -83,9 +154,34 @@ int f(int * x) {  // Returns the fitness of a cuckoo (number of colours used)
 	return max + 1;
 }
 
+int colour_class_size[num_vertices];
+int f(int * x) {
+	int n = max_colour(x);
+	for (int i = 0; i < n; i++) {
+		colour_class_size[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		colour_class_size[x[i]]++;
+	}
+	int ret = 0;
+	for (int i = 0; i < n; i++) {
+		ret -= colour_class_size[i] * colour_class_size[i];
+	}
+	return ret;
+}
+
+bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
+	for (int i = 0; i < adj_list_length[v]; i++) {
+		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
+			return false;
+		}
+	}
+	return true;  // If no such i can be found then the assignment is valid
+}
+
 int d(int * x, int * y) {  // Returns the hamming distance between two colourings
 	int ret = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] != y[i]) {
 			ret++;
 		}
@@ -111,7 +207,7 @@ float tri_dist(int i, int j, int * dbss, vector<int> * clusters) {  // Calculate
 	return 2 * d_bar_sum({ i }, clusters[j]) / clusters[j].size() - dbss[j] / (clusters[j].size() * clusters[j].size());
 }
 
-void populate_dist_matrix() {  // Populates the distance matrix s.t. d[i][j] = d(cuckoos[i], cuckoos[j])
+void populate_dist_matrix() {  // Populates the distance matrix s.t. dist_matrix[i][j] = d(cuckoos[i], cuckoos[j])
 	for (int i = 0; i < n_pop; i++) {
 		for (int j = 0; j < i; j++) {
 			dist_matrix[i][j] = d(cuckoos[i].cuckoo, cuckoos[j].cuckoo);
@@ -208,16 +304,7 @@ int goal_point() {
 	return gp;
 }
 
-bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
-	for (int i = 0; i < adj_list_length[v]; i++) {
-		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
-			return false;
-		}
-	}
-	return true;  // If no such i can be found then the assignment is valid
-}
-
-int order[NUM_VERTICES];
+int order[num_vertices];
 void generate_cuckoo(int * cuckoo) {  // Populates cuckoo with a random valid colouring
 	// Choose a random ordering of vertices
 	random_shuffle(begin(order), end(order));
@@ -233,40 +320,17 @@ void generate_cuckoo(int * cuckoo) {  // Populates cuckoo with a random valid co
 	}
 }
 
-int K[NUM_VERTICES];
-int length_k;
-void kempe_chain(int c, int d, int v, int * cuckoo) {
-	K[0] = v;
-	length_k = 1;
-	int i = 0;
-	while (i < length_k) {
-		for (int j = 0; j < NUM_VERTICES; j++) {
-			if (adj_matrix[K[i]][j] == 1 && (cuckoo[j] == c || cuckoo[j] == d) && find(begin(K), begin(K) + length_k, j) == begin(K) + length_k) {
-				length_k++;
-				K[length_k] = j;
-			}
-		}
-		i++;
-	}
-}
-
-void get_egg(int * cuckoo, int num_colours, float elr) {  // Populates cuckoo with a random colouring within distance elr of it
-	int num = uniform_int_distribution<int>(0, (int)elr)(seed);
-	uniform_int_distribution<int> random_colour(0, num_colours);
+void get_egg(int * cuckoo, float elr) {  // Populates cuckoo with a random colouring within distance elr of it
+	int num = uniform_int_distribution<int>(0, elr)(seed);
 	for (int i = 0; i < num; i++) {
 		int v = random_vertex(seed);
-		int c = cuckoo[v];
-		int d = random_colour(seed);
-		if (d == c) {
-			d = (d + 1) % num_colours;
-		}
-		kempe_chain(c, d, v, cuckoo);
-		for (int j = 0; j < length_k; j++) {
-			if (cuckoo[K[j]] == c) {
-				cuckoo[K[j]] = d;
-			} else {
-				cuckoo[K[j]] = c;
+		int c = 0;
+		while (true) {
+			if (c != cuckoo[v] && valid(v, c, cuckoo)) {  // Changes num vertices to the smallest valid colour (different to their current one)
+				cuckoo[v] = c;
+				break;
 			}
+			c++;
 		}
 	}
 }
@@ -279,42 +343,65 @@ bool reverse_compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 	return c1.fitness > c2.fitness;
 }
 
-int I[NUM_VERTICES];
+int K[num_vertices];
+int K_length;
+void kempe_chain(int c, int d, int v, int * cuckoo) {
+	bool in_chain[num_vertices];
+	for (int i = 0; i < num_vertices; i++) {
+		in_chain[i] = false;
+	}
+	K[0] = v;
+	K_length = 1;
+	in_chain[v] = true;
+	int i = 0;
+	while (i < K_length) {
+		for (int j = 0; j < num_vertices; j++) {
+			if (adj_matrix[K[i]][j] == 1 && (cuckoo[j] == c || cuckoo[j] == d) && !in_chain[j]) {
+				in_chain[j] = true;
+				K[K_length] = j;
+				K_length++;
+			}
+		}
+		i++;
+	}
+}
+
+int I[num_vertices];
 void migrate(int * x, int * y) {  // Migrates x towards y
 	float r = uni(seed);
 	// Populate I with all vertices on which x and y disagree
 	int I_length = 0;
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] != y[i]) {
 			I[I_length] = i;
 			I_length++;
 		}
 	}
-	for (int i = 0; i < r * I_length; i++) {  // For a random
+	random_shuffle(begin(I), begin(I) + I_length);
+	for (int i = 0; i < r * I_length; i++) {
 		int v = I[i];
-		// Assign x y's colour for *it
-		x[v] = y[v];
-		// Clean up x
-		for (int j = i + 1; j < I_length; j++) {
-			// For every vertex I[j] in I with I-index j > i that conflicts with v, assign the smallest legal colour different thatn y[I[j]]
-			if (x[I[j]] == x[v] && adj_matrix[I[j]][v] == 1) {//find(edge_list[v].begin(), edge_list[v].end(), j) != edge_list[v].end()) {
-				int c = 0;
-				while (true) {
-					if (c != y[I[j]] && valid(I[j], c, x)) {
-						x[I[j]] = c;
-						break;
-					}
-					c++;
-				}
+		int c = x[v];
+		int d = y[v];
+		kempe_chain(c, d, v, x);
+		for (int j = 0; j < K_length; j++) {
+			if (x[K[j]] == c) {
+				x[K[j]] = d;
+			} else {
+				x[K[j]] = c;
 			}
 		}
 	}
 }
 
+
 int main() {
-	make_graph(0.5);
+	cout << "COA_kempe_enhanced\n";
+	ofstream ofile;
+	ofile.open(results_directory + "le450_5a_coa_enhanced_kempe.txt");
+	//make_graph(0.5);
+	read_graph("le450_5a.col");
 	// Populate order array for generating cuckoos
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
 	}
 	// Generate initial cuckoo population
@@ -322,7 +409,10 @@ int main() {
 		generate_cuckoo(cuckoos[i].cuckoo);
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
-	auto start = chrono::high_resolution_clock::now();
+	start = chrono::high_resolution_clock::now();
+	//int t = 0;
+	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		//t++;
 	for (int t = 0; t < num_iterations; t++) {
 		// Lay eggs
 		int tot_eggs = 0;
@@ -333,10 +423,10 @@ int main() {
 			tot_eggs += num_eggs[i];
 		}
 		for (int i = 0; i < n_pop; i++) {
-			float elr = alpha * (num_eggs[i] / (float)tot_eggs) * NUM_VERTICES;  // Find cuckoo i's elr
+			float elr = alpha * (num_eggs[i] / (float)tot_eggs) * num_vertices;  // Find cuckoo i's elr
 			for (int j = 0; j < num_eggs[i]; j++) {  // Generate num_eggs[i] eggs for cuckoo i and append them to the eggs array
 				copy(begin(cuckoos[i].cuckoo), end(cuckoos[i].cuckoo), begin(eggs[egg].cuckoo));
-				get_egg(eggs[egg].cuckoo, cuckoos[i].fitness, elr);
+				get_egg(eggs[egg].cuckoo, elr);
 				eggs[egg].fitness = f(eggs[egg].cuckoo);
 				egg++;
 			}
@@ -352,7 +442,8 @@ int main() {
 			}
 			sort(begin(cuckoos), begin(cuckoos) + n_pop, reverse_compare_cuckoos);
 			for (int i = N_MAX - n_pop; i < tot_eggs; i++) {  // Then iteratively replace the worst cuckoo with the best egg (if the egg is indeed better)
-				if (eggs[i].fitness < cuckoos[i - N_MAX + n_pop].fitness) {
+				int d = eggs[i].fitness - cuckoos[i - N_MAX + n_pop].fitness;
+				if (d < 0 || uni(seed) <= exp(-d / T)) {
 					copy(begin(eggs[i].cuckoo), end(eggs[i].cuckoo), begin(cuckoos[i - N_MAX + n_pop].cuckoo));
 					cuckoos[i - N_MAX + n_pop].fitness = eggs[i].fitness;
 				}
@@ -360,7 +451,6 @@ int main() {
 					// Eggs are increasing in fitness value while cuckoos are decreasing
 					// Hence, if we reach a point where a cuckoo has better fitness than an egg, no eggs will ever have a better fitness than any cuckoo from that point so we can exit the loop
 					break;
-
 				}
 			}
 			n_pop = N_MAX;
@@ -372,6 +462,7 @@ int main() {
 				n_pop++;
 			}
 		}
+		T /= beta;
 		// Cluster cuckoos to find goal point
 		int gp = goal_point();
 		// Migrate all cuckoos towards goal point
@@ -380,12 +471,18 @@ int main() {
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+		if (t % 10 == 0) {
+			ofile << num_colours(cuckoos[0].cuckoo) << endl;
+		}
 	}
+	ofile.close();
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
-	for (int i = 0; i < NUM_VERTICES; i++) {
+	for (int i = 0; i < num_vertices; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
-	cout << endl << "Number of colours: " << cuckoos[0].fitness << endl;
-	cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
+	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
+	cout << "Number of conflicts: " << num_conflicts(cuckoos[0].cuckoo) << endl;
+	//cout << "Number of iterations: " << t << endl;
+	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

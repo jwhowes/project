@@ -28,7 +28,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 450;
+const int num_vertices = 300;
 
 struct Cuckoo {
 	int cuckoo[num_vertices];
@@ -418,7 +418,7 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 		}
 		y[I[i]] = c;
 	}
-	impose(x, y);
+	//impose(x, y);
 	random_shuffle(begin(I), begin(I) + I_length);
 	for (int i = 0; i < r * I_length; i++) {  // For a random
 		int v = I[i];
@@ -442,11 +442,11 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
-	cout << "COA_deviation\n";
+	cout << "COA_d_m_deviation\n";
 	ofstream ofile;
-	ofile.open(results_directory + "le450_5a_coa_deviation.txt");
+	ofile.open(results_directory + "flat300_26_coa_deviation.txt");
 	//make_graph(0.5);
-	read_graph("le450_5a.col");
+	read_graph("flat300_26.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;

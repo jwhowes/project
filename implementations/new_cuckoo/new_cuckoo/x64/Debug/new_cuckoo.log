@@ -5,5 +5,5 @@ c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\new_cuckoo\new_cuckoo\new_cuckoo.cpp(344): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\new_cuckoo\new_cuckoo\new_cuckoo.cpp(357): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\new_cuckoo\new_cuckoo\new_cuckoo.cpp(365): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\new_cuckoo\new_cuckoo\new_cuckoo.cpp(466): warning C4101: 'cuckoo_sum_distance': unreferenced local variable
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\new_cuckoo\new_cuckoo\new_cuckoo.cpp(469): warning C4101: 'cuckoo_sum_distance': unreferenced local variable
   new_cuckoo.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\new_cuckoo\x64\Debug\new_cuckoo.exe

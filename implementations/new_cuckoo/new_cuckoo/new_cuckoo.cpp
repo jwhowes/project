@@ -363,6 +363,9 @@ int tabucol(int * colouring) {
 		return f(colouring);
 	}
 	tabucol_iterations = 10 * k * num_vertices / (move_p * (k - 1) * num_conflicts(colouring));
+	if (tabucol_iterations < 100) {
+		tabucol_iterations = 100;
+	}
 	for (int i = 0; i < num_vertices; i++) {
 		for (int j = 0; j < k; j++) {
 			tabu_list[i][j] = 0;
@@ -479,10 +482,8 @@ int main(){
 		// Each cukoo creates and lays an egg
 		for (int c = 0; c < num_cuckoos; c++) {
 			int n = random_nest(seed);
-			//int e = random_egg(seed);
 			gpx_nest(nest_egg, n);
 			gpx2(egg_temp, nest_egg, cuckoos[c].col);
-			//gpx2(egg_temp, cuckoos[c].col, nests[n][e].col);
 			int egg_fitness = tabucol(egg_temp);
 			int max_fitness = 0;
 			for (int i = 1; i < eggs_per_nest; i++) {

@@ -1,4 +1,5 @@
 #define _SECURE_SCL 0
+#define _USE_MATH_DEFINES
 #define N_MAX 50
 
 // Time taken (full parameters):
@@ -60,6 +61,7 @@ Cuckoo eggs[N_MAX * max_eggs];
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
+uniform_real_distribution<float> angle(0, M_PI / 6);
 uniform_int_distribution<int> random_vertex(0, num_vertices - 1);
 uniform_int_distribution<int> random_egg_num(min_eggs, max_eggs);
 
@@ -157,80 +159,6 @@ int f(int * x) {
 	return ret;
 }
 
-int D[num_vertices][num_vertices];
-int px[num_vertices][num_vertices];
-int px_length[num_vertices];
-int py[num_vertices][num_vertices];
-int py_length[num_vertices];
-int min_D[num_vertices];
-int mapping[num_vertices];
-int colours[num_vertices];
-bool taken[num_vertices];
-
-bool compare_classes(int c1, int c2) {
-	return min_D[c1] < min_D[c2];
-}
-
-void create_mapping(int * x, int * y) {
-	int k = max_colour(x) + 1;
-	int k_2 = max_colour(y) + 1;
-	if (k_2 > k) {
-		k = k_2;
-	}
-	for (int i = 0; i < k; i++) {
-		min_D[i] = -1;
-		colours[i] = i;
-		px_length[i] = 0;
-		py_length[i] = 0;
-	}
-	for (int i = 0; i < num_vertices; i++) {
-		px_length[x[i]]++;
-		py_length[y[i]]++;
-	}
-	for (int i = 0; i < k; i++) {
-		taken[i] = false;
-		for (int j = 0; j < k; j++) {
-			D[j][i] = px_length[i] + py_length[j];
-		}
-	}
-	for (int i = 0; i < num_vertices; i++) {
-		D[y[i]][x[i]] -= 2;
-		if (min_D[x[i]] == -1 || D[y[i]][x[i]] < min_D[x[i]]) {
-			min_D[x[i]] = D[y[i]][x[i]];
-		}
-	}
-	sort(begin(colours), begin(colours) + k, compare_classes);
-	for (int i = 0; i < k; i++) {
-		int c = colours[i];
-		int min = -1;
-		for (int j = 0; j < k; j++) {
-			if (!taken[j] && (min == -1 || D[c][j] < D[c][min])) {
-				min = j;
-			}
-		}
-		mapping[c] = min;
-		taken[min] = true;
-	}
-}
-
-int d(int * x, int * y) {
-	create_mapping(x, y);
-	int d = 0;
-	for (int i = 0; i < num_vertices; i++) {
-		if (mapping[x[i]] != y[i]) {
-			d++;
-		}
-	}
-	return d;
-}
-
-void impose(int * x, int * y) {
-	create_mapping(x, y);
-	for (int i = 0; i < num_vertices; i++) {
-		x[i] = mapping[x[i]];
-	}
-}
-
 bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be coloured colour c in colouring col (legally)
 	for (int i = 0; i < adj_list_length[v]; i++) {
 		if (col[adj_list[v][i]] == c) {  // If v is adjacent to some vertex i coloured c then this is not a valid assignment
@@ -240,7 +168,7 @@ bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be
 	return true;  // If no such i can be found then the assignment is valid
 }
 
-/*int d(int * x, int * y) {  // Returns the hamming distance between two colourings
+int d(int * x, int * y) {  // Returns the hamming distance between two colourings
 	int ret = 0;
 	for (int i = 0; i < num_vertices; i++) {
 		if (x[i] != y[i]) {
@@ -248,7 +176,7 @@ bool valid(int v, int c, int * col) {  // Returns whether or not vertex v can be
 		}
 	}
 	return ret;
-}*/
+}
 
 int d_bar_sum(vector<int> S1, vector<int> & S2) {  // Calculates d_bar between two clusters S1 and S2
 	// Doesn't divide by clusters size to make changing clusters more efficient
@@ -407,7 +335,8 @@ bool reverse_compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 int I[num_vertices];
 void migrate(int * x, int * y) {  // Migrates x towards y
 	float r = uni(seed);
-	impose(x, y);
+	float phi = angle(seed);
+	int distance = d(x, y) * sqrt(1 + r * r - 2 * r * cos(phi));
 	// Populate I with all vertices on which x and y disagree
 	int I_length = 0;
 	for (int i = 0; i < num_vertices; i++) {
@@ -415,6 +344,14 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 			I[I_length] = i;
 			I_length++;
 		}
+	}
+	random_shuffle(begin(I), begin(I) + I_length);
+	for (int i = 0; i < distance; i++) {
+		int c = 0;
+		while (!(valid(I[i], c, y) && c != y[I[i]] && c != x[I[i]])) {
+			c++;
+		}
+		y[I[i]] = c;
 	}
 	random_shuffle(begin(I), begin(I) + I_length);
 	for (int i = 0; i < r * I_length; i++) {  // For a random
@@ -439,9 +376,9 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
-	cout << "COA_imposed\n";
+	cout << "COA_enhanced_ast\n";
 	ofstream ofile;
-	ofile.open(results_directory + "le450_5a_coa_imposed.txt");
+	ofile.open(results_directory + "le450_5a_coa_enhanced_ast.txt");
 	//make_graph(0.5);
 	read_graph("le450_5a.col");
 	// Populate order array for generating cuckoos
@@ -508,9 +445,11 @@ int main() {
 		T /= beta;
 		// Cluster cuckoos to find goal point
 		int gp = goal_point();
+		int mp[num_vertices];
 		// Migrate all cuckoos towards goal point
 		for (int i = 0; i < n_pop; i++) {
-			migrate(cuckoos[i].cuckoo, cuckoos[gp].cuckoo);
+			copy(begin(cuckoos[gp].cuckoo), end(cuckoos[gp].cuckoo), begin(mp));
+			migrate(cuckoos[i].cuckoo, mp);
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
