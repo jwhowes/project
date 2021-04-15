@@ -20,7 +20,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 300;
+const int num_vertices = 500;
 int adj_matrix[num_vertices][num_vertices];
 int adj_list[num_vertices][num_vertices];
 int adj_list_length[num_vertices];
@@ -662,8 +662,8 @@ void update_ref_set() {
 int main() {
 	cout << "CSACO_refset\n";
 	ofstream ofile;
-	ofile.open(results_directory + "flat300_26_csaco_refset2.1r.txt");
-	read_graph("flat300_26.col");
+	ofile.open(results_directory + "dsjc500.5_csaco_refset.txt");
+	read_graph("dsjc500.5.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -686,10 +686,10 @@ int main() {
 	int nest_temp[num_vertices];
 	int eta_temp[num_vertices];
 	auto start = chrono::high_resolution_clock::now();
-	int t = 0;
-	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-	//for (int t = 0; t < num_iterations; t++) {
-		t++;
+	//int t = 0;
+	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	for (int t = 0; t < num_iterations; t++) {
+		//t++;
 		// Reset d_tau
 		for (int i = 0; i < num_vertices; i++) {
 			for (int j = 0; j < num_vertices; j++) {
@@ -763,9 +763,10 @@ int main() {
 			get_cuckoo(nests[num_nests - i - 1].nest, nests[num_nests - i - 1].eta);
 			nests[num_nests - i - 1].fitness = f(nests[num_nests - i - 1].nest);
 		}
-		//if (t % 10 == 0) {
-		//	ofile << num_colours(best_colouring) << endl;
-		//}
+		if (t % 10 == 0) {
+			ofile << num_colours(best_colouring) << endl;
+			//ofile << diversity() << endl;
+		}
 	}
 	ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
@@ -773,7 +774,7 @@ int main() {
 	}
 	cout << endl << "Number of colours: " << num_colours(best_colouring) << endl;
 	cout << "Number of conflicts: " << num_conflicts(best_colouring) << endl;
-	cout << "Number of iterations: " << t << endl;
-	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	//cout << "Number of iterations: " << t << endl;
+	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

@@ -19,7 +19,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
 int k;
-const int num_vertices = 250;
+const int num_vertices = 300;
 int m = 0;
 
 int adj_matrix[num_vertices][num_vertices];/* = {
@@ -38,7 +38,7 @@ int adj_matrix[num_vertices][num_vertices];/* = {
 const int num_particles = 50;
 const int num_iterations = 3000;
 chrono::time_point<chrono::steady_clock> start;
-const auto duration = chrono::minutes{2};
+const auto duration = chrono::minutes{5};
 
 const float w = 0.05;
 const float c1 = 7;
@@ -171,6 +171,7 @@ int num_colours(int * x) {
 	return num;
 }
 
+int global_t;
 bool find_colouring() {
 	// Generate initial population
 	float g_fitness = 0;
@@ -184,6 +185,7 @@ bool find_colouring() {
 	}
 	// Begin main loop
 	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
+		global_t++;
 		for (int i = 0; i < num_particles; i++) {
 			float r1 = uni(seed);
 			float r2 = uni(seed);
@@ -222,8 +224,9 @@ bool find_colouring() {
 }
 
 int main(){  // Could probably precompute some fitness values (not as many as in coa but still could)
+	cout << "PSO\n";
 	//make_graph(0.5);
-	read_graph("dsjc250.5.col");
+	read_graph("flat300_26.col");
 	// Calculate number of edges
 	for (int i = 0; i < num_vertices; i++) {
 		for (int j = 0; j < i; j++) {
@@ -231,11 +234,11 @@ int main(){  // Could probably precompute some fitness values (not as many as in
 		}
 	}
 	k = chromatic_bound();
+	global_t = 0;
 	random_colour = uniform_int_distribution<int>(0, k - 1);
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
 	while (found_colouring) {
-		cout << k + 1 << endl;
 		found_colouring = find_colouring();
 		k = num_colours(colouring) - 1;
 		random_colour = uniform_int_distribution<int>(0, k - 1);
@@ -245,6 +248,7 @@ int main(){  // Could probably precompute some fitness values (not as many as in
 	}
 	cout << endl << "Number of colours: " << num_colours(colouring) << endl;
 	cout << "Number of conflicts: " << num_conflicts(colouring) << endl;
+	cout << "Number of iterations: " << global_t << endl;
 	//cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
 	return 0;
 }

@@ -249,15 +249,16 @@ int num_colours(int * x) {
 
 int t;
 int global_t;
-ofstream ofile;
+//ofstream ofile;
 bool find_colouring() {
 	generate_initial_solution();
 	populate_gamma();
-	while(global_t < num_iterations){
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	//while(global_t < num_iterations){
 		make_move(t);
-		if (global_t % 10 == 0) {
-			ofile << num_colours(colouring) << endl;
-		}
+		//if (global_t % 10 == 0) {
+		//	ofile << num_colours(colouring) << endl;
+		//}
 		t++;
 		global_t++;
 		if (f(s) == 0) {
@@ -271,7 +272,7 @@ bool find_colouring() {
 int main(){
 	cout << "TABUCOL\n";
 	read_graph("flat300_26.col");
-	ofile.open(results_directory + "flat300_26_tabucol.txt");
+	//ofile.open(results_directory + "flat300_26_tabucol.txt");
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;
 	start = chrono::high_resolution_clock::now();
@@ -281,10 +282,12 @@ int main(){
 		found_colouring = find_colouring();
 		k = num_colours(colouring) - 1;
 	}
+	//ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << colouring[i] << " ";
 	}
 	cout << endl << "Number of conflicts: " << f(colouring) << endl;
 	cout << "Number of colours: " << num_colours(colouring) << endl;
+	cout << "Number of iterations: " << global_t << endl;
 	return 0;
 }

@@ -46,7 +46,7 @@ const int alpha = 2;
 const int num_iterations = 3000;
 chrono::time_point<chrono::steady_clock> start;
 const auto duration = chrono::minutes{ 5 };
-const float p = 0.1;
+const float p = 0.4;
 const int min_eggs = 5;
 const int max_eggs = 20;
 
@@ -418,7 +418,7 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 		}
 		y[I[i]] = c;
 	}
-	//impose(x, y);
+	impose(x, y);
 	random_shuffle(begin(I), begin(I) + I_length);
 	for (int i = 0; i < r * I_length; i++) {  // For a random
 		int v = I[i];
@@ -442,9 +442,9 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
-	cout << "COA_d_m_deviation\n";
-	ofstream ofile;
-	ofile.open(results_directory + "flat300_26_coa_deviation.txt");
+	cout << "COA_imposed_deviation\n";
+	//ofstream ofile;
+	//ofile.open(results_directory + "flat300_26_coa_imposed_deviation.txt");
 	//make_graph(0.5);
 	read_graph("flat300_26.col");
 	// Populate order array for generating cuckoos
@@ -457,10 +457,10 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	start = chrono::high_resolution_clock::now();
-	//int t = 0;
-	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-	for (int t = 0; t < num_iterations; t++) {
-		//t++;
+	int t = 0;
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	//for (int t = 0; t < num_iterations; t++) {
+		t++;
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -520,18 +520,19 @@ int main() {
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-		if (t % 10 == 0) {
-			ofile << num_colours(cuckoos[0].cuckoo) << endl;
-		}
+		//if (t % 10 == 0) {
+			//ofile << num_colours(cuckoos[0].cuckoo) << endl;
+			//ofile << diversity() << endl;
+		//}
 	}
-	ofile.close();
+	//ofile.close();
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < num_vertices; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
 	cout << "Number of conflicts: " << num_conflicts(cuckoos[0].cuckoo) << endl;
-	//cout << "Number of iterations: " << t << endl;
-	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	cout << "Number of iterations: " << t << endl;
+	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

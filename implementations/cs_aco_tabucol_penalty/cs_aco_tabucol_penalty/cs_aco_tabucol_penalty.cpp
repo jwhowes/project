@@ -28,36 +28,14 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 450;
-int adj_matrix[num_vertices][num_vertices];/* = {
-	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
-	{1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-	{0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
-	{0, 0, 1, 0, 1, 0, 0, 0, 1, 0},
-	{1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 1, 1, 0},
-	{0, 1, 0, 0, 0, 0, 0, 0, 1, 1},
-	{0, 0, 1, 0, 0, 1, 0, 0, 0, 1},
-	{0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
-	{0, 0, 0, 0, 1, 0, 1, 1, 0, 0}
-};*/
-int adj_list[num_vertices][num_vertices];/* = {
-	{1, 4, 5, 0, 0, 0, 0, 0, 0, 0},
-	{0, 2, 6, 0, 0, 0, 0, 0, 0, 0},
-	{1, 3, 7, 0, 0, 0, 0, 0, 0, 0},
-	{2, 4, 8, 0, 0, 0, 0, 0, 0, 0},
-	{0, 3, 9, 0, 0, 0, 0, 0, 0, 0},
-	{0, 7, 8, 0, 0, 0, 0, 0, 0, 0},
-	{1, 8, 9, 0, 0, 0, 0, 0, 0, 0},
-	{2, 5, 9, 0, 0, 0, 0, 0, 0, 0},
-	{3, 5, 6, 0, 0, 0, 0, 0, 0, 0},
-	{4, 6, 7, 0, 0, 0, 0, 0, 0, 0}
-};*/
-int adj_list_length[num_vertices];// = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+const int num_vertices = 300;
+int adj_matrix[num_vertices][num_vertices];
+int adj_list[num_vertices][num_vertices];
+int adj_list_length[num_vertices];
 int k;
 
 const int num_iterations = 3000;
-const auto duration = chrono::minutes{60};
+const auto duration = chrono::minutes{5};
 
 const int num_nests = 50;
 const float pa = 0.1;
@@ -140,6 +118,91 @@ void read_graph(string filename) {
 		exit(1);
 	}
 	file.close();
+}
+
+int max_colour(int * x) {
+	int m = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (x[i] > m) {
+			m = x[i];
+		}
+	}
+	return m;
+}
+
+int D[num_vertices][num_vertices];
+int px[num_vertices][num_vertices];
+int px_length[num_vertices];
+int py[num_vertices][num_vertices];
+int py_length[num_vertices];
+int min_D[num_vertices];
+int mapping[num_vertices];
+int colours[num_vertices];
+bool taken[num_vertices];
+
+bool compare_classes(int c1, int c2) {
+	return min_D[c1] < min_D[c2];
+}
+
+int distance(int * x, int * y) {
+	int k = max_colour(x) + 1;
+	int k_2 = max_colour(y) + 1;
+	if (k_2 > k) {
+		k = k_2;
+	}
+	for (int i = 0; i < k; i++) {
+		min_D[i] = -1;
+		colours[i] = i;
+		px_length[i] = 0;
+		py_length[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		px_length[x[i]]++;
+		py_length[y[i]]++;
+	}
+	for (int i = 0; i < k; i++) {
+		taken[i] = false;
+		for (int j = 0; j < k; j++) {
+			D[j][i] = px_length[i] + py_length[j];
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		D[y[i]][x[i]] -= 2;
+		if (min_D[x[i]] == -1 || D[y[i]][x[i]] < min_D[x[i]]) {
+			min_D[x[i]] = D[y[i]][x[i]];
+		}
+	}
+	sort(begin(colours), begin(colours) + k, compare_classes);
+	for (int i = 0; i < k; i++) {
+		int c = colours[i];
+		int min = -1;
+		for (int j = 0; j < k; j++) {
+			if (!taken[j] && (min == -1 || D[c][j] < D[c][min])) {
+				min = j;
+			}
+		}
+		mapping[c] = min;
+		taken[min] = true;
+	}
+	int d = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (mapping[x[i]] != y[i]) {
+			d++;
+		}
+	}
+	return d;
+}
+
+float diversity() {
+	float tot_div = 0;
+	for (int i = 0; i < num_nests; i++) {
+		int div = 0;
+		for (int j = 0; j < num_nests; j++) {
+			div += distance(nests[i].nest, nests[j].nest);
+		}
+		tot_div += div;
+	}
+	return tot_div / (num_nests * num_nests);
 }
 
 bool found[num_vertices];
@@ -467,9 +530,9 @@ int tabucol(int * colouring) {
 
 int main() {
 	cout << "CSACO_enhanced\n";
-	ofstream ofile;
-	ofile.open(results_directory + "le450_5a_csaco_tabucol.txt");
-	read_graph("le450_5a.col");
+	//ofstream ofile;
+	//ofile.open(results_directory + "flat300_26_csaco_tabucol_div.txt");
+	read_graph("flat300_26.col");
 	//make_graph(0.5);
 	int u = 0;
 	for (int i = 1; i < num_vertices; i++) {
@@ -487,10 +550,10 @@ int main() {
 	int nest_temp[num_vertices];
 	int eta_temp[num_vertices];
 	auto start = chrono::high_resolution_clock::now();
-	//int t = 0;
-	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-	for(int t = 0; t < num_iterations; t++){
-		//t++;
+	int t = 0;
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	//for(int t = 0; t < num_iterations; t++){
+		t++;
 		//auto start2 = chrono::high_resolution_clock::now();
 		// Reset d_tau
 		for (int i = 0; i < num_vertices; i++) {
@@ -536,17 +599,18 @@ int main() {
 			nests[num_nests - i - 1].fitness = f(nests[num_nests - i - 1].nest);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start2).count() << endl;
-		if (t % 10 == 0) {
-			ofile << num_colours(best_colouring) <<  endl;
-		}
+		//if (t % 10 == 0) {
+			//ofile << num_colours(best_colouring) <<  endl;
+		//	ofile << diversity() << endl;
+		//}
 	}
-	ofile.close();
+	//ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_colouring[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(best_colouring) << endl;
 	cout << "Number of conflicts: " << num_conflicts(best_colouring) << endl;
-	//cout << "Number of iterations: " << t << endl;
-	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	cout << "Number of iterations: " << t << endl;
+	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

@@ -25,7 +25,7 @@ using namespace boost::random;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 
-const int num_vertices = 250;
+const int num_vertices = 300;
 
 int adj_matrix[num_vertices][num_vertices];/* = {
 	{0, 1, 0, 0, 1, 1, 0, 0, 0, 0},
@@ -155,7 +155,7 @@ float eta(int ant, int v) {
 
 int main(){
 	cout << "ACO\n";
-	read_graph("dsjc250.5.col");
+	read_graph("flat300_26.col");
 	int best[num_vertices];
 	int f_best;
 	float weight[num_vertices];

@@ -13,7 +13,7 @@ using namespace std;
 using namespace boost::random;
 
 const int num_vertices = 300;
-int k = 3;
+int k;
 
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
@@ -78,6 +78,79 @@ mt19937 seed;
 uniform_int_distribution<int> random_colour;// (0, k - 1);
 uniform_real_distribution<float> uni(0, 1);
 uniform_int_distribution<int> random_elite(0, elite_list_size - 1);
+
+int max_colour(int * x) {
+	int m = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (x[i] > m) {
+			m = x[i];
+		}
+	}
+	return m;
+}
+
+int D[num_vertices][num_vertices];
+int px[num_vertices][num_vertices];
+int px_length[num_vertices];
+int py[num_vertices][num_vertices];
+int py_length[num_vertices];
+int min_D[num_vertices];
+int mapping[num_vertices];
+int colours[num_vertices];
+bool taken[num_vertices];
+
+bool compare_classes(int c1, int c2) {
+	return min_D[c1] < min_D[c2];
+}
+
+int distance(int * x, int * y) {
+	int k = max_colour(x) + 1;
+	int k_2 = max_colour(y) + 1;
+	if (k_2 > k) {
+		k = k_2;
+	}
+	for (int i = 0; i < k; i++) {
+		min_D[i] = -1;
+		colours[i] = i;
+		px_length[i] = 0;
+		py_length[i] = 0;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		px_length[x[i]]++;
+		py_length[y[i]]++;
+	}
+	for (int i = 0; i < k; i++) {
+		taken[i] = false;
+		for (int j = 0; j < k; j++) {
+			D[j][i] = px_length[i] + py_length[j];
+		}
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		D[y[i]][x[i]] -= 2;
+		if (min_D[x[i]] == -1 || D[y[i]][x[i]] < min_D[x[i]]) {
+			min_D[x[i]] = D[y[i]][x[i]];
+		}
+	}
+	sort(begin(colours), begin(colours) + k, compare_classes);
+	for (int i = 0; i < k; i++) {
+		int c = colours[i];
+		int min = -1;
+		for (int j = 0; j < k; j++) {
+			if (!taken[j] && (min == -1 || D[c][j] < D[c][min])) {
+				min = j;
+			}
+		}
+		mapping[c] = min;
+		taken[min] = true;
+	}
+	int d = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		if (mapping[x[i]] != y[i]) {
+			d++;
+		}
+	}
+	return d;
+}
 
 int f(int * col) {
 	int num = 0;
@@ -342,15 +415,15 @@ int num_colours(int * x) {
 	return num;
 }
 
-ofstream ofile;
+//ofstream ofile;
 int global_t;
 bool find_colouring() {
 	int temp_agent[num_vertices];
 	generate_agents();
 	generate_elite_list();
 	int t = 0;
-	while(global_t < num_iterations){
-	//while(chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start) < duration){
+	//while(global_t < num_iterations){
+	while(chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start) < duration){
 		for (int a = 0; a < num_agents; a++) {
 			lifespans[a]--;
 			if (lifespans[a] <= 0) {
@@ -365,9 +438,9 @@ bool find_colouring() {
 				}
 			}
 		}
-		if (global_t % 10 == 0) {
-			ofile << num_colours(best_col) << endl;
-		}
+		//if (global_t % 10 == 0) {
+		//	ofile << num_colours(best_col) << endl;
+		//}
 		global_t++;
 		for (int a = 0; a < num_agents; a++) {
 			if(lifespans[a] > 0) {
@@ -418,7 +491,7 @@ int chromatic_bound() {
 
 int main() {
 	cout << "MEA pseudo-reactive\n";
-	ofile.open(results_directory + "flat300_26_mea.txt");
+	//ofile.open(results_directory + "flat300_26_mea.txt");
 	read_graph("flat300_26.col");
 	k = chromatic_bound() - 1;
 	bool found_colouring = true;
@@ -429,10 +502,11 @@ int main() {
 		found_colouring = find_colouring();
 		k = num_colours(best_col) - 1;
 	}
-	ofile.close();
+	//ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_col[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(best_col);
+	cout << endl << "Number of iterations: " << global_t;
 	return 0;
 }

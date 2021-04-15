@@ -17,7 +17,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 500;
+const int num_vertices = 300;
 
 mt19937 seed;
 uniform_real_distribution<float> uni(0, 1);
@@ -181,10 +181,10 @@ void get_neighbour() {  // Copy s into neighbour first
 
 int main(){
 	cout << "SA\n";
-	ofstream ofile;
-	ofile.open(results_directory + "dsjc500.5_sa.txt");
+	//ofstream ofile;
+	//ofile.open(results_directory + "flat300_26_sa.txt");
 	//make_graph(0.5);
-	read_graph("dsjc500.5.col");
+	read_graph("flat300_26.col");
 	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
 	}
@@ -195,10 +195,10 @@ int main(){
 	copy(begin(s), end(s), begin(best_s));
 	best_c = c;
 	int freeze_count = 0;
-	//int t = 0;
-	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration/*freeze_count < freeze_lim*/) {
-	for(int t = 0; t < num_iterations; t++){
-		//t++;
+	int t = 0;
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration/*freeze_count < freeze_lim*/) {
+	//for(int t = 0; t < num_iterations; t++){
+		t++;
 		int changes = 0; int trials = 0;
 		bool best_changed = false;
 		while (trials < size_factor * num_colours(s) * num_vertices && changes < cutoff * num_colours(s) * num_vertices) {  // Maybe make sure the float multiplication is returning a float
@@ -229,16 +229,16 @@ int main(){
 		if (changes / (float)trials < min_percent) {
 			freeze_count++;
 		}
-		if (t % 10 == 0) {
-			ofile << num_colours(s) << endl;
-		}
+		//if (t % 10 == 0) {
+		//	ofile << num_colours(s) << endl;
+		//}
 	}
-	ofile.close();
+	//ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_s[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(best_s) << endl;
-	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-	//cout << "Number of iterations: " << t << endl;
+	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	cout << "Number of iterations: " << t << endl;
 	return 0;
 }

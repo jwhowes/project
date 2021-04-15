@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 250
+#define NUM_VERTICES 300
 #define N_MAX 50
 
 // DON'T FORGET TO ADD A MINIMISE FUNCTION (I think this one needs it)
@@ -363,7 +363,7 @@ int parent_temp[NUM_VERTICES];
 int main() {
 	cout << "COA Full SA\n";
 	//make_graph(0.5);
-	read_graph("r250.5.col");
+	read_graph("flat300_26.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		order[i] = i;
@@ -430,7 +430,7 @@ int main() {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
-	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	cout << "Number of iterations: " << t << endl;
 	return 0;
 }

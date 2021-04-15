@@ -1,5 +1,5 @@
 #define _SECURE_SCL 0
-#define NUM_VERTICES 300
+#define NUM_VERTICES 250
 #define N_MAX 50
 
 // Time taken (full parameters):
@@ -38,9 +38,10 @@ int adj_list_length[NUM_VERTICES];
 
 int n_pop = 5;
 
-const int alpha = 5;
+const int alpha = 2;
 const int num_iterations = 3000;
-const float p = 0.1;
+const auto duration = chrono::minutes{ 5 };
+const float p = 0.4;
 const int min_eggs = 5;
 const int max_eggs = 20;
 
@@ -319,9 +320,9 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 
 int main() {
 	cout << "COA_basic\n";
-	ofstream ofile;
-	ofile.open(results_directory + "flat300_26_coa_basic.txt");
-	read_graph("flat300_26.col");
+	//ofstream ofile;
+	//ofile.open(results_directory + "flat300_26_coa_basic.txt");
+	read_graph("r250.5.col");
 	//make_graph(0.5);
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < NUM_VERTICES; i++) {
@@ -333,7 +334,8 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	auto start = chrono::high_resolution_clock::now();
-	for (int t = 0; t < num_iterations; t++) {
+	int t = 0;
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -388,15 +390,17 @@ int main() {
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-		if (t % 10 == 0) {
-			ofile << cuckoos[0].fitness << endl;
-		}
+		//if (t % 10 == 0) {
+		//	ofile << cuckoos[0].fitness << endl;
+		//}
+		t++;
 	}
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < NUM_VERTICES; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << cuckoos[0].fitness << endl;
-	cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
+	cout << "Number of iterations: " << t << endl;
+	//cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
 	return 0;
 }

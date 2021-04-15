@@ -517,17 +517,17 @@ int num_colours(int * x) {
 }
 
 int t;
-ofstream ofile;
+//ofstream ofile;
 bool find_colouring() {
 	for (int i = 0; i < num_vertices; i++) {
 		colouring[i] = random_colour(seed);
 	}
-	while(t < num_iterations){
-	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+	//while(t < num_iterations){
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
 		tabucol_1();
-		if (t % 10 == 0) {
-			ofile << num_colours(colouring) << endl;
-		}
+		//if (t % 10 == 0) {
+		//	ofile << num_colours(colouring) << endl;
+		//}
 		t++;
 		if (f1(colouring) == 0) {
 			copy(begin(colouring), end(colouring), begin(best_colouring));
@@ -572,7 +572,7 @@ int chromatic_bound() {
 int main(){
 	cout << "VSS\n";
 	read_graph("flat300_26.col");
-	ofile.open(results_directory + "flat300_26_vss.txt");
+	//ofile.open(results_directory + "flat300_26_vss.txt");
 	// Populate order array
 	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
@@ -586,11 +586,12 @@ int main(){
 		found_colouring = find_colouring();
 		k = num_colours(best_colouring) - 1;
 	}
-	ofile.close();
+	//ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_colouring[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(best_colouring) << endl;
-	cout << endl << "Number of conflicts: " << f1(best_colouring) << endl;
+	cout << "Number of conflicts: " << f1(best_colouring) << endl;
+	cout << "Number of iterations: " << t << endl;
 	return 0;
 }

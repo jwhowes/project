@@ -23,7 +23,7 @@ const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_scien
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
 int k;
-const int num_vertices = 300;
+const int num_vertices = 450;
 
 struct Partition {
 	int partition[num_vertices][num_vertices];
@@ -366,8 +366,8 @@ bool find_colouring() {
 		generate_member(population[i]);
 		population[i].fitness = f(population[i]);
 	}
-	//while(t < num_iterations) {
-	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
+	while(t < num_iterations) {
+	//while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration){
 		sort(begin(population), end(population), compare_partitions);
 		F = 0;
 		for (int i = 0; i < pop_size; i++) {
@@ -392,9 +392,9 @@ bool find_colouring() {
 			}
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-		//if (t % 10 == 0) {
-		//	ofile << num_colours(colouring) << endl;
-		//}
+		if (t % 10 == 0) {
+			ofile << num_colours(colouring) << endl;
+		}
 		t++;
 	}
 	return false;
@@ -420,9 +420,9 @@ int chromatic_bound() {
 
 int main() {
 	cout << "GA\n";
-	ofile.open(results_directory + "flat300_26_ga.txt");
+	ofile.open(results_directory + "le450_5a_ga.txt");
 	//make_graph(0.5);
-	read_graph("flat300_26.col");
+	read_graph("le450_5a.col");
 	k = chromatic_bound() - 1;
 	random_colour = uniform_int_distribution<int>(0, k - 1);
 	bool found_colouring = true;

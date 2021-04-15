@@ -20,7 +20,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 450;
+const int num_vertices = 300;
 int adj_matrix[num_vertices][num_vertices];
 int adj_list[num_vertices][num_vertices];
 int adj_list_length[num_vertices];
@@ -28,7 +28,7 @@ int adj_list_length[num_vertices];
 int k;
 
 const int num_iterations = 3000;
-const auto duration = chrono::minutes{ 60 };
+const auto duration = chrono::minutes{ 5 };
 
 const int num_nests = 10;
 const int eggs_per_nest = 5;
@@ -461,9 +461,9 @@ int d(int * x, int * y) {
 
 int main(){
 	cout << "NEW\n";
-	ofstream ofile;
-	ofile.open(results_directory + "le450_5a_new.txt");
-	read_graph("le450_5a.col");
+	//ofstream ofile;
+	//ofile.open(results_directory + "flat300_26_new.txt");
+	read_graph("flat300_26.col");
 	int egg_temp[num_vertices];
 	int nest_egg[num_vertices];
 	int cuckoo_sum_distance[num_vertices];
@@ -478,7 +478,11 @@ int main(){
 		generate_new_egg(cuckoos[i].col);
 		cuckoos[i].fitness = f(cuckoos[i].col);
 	}
-	for (int t = 0; t < num_iterations; t++) {
+	auto start = chrono::high_resolution_clock::now();
+	int t = 0;
+	while (chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		t++;
+	//for (int t = 0; t < num_iterations; t++) {
 		// Each cukoo creates and lays an egg
 		for (int c = 0; c < num_cuckoos; c++) {
 			int n = random_nest(seed);
@@ -528,13 +532,15 @@ int main(){
 			generate_new_egg(cuckoos[worst_cuckoo].col);
 			cuckoos[worst_cuckoo].fitness = f(cuckoos[worst_cuckoo].col);
 		}
-		if (t % 10 == 0) {
-			ofile << num_colours(best_colouring) << endl;
-		}
+		//if (t % 10 == 0) {
+		//	ofile << num_colours(best_colouring) << endl;
+		//}
 	}
+	//ofile.close();
 	for (int i = 0; i < num_vertices; i++) {
 		cout << best_colouring[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(best_colouring) << endl;
 	cout << "Number of conflicts: " << num_conflicts(best_colouring) << endl;
+	cout << "Number of iterations: " << t << endl;
 }

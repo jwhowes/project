@@ -28,7 +28,7 @@ using namespace boost::random;
 const string graph_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/graphs/";
 const string results_directory = "C:/Users/taydo/OneDrive/Documents/computer_science/year3/project/implementations/results/";
 
-const int num_vertices = 450;
+const int num_vertices = 300;
 
 struct Cuckoo {
 	int cuckoo[num_vertices];
@@ -45,7 +45,7 @@ const int alpha = 2;
 const int num_iterations = 3000;
 chrono::time_point<chrono::steady_clock> start;
 const auto duration = chrono::minutes{5};
-const float p = 0.1;
+const float p = 0.4;
 const int min_eggs = 5;
 const int max_eggs = 20;
 
@@ -140,7 +140,7 @@ int max_colour(int * x) {
 			max = x[i];
 		}
 	}
-	return max + 1;
+	return max;
 }
 
 int colour_class_size[num_vertices];
@@ -335,8 +335,8 @@ bool reverse_compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 int I[num_vertices];
 void migrate(int * x, int * y) {  // Migrates x towards y
 	float r = uni(seed);
-	float phi = angle(seed);
-	int distance = d(x, y) * sqrt(1 + r * r - 2 * r * cos(phi));
+	//float phi = angle(seed);
+	//int distance = d(x, y) * sqrt(1 + r * r - 2 * r * cos(phi));
 	// Populate I with all vertices on which x and y disagree
 	int I_length = 0;
 	for (int i = 0; i < num_vertices; i++) {
@@ -345,14 +345,14 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 			I_length++;
 		}
 	}
-	random_shuffle(begin(I), begin(I) + I_length);
+	/*random_shuffle(begin(I), begin(I) + I_length);
 	for (int i = 0; i < distance; i++) {
 		int c = 0;
 		while (!(valid(I[i], c, y) && c != y[I[i]] && c != x[I[i]])) {
 			c++;
 		}
 		y[I[i]] = c;
-	}
+	}*/
 	random_shuffle(begin(I), begin(I) + I_length);
 	for (int i = 0; i < r * I_length; i++) {  // For a random
 		int v = I[i];
@@ -376,11 +376,11 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 }
 
 int main() {
-	cout << "COA_enhanced_ast\n";
-	ofstream ofile;
-	ofile.open(results_directory + "le450_5a_coa_enhanced_ast.txt");
+	cout << "COA_enhanced\n";
+	//ofstream ofile;
+	//ofile.open(results_directory + "flat300_26_coa_deviation.txt");
 	//make_graph(0.5);
-	read_graph("le450_5a.col");
+	read_graph("flat300_26.col");
 	// Populate order array for generating cuckoos
 	for (int i = 0; i < num_vertices; i++) {
 		order[i] = i;
@@ -391,10 +391,10 @@ int main() {
 		cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 	}
 	start = chrono::high_resolution_clock::now();
-	//int t = 0;
-	//while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
-		//t++;
-	for(int t = 0; t < num_iterations; t++){
+	int t = 0;
+	while(chrono::duration_cast<chrono::minutes>(chrono::high_resolution_clock::now() - start) < duration) {
+		t++;
+	//for(int t = 0; t < num_iterations; t++){
 		// Lay eggs
 		int tot_eggs = 0;
 		int egg = 0;
@@ -445,26 +445,27 @@ int main() {
 		T /= beta;
 		// Cluster cuckoos to find goal point
 		int gp = goal_point();
-		int mp[num_vertices];
+		//int mp[num_vertices];
 		// Migrate all cuckoos towards goal point
 		for (int i = 0; i < n_pop; i++) {
-			copy(begin(cuckoos[gp].cuckoo), end(cuckoos[gp].cuckoo), begin(mp));
-			migrate(cuckoos[i].cuckoo, mp);
+			//copy(begin(cuckoos[gp].cuckoo), end(cuckoos[gp].cuckoo), begin(mp));
+			//migrate(cuckoos[i].cuckoo, mp);
+			migrate(cuckoos[i].cuckoo, cuckoos[gp].cuckoo);
 			cuckoos[i].fitness = f(cuckoos[i].cuckoo);
 		}
 		//cout << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
-		if (t % 10 == 0) {
-			ofile << num_colours(cuckoos[0].cuckoo) << endl;
-		}
+		//if (t % 10 == 0) {
+		//	ofile << num_colours(cuckoos[0].cuckoo) << endl;
+		//}
 	}
-	ofile.close();
+	//ofile.close();
 	sort(begin(cuckoos), end(cuckoos), compare_cuckoos);
 	for (int i = 0; i < num_vertices; i++) {
 		cout << cuckoos[0].cuckoo[i] << " ";
 	}
 	cout << endl << "Number of colours: " << num_colours(cuckoos[0].cuckoo) << endl;
 	cout << "Number of conflicts: " << num_conflicts(cuckoos[0].cuckoo) << endl;
-	//cout << "Number of iterations: " << t << endl;
-	cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
+	cout << "Number of iterations: " << t << endl;
+	//cout << "Time taken (ms): " << chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

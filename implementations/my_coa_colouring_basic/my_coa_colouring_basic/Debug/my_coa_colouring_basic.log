@@ -1,13 +1,13 @@
 ﻿  my_coa_colouring_basic.cpp
   Unknown compiler version - please run the configure tests and report the results
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(43): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(128): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(44): warning C4305: 'initializing': truncation from 'double' to 'float'
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(129): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(140): warning C4244: 'return': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(173): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(206): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(209): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(221): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(232): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(356): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(130): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(141): warning C4244: 'return': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(174): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(207): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(210): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(222): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(233): warning C4018: '<': signed/unsigned mismatch
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(358): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
   my_coa_colouring_basic.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\my_coa_colouring_basic\Debug\my_coa_colouring_basic.exe
