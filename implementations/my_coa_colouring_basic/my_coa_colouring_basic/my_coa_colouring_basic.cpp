@@ -40,7 +40,7 @@ int n_pop = 5;
 
 const int alpha = 2;
 const int num_iterations = 3000;
-const auto duration = chrono::minutes{ 5 };
+const auto duration = chrono::minutes{ 1 };
 const float p = 0.4;
 const int min_eggs = 5;
 const int max_eggs = 20;
@@ -286,7 +286,20 @@ bool reverse_compare_cuckoos(Cuckoo & c1, Cuckoo & c2) {
 	return c1.fitness > c2.fitness;
 }
 
-int I[NUM_VERTICES];
+void migrate(int * x, int * y) {
+	float r = uni(seed);
+	int i = 0;
+	int num = 0;
+	while (num < r * d(x, y) && i < NUM_VERTICES) {
+		if (x[i] != y[i]) {
+			num++;
+			x[i] = y[i];
+		}
+		i++;
+	}
+}
+
+/*int I[NUM_VERTICES];
 void migrate(int * x, int * y) {  // Migrates x towards y
 	float r = uni(seed);
 	// Populate I with all vertices on which x and y disagree
@@ -316,6 +329,18 @@ void migrate(int * x, int * y) {  // Migrates x towards y
 			}
 		}
 	}
+}*/
+
+int num_conflicts(int * nest) {
+	int num = 0;
+	for (int i = 0; i < NUM_VERTICES; i++) {
+		for (int j = 0; j < i; j++) {
+			if (adj_matrix[i][j] == 1 && nest[i] == nest[j]) {
+				num++;
+			}
+		}
+	}
+	return num;
 }
 
 int main() {
@@ -401,6 +426,7 @@ int main() {
 	}
 	cout << endl << "Number of colours: " << cuckoos[0].fitness << endl;
 	cout << "Number of iterations: " << t << endl;
+	cout << "Number of conflicts: " << num_conflicts(cuckoos[0].cuckoo) << endl;
 	//cout << "Time taken (seconds): " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() / (float)1000000 << endl;
 	return 0;
 }

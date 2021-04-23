@@ -96,6 +96,21 @@ void set(int * nest, int * replacement) {
 	}
 }
 
+bool found[num_vertices];
+int num_colours(int * x) {
+	int num = 0;
+	for (int i = 0; i < num_vertices; i++) {
+		found[i] = false;
+	}
+	for (int i = 0; i < num_vertices; i++) {
+		if (!found[x[i]]) {
+			found[x[i]] = true;
+			num++;
+		}
+	}
+	return num;
+}
+
 int main(){
 	get_graph(0.5);
 	int u_1[num_vertices];
@@ -127,6 +142,7 @@ int main(){
 	for (int i = 0; i < num_vertices; i++) {
 		cout << nests[0][i] << " ";
 	}
-	cout << endl << "Time taken: " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count();
+	cout << endl << "Number of colours: " << num_colours(nests[0]) << endl;
+	cout << "Time taken: " << chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - start).count() << endl;
 	return 0;
 }

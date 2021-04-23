@@ -9,5 +9,5 @@ c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(210): warning C4018: '<': signed/unsigned mismatch
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(222): warning C4018: '<': signed/unsigned mismatch
 c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(233): warning C4018: '<': signed/unsigned mismatch
-c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(358): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+c:\users\taydo\onedrive\documents\computer_science\year3\project\implementations\my_coa_colouring_basic\my_coa_colouring_basic\my_coa_colouring_basic.cpp(383): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
   my_coa_colouring_basic.vcxproj -> C:\Users\taydo\OneDrive\Documents\computer_science\year3\project\implementations\my_coa_colouring_basic\Debug\my_coa_colouring_basic.exe
